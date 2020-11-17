@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "NotificationsQueueProcessor": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 32693,
+      "useSSL": false
+    }
+  }
+}
