@@ -7,10 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  Integration Build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -18,7 +16,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Restore Packages
-      run: dotnet restore --configfile nuget.config
+      run: dotnet restore NotificationService/NotificationService.sln --configfile nuget.config
     - name: Build Solution
       run: dotnet build NotificationService/NotificationService.sln --configuration Release --no-restore
     - name: Execute Unit Tests
