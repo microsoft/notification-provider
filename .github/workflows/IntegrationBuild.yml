@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Restore Packages
-      run: dotnet restore NotificationService/NotificationService.sln --configfile nuget.config
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet restore --configfile nuget.config
+    - name: Build Solution
+      run: dotnet build NotificationService/NotificationService.sln --configuration Release --no-restore
+    - name: Execute Unit Tests
+      run: dotnet test NotificationService/NotificationService.sln --no-build  --configuration Release
