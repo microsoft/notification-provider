@@ -1,0 +1,23 @@
+name: Integration Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  IntegrationBuild:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Restore Packages
+      run: dotnet restore NotificationService/NotificationService.sln --configfile nuget.config
+    - name: Build Solution
+      run: dotnet build NotificationService/NotificationService.sln --configuration Release --no-restore
+    - name: Execute Unit Tests
+      run: dotnet test NotificationService/NotificationService.sln --no-build  --configuration Release
