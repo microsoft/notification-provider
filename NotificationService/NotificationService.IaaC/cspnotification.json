@@ -1,0 +1,909 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account that you wish to create."
+      }
+    },
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the function app that you wish to create."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "D1",
+        "F1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P1V2",
+        "P2V2",
+        "P3V2",
+        "I1",
+        "I2",
+        "I3",
+        "Y1"
+      ],
+      "defaultValue": "S1",
+      "metadata": {
+        "description": "The pricing tier for the hosting plan."
+      }
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The instance size of the hosting plan (small, medium, or large)."
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS"
+      ],
+      "metadata": {
+        "description": "Storage Account type"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "funcApp_Authority": {
+      "type": "string",
+      "defaultValue": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47",
+      "metadata": {
+        "description": "Authority used by func app"
+      }
+    },
+
+    "funcApp_ClientId": {
+      "type": "string",
+      "defaultValue": "funcApp_ClientId",
+      "metadata": {
+        "description": "ClientId used by func app"
+      }
+    },
+    "funcApp_ClientSecret": {
+      "type": "string",
+      "defaultValue": "funcApp_ClientSecret",
+      "metadata": {
+        "description": "ClientSecret used by func app"
+      }
+    },
+    "funcApp_NotificationServiceEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "NotificationServiceEndpoint"
+      }
+    },
+    "BearerTokenAuthenticationAuthority": {
+      "type": "string",
+      "defaultValue": "https://login.microsoftonline.com/microsoft.onmicrosoft.com",
+      "metadata": {
+        "description": "BearerTokenAuthenticationAuthority"
+      }
+    },
+    "BearerTokenAuthenticationIssuer": {
+      "type": "string",
+      "defaultValue": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+      "metadata": {
+        "description": "BearerTokenAuthenticationIssuer"
+      }
+    },
+    "BearerTokenAuthenticationValidAudiences": {
+      "type": "string",
+      "metadata": {
+        "description": "BearerTokenAuthenticationValidAudiences"
+      }
+    },
+    "CosmosDBContainer": {
+      "type": "string",
+      "defaultValue": "CosmosDBContainer",
+      "metadata": {
+        "description": "CosmosDBContainer"
+      }
+    },
+    "CosmosDBDatabase": {
+      "type": "string",
+      "defaultValue": "CosmosDBDatabase",
+      "metadata": {
+        "description": "CosmosDBDatabase"
+      }
+    },
+    "CosmosDBKey": {
+      "type": "string",
+      "defaultValue": "CosmosDBKey",
+      "metadata": {
+        "description": "CosmosDBKey"
+      }
+    },
+    "CosmosDBUri": {
+      "type": "string",
+      "defaultValue": "CosmosDBUri",
+      "metadata": {
+        "description": "CosmosDBUri"
+      }
+    },
+    "EnvironmentType": {
+      "type": "string",
+      "defaultValue": "EnvironmentType",
+      "metadata": {
+        "description": "EnvironmentType"
+      }
+    },
+    "InstrumentationKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "InstrumentationKey"
+      }
+    },
+    "ComponentId": {
+      "type": "string",
+      "defaultValue": "__ComponentId__",
+      "metadata": {
+        "description": "ComponentId"
+      }
+    },
+    "ComponentName": {
+      "type": "string",
+      "defaultValue": "__ComponentName__",
+      "metadata": {
+        "description": "ComponentName"
+      }
+    },
+    "Service": {
+      "type": "string",
+      "defaultValue": "__Service__",
+      "metadata": {
+        "description": "Service"
+      }
+    },
+    "ServiceLine": {
+      "type": "string",
+      "defaultValue": "__ServiceLine__",
+      "metadata": {
+        "description": "ServiceLine"
+      }
+    },
+    "ServiceOffering": {
+      "type": "string",
+      "defaultValue": "__ServiceOffering__",
+      "metadata": {
+        "description": "ServiceOffering"
+      }
+    },
+    "TraceLevel": {
+      "type": "string",
+      "defaultValue": "Information",
+      "metadata": {
+        "description": "TraceLevel"
+      }
+    },
+    "KeyVaultClientId": {
+      "type": "string",
+      "defaultValue": "KeyVaultClientId",
+      "metadata": {
+        "description": "KeyVaultClientId"
+      }
+    },
+    "KeyVaultClientSecret": {
+      "type": "string",
+      "defaultValue": "KeyVaultClientSecret",
+      "metadata": {
+        "description": "KeyVaultClientSecret"
+      }
+    },
+    "KeyVaultSecretUri": {
+      "type": "string",
+      "defaultValue": "KeyVaultSecretUri",
+      "metadata": {
+        "description": "KeyVaultSecretUri"
+      }
+    },
+    "MaxRetries": {
+      "type": "string",
+      "defaultValue": "2",
+      "metadata": {
+        "description": "MaxRetries"
+      }
+    },
+    "TransientRetryCount": {
+      "type": "string",
+      "defaultValue": "__TransientRetryCount__",
+      "metadata": {
+        "description": "TransientRetryCount"
+      }
+    },
+    "MSGraphSettingAPIVersion": {
+      "type": "string",
+      "defaultValue": "v1.0",
+      "metadata": {
+        "description": "MSGraphSettingAPIVersion"
+      }
+    },
+    "MSGraphSettingAuthority": {
+      "type": "string",
+      "defaultValue": "https://login.windows.net/{0}",
+      "metadata": {
+        "description": "MSGraphSettingAuthority"
+      }
+    },
+    "MSGraphSettingBatchRequestLimit": {
+      "type": "string",
+      "defaultValue": "4",
+      "metadata": {
+        "description": "MSGraphSettingBatchRequestLimit"
+      }
+    },
+    "MSGraphSettingBatchRequestUrl": {
+      "type": "string",
+      "defaultValue": "$batch",
+      "metadata": {
+        "description": "MSGraphSettingBatchRequestUrl"
+      }
+    },
+    "MSGraphSettingClientId": {
+      "type": "string",
+      "defaultValue": "MSGraphSettingClientId",
+      "metadata": {
+        "description": "MSGraphSettingClientId"
+      }
+    },
+    "MSGraphSettingClientCredential": {
+      "type": "string",
+      "defaultValue": "MSGraphSettingClientCredential",
+      "metadata": {
+        "description": "MSGraphSetting"
+      }
+    },
+    "MSGraphSettingEnableBatching": {
+      "type": "string",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "MSGraphSettingEnableBatching"
+      }
+    },
+    "MSGraphSettingGraphResourceId": {
+      "type": "string",
+      "defaultValue": "https://graph.microsoft.com",
+      "metadata": {
+        "description": "MSGraphSettingGraphResourceId"
+      }
+    },
+    "MSGraphSettingSendMailUrl": {
+      "type": "string",
+      "defaultValue": "me/sendMail",
+      "metadata": {
+        "description": "MSGraphSettingSendMailUrl"
+      }
+    },
+    "MSGraphSettingTenantId": {
+      "type": "string",
+      "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+      "metadata": {
+        "description": "MSGraphSettingTenantId"
+      }
+    },
+    "MSGraphSettingUserAssertionType": {
+      "type": "string",
+      "defaultValue": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      "metadata": {
+        "description": "MSGraphSettingUserAssertionType"
+      }
+    },
+    "UserTokenSettingAuthority": {
+      "type": "string",
+      "defaultValue": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47",
+      "metadata": {
+        "description": "UserTokenSettingAuthority"
+      }
+    },
+    "UserTokenSettingClientId": {
+      "type": "string",
+      "defaultValue": "UserTokenSettingClientId",
+      "metadata": {
+        "description": "UserTokenSettingClientId"
+      }
+    },
+    "funcApp_HttpRequestTimeOut": {
+      "type": "string",
+      "defaultValue": "500",
+      "metadata": {
+        "description": "timeOut to call service "
+      }
+    },
+    "StorageType": {
+      "type": "string",
+      "defaultValue": "StorageAccount"
+    },
+    "MailSettings": {
+      "type": "string",
+      "defaultValue": "__MailSettings__"
+    },
+    "StorageAccountBlobContainerName": {
+      "type": "string",
+      "defaultValue": "__BlobContainerName__"
+    },
+    "StorageAccountMailTemplateTableName": {
+      "type": "string",
+      "defaultValue": "__MailTemplateTableName__"
+    },
+    "NotificationProviderType": {
+      "type": "string",
+      "defaultValue": "__NotificationProviderType__"
+    },
+    "DirectSendSettingFromAddressDisplayName": {
+      "type": "string",
+      "defaultValue": "__DirectSendSettingFromAddressDisplayName__"
+    },
+    "DirectSendSettingFromAddress": {
+      "type": "string",
+      "defaultValue": "__DirectSendSettingFromAddress__"
+    },
+    "DirectSendSettingSmtpPort": {
+      "type": "string",
+      "defaultValue": "__DirectSendSettingSmtpPort__"
+    },
+    "DirectSendSettingSmtpServer": {
+      "type": "string",
+      "defaultValue": "__DirectSendSettingSmtpServer__"
+    }
+  },
+  "variables": {
+    "functionAppName": "[concat(parameters('appName'),'-Function')]",
+    "notifyServiceAppName": "[concat(parameters('appName'),'-NotificationService')]",
+    "notifyHandlerAppName": "[concat(parameters('appName'),'-NotificationHandler')]",
+    "hostingPlanName": "[concat(parameters('appName'), '-NotificationAppPlan')]",
+    "storageAccountName": "[concat(parameters('storageName'),'storage')]",
+    "appInsightsName": "[concat(parameters('appName'), '-appInsights')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2019-06-01",
+      "location": "[parameters('location')]",
+      "kind": "Storage",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2019-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "Name": "[parameters('sku')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]",
+
+        "workerSize": "[parameters('workerSize')]",
+        "numberOfWorkers": 1,
+        "reserved": false
+      }
+    },
+    {
+      "apiVersion": "2015-05-01",
+      "name": "[variables('appInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "kind": "web",
+      "location": "[parameters('location')]",
+      "properties": {
+        "Application_Type": "web",
+        "ApplicationId": "[variables('appInsightsName')]"
+      }
+    },
+    {
+      "apiVersion": "2019-08-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('functionAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "functionapp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "httpsonly": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "10.14.1"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "Authority",
+              "value": "[parameters('funcApp_Authority')]"
+            },
+            {
+              "name": "ClientId",
+              "value": "[parameters('funcApp_ClientId')]"
+            },
+            {
+              "name": "ClientSecret",
+              "value": "[parameters('funcApp_ClientSecret')]"
+            },
+            {
+              "name": "NotificationServiceEndpoint",
+              "value": "[parameters('funcApp_NotificationServiceEndpoint')]"
+            },
+            {
+              "name": "HttpTimeOutInSeconds",
+              "value": "[parameters('funcApp_HttpRequestTimeOut')]"
+            },
+            {
+              "name": "CosmosDB:Container",
+              "value": "[parameters('CosmosDBContainer')]"
+            },
+            {
+              "name": "CosmosDB:Database",
+              "value": "[parameters('CosmosDBDatabase')]"
+            },
+            {
+              "name": "CosmosDB:Key",
+              "value": "[parameters('CosmosDBKey')]"
+            },
+            {
+              "name": "CosmosDB:Uri",
+              "value": "[parameters('CosmosDBUri')]"
+            },
+            {
+              "name": "StorageType",
+              "value": "[parameters('StorageType')]"
+            },
+            {
+              "name": "StorageAccount:ConnectionString",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentId",
+              "value": "[parameters('ComponentId')]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentName",
+              "value": "[parameters('ComponentName')]"
+            },
+            {
+              "name": "ApplicationInsights:Service",
+              "value": "[parameters('Service')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceLine",
+              "value": "[parameters('ServiceLine')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceOffering",
+              "value": "[parameters('ServiceOffering')]"
+            },
+            {
+              "name": "ApplicationInsights:TraceLevel",
+              "value": "[parameters('TraceLevel')]"
+            }
+          ]
+        },
+        "reserved": false
+      }
+    },
+    {
+      "apiVersion": "2019-08-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('notifyServiceAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "api",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "httpsonly": true,
+        "siteConfig": {
+
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "BearerTokenAuthentication:Authority",
+              "value": "[parameters('BearerTokenAuthenticationAuthority')]"
+            },
+            {
+              "name": "BearerTokenAuthentication:Issuer",
+              "value": "[parameters('BearerTokenAuthenticationIssuer')]"
+            },
+            {
+              "name": "BearerTokenAuthentication:ValidAudiences",
+              "value": "[parameters('BearerTokenAuthenticationValidAudiences')]"
+            },
+            {
+              "name": "CosmosDB:Container",
+              "value": "[parameters('CosmosDBContainer')]"
+            },
+            {
+              "name": "CosmosDB:Database",
+              "value": "[parameters('CosmosDBDatabase')]"
+            },
+            {
+              "name": "CosmosDB:Key",
+              "value": "[parameters('CosmosDBKey')]"
+            },
+            {
+              "name": "CosmosDB:Uri",
+              "value": "[parameters('CosmosDBUri')]"
+            },
+            {
+              "name": "EnvironmentSetting:EnvironmentType",
+              "value": "[parameters('EnvironmentType')]"
+            },
+            {
+              "name": "ApplicationInsights:InstrumentationKey",
+              "value": "[reference(resourceId('microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentId",
+              "value": "[parameters('ComponentId')]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentName",
+              "value": "[parameters('ComponentName')]"
+            },
+            {
+              "name": "ApplicationInsights:Service",
+              "value": "[parameters('Service')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceLine",
+              "value": "[parameters('ServiceLine')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceOffering",
+              "value": "[parameters('ServiceOffering')]"
+            },
+            {
+              "name": "ApplicationInsights:TraceLevel",
+              "value": "[parameters('TraceLevel')]"
+            },
+            {
+              "name": "KeyVault:ClientId",
+              "value": "[parameters('KeyVaultClientId')]"
+            },
+            {
+              "name": "KeyVault:ClientSecret",
+              "value": "[parameters('KeyVaultClientSecret')]"
+            },
+            {
+              "name": "KeyVault:SecretUri",
+              "value": "[parameters('KeyVaultSecretUri')]"
+            },
+            {
+              "name": "RetrySetting:MaxRetries",
+              "value": "[parameters('MaxRetries')]"
+            },
+            {
+              "name": "RetrySetting:TransientRetryCount",
+              "value": "[parameters('TransientRetryCount')]"
+            },
+            {
+              "name": "MSGraphSetting:GraphAPIVersion",
+              "value": "[parameters('MSGraphSettingAPIVersion')]"
+            },
+            {
+              "name": "MSGraphSetting:Authority",
+              "value": "[parameters('MSGraphSettingAuthority')]"
+            },
+            {
+              "name": "MSGraphSetting:BatchRequestLimit",
+              "value": "[parameters('MSGraphSettingBatchRequestLimit')]"
+            },
+            {
+              "name": "MSGraphSetting:BatchRequestUrl",
+              "value": "[parameters('MSGraphSettingBatchRequestUrl')]"
+            },
+            {
+              "name": "MSGraphSetting:ClientId",
+              "value": "[parameters('MSGraphSettingClientId')]"
+            },
+            {
+              "name": "MSGraphSetting:ClientCredential",
+              "value": "[parameters('MSGraphSettingClientCredential')]"
+            },
+            {
+              "name": "MSGraphSetting:EnableBatching",
+              "value": "[parameters('MSGraphSettingEnableBatching')]"
+            },
+            {
+              "name": "MSGraphSetting:GraphResourceId",
+              "value": "[parameters('MSGraphSettingGraphResourceId')]"
+            },
+            {
+              "name": "MSGraphSetting:SendMailUrl",
+              "value": "[parameters('MSGraphSettingSendMailUrl')]"
+            },
+            {
+              "name": "MSGraphSetting:TenantId",
+              "value": "[parameters('MSGraphSettingTenantId')]"
+            },
+            {
+              "name": "MSGraphSetting:UserAssertionType",
+              "value": "[parameters('MSGraphSettingUserAssertionType')]"
+            },
+            {
+              "name": "StorageAccount:ConnectionString",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "StorageAccount:BlobContainerName",
+              "value": "[parameters('StorageAccountBlobContainerName')]"
+            },
+            {
+              "name": "StorageAccount:MailTemplateTableName",
+              "value": "[parameters('StorageAccountMailTemplateTableName')]"
+            },
+            {
+              "name": "UserTokenSetting:Authority",
+              "value": "[parameters('UserTokenSettingAuthority')]"
+            },
+            {
+              "name": "UserTokenSetting:ClientId",
+              "value": "[parameters('UserTokenSettingClientId')]"
+            },
+            {
+              "name": "StorageType",
+              "value": "[parameters('StorageType')]"
+            },
+            {
+              "name": "MailSettings",
+              "value": "[parameters('MailSettings')]"
+            },
+            {
+              "name": "NotificationProviderType",
+              "value": "[parameters('NotificationProviderType')]"
+            },
+            {
+              "name": "DirectSendSettingFromAddressDisplayName",
+              "value": "[parameters('DirectSendSettingFromAddressDisplayName')]"
+            },
+            {
+              "name": "DirectSendSettingFromAddress",
+              "value": "[parameters('DirectSendSettingFromAddress')]"
+            },
+            {
+              "name": "DirectSendSettingSmtpPort",
+              "value": "[parameters('DirectSendSettingSmtpPort')]"
+            },
+            {
+              "name": "DirectSendSettingSmtpServer",
+              "value": "[parameters('DirectSendSettingSmtpServer')]"
+            }
+          ]
+        },
+        "reserved": false
+      }
+    },
+    {
+      "apiVersion": "2016-03-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('notifyHandlerAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "api",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "httpsonly": true,
+        "siteConfig": {
+
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "BearerTokenAuthentication:Authority",
+              "value": "[parameters('BearerTokenAuthenticationAuthority')]"
+            },
+            {
+              "name": "BearerTokenAuthentication:Issuer",
+              "value": "[parameters('BearerTokenAuthenticationIssuer')]"
+            },
+            {
+              "name": "BearerTokenAuthentication:ValidAudiences",
+              "value": "[parameters('BearerTokenAuthenticationValidAudiences')]"
+            },
+            {
+              "name": "CosmosDB:Container",
+              "value": "[parameters('CosmosDBContainer')]"
+            },
+            {
+              "name": "CosmosDB:Database",
+              "value": "[parameters('CosmosDBDatabase')]"
+            },
+            {
+              "name": "CosmosDB:Key",
+              "value": "[parameters('CosmosDBKey')]"
+            },
+            {
+              "name": "CosmosDB:Uri",
+              "value": "[parameters('CosmosDBUri')]"
+            },
+            {
+              "name": "EnvironmentSetting:EnvironmentType",
+              "value": "[parameters('EnvironmentType')]"
+            },
+            {
+              "name": "ApplicationInsights:InstrumentationKey",
+              "value": "[reference(resourceId('microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentId",
+              "value": "[parameters('ComponentId')]"
+            },
+            {
+              "name": "ApplicationInsights:ComponentName",
+              "value": "[parameters('ComponentName')]"
+            },
+            {
+              "name": "ApplicationInsights:Service",
+              "value": "[parameters('Service')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceLine",
+              "value": "[parameters('ServiceLine')]"
+            },
+            {
+              "name": "ApplicationInsights:ServiceOffering",
+              "value": "[parameters('ServiceOffering')]"
+            },
+            {
+              "name": "ApplicationInsights:TraceLevel",
+              "value": "[parameters('TraceLevel')]"
+            },
+            {
+              "name": "KeyVault:ClientId",
+              "value": "[parameters('KeyVaultClientId')]"
+            },
+            {
+              "name": "KeyVault:ClientSecret",
+              "value": "[parameters('KeyVaultClientSecret')]"
+            },
+            {
+              "name": "KeyVault:SecretUri",
+              "value": "[parameters('KeyVaultSecretUri')]"
+            },
+            {
+              "name": "RetrySetting:MaxRetries",
+              "value": "[parameters('MaxRetries')]"
+            },
+            {
+              "name": "RetrySetting:TransientRetryCount",
+              "value": "[parameters('TransientRetryCount')]"
+            },
+            {
+              "name": "MSGraphSetting:GraphAPIVersion",
+              "value": "[parameters('MSGraphSettingAPIVersion')]"
+            },
+            {
+              "name": "MSGraphSetting:Authority",
+              "value": "[parameters('MSGraphSettingAuthority')]"
+            },
+            {
+              "name": "MSGraphSetting:BatchRequestLimit",
+              "value": "[parameters('MSGraphSettingBatchRequestLimit')]"
+            },
+            {
+              "name": "MSGraphSetting:BatchRequestUrl",
+              "value": "[parameters('MSGraphSettingBatchRequestUrl')]"
+            },
+            {
+              "name": "MSGraphSetting:ClientId",
+              "value": "[parameters('MSGraphSettingClientId')]"
+            },
+            {
+              "name": "MSGraphSetting:ClientCredential",
+              "value": "[parameters('MSGraphSettingClientCredential')]"
+            },
+            {
+              "name": "MSGraphSetting:EnableBatching",
+              "value": "[parameters('MSGraphSettingEnableBatching')]"
+            },
+            {
+              "name": "MSGraphSetting:GraphResourceId",
+              "value": "[parameters('MSGraphSettingGraphResourceId')]"
+            },
+            {
+              "name": "MSGraphSetting:SendMailUrl",
+              "value": "[parameters('MSGraphSettingSendMailUrl')]"
+            },
+            {
+              "name": "MSGraphSetting:TenantId",
+              "value": "[parameters('MSGraphSettingTenantId')]"
+            },
+            {
+              "name": "MSGraphSetting:UserAssertionType",
+              "value": "[parameters('MSGraphSettingUserAssertionType')]"
+            },
+            {
+              "name": "StorageAccount:ConnectionString",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "StorageAccount:BlobContainerName",
+              "value": "[parameters('StorageAccountBlobContainerName')]"
+            },
+            {
+              "name": "StorageAccount:MailTemplateTableName",
+              "value": "[parameters('StorageAccountMailTemplateTableName')]"
+            },
+            {
+              "name": "UserTokenSetting:Authority",
+              "value": "[parameters('UserTokenSettingAuthority')]"
+            },
+            {
+              "name": "UserTokenSetting:ClientId",
+              "value": "[parameters('UserTokenSettingClientId')]"
+            },
+            {
+              "name": "StorageType",
+              "value": "[parameters('StorageType')]"
+            },
+            {
+              "name": "NotificationProviderType",
+              "value": "[parameters('NotificationProviderType')]"
+            }
+          ]
+        },
+       "reserved":  false
+      }
+    }
+
+
+  ]
+}

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>63dd255d-4c9f-4ea7-9f3b-5f7b32657058</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DirectSend.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DirectSendMailService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DSSmtpClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DSSmtpClientFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IDSSmtpClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IEmailService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ISmtpClientFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ISmtpClientPool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger\AILogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger\EnvironmentInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger\ILogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger\LoggingConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Configurations\ISmtpConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Configurations\SendAccountConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Configurations\SmtpConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DTO\MailData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LogEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Mail\EmailAddress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Mail\EmailMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Mail\Recipients.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Mail\RecipientType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SmptInitializationException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SmtpClientPool.cs" />
+  </ItemGroup>
+</Project>
