@@ -147,6 +147,12 @@ namespace NotificationService.BusinessLibrary
             return notificationResponses;
         }
 
+        /// <summary>
+        /// Gets the Email Notification Message Body.
+        /// </summary>
+        /// <param name="applicationName">The application Name.</param>
+        /// <param name="notification">The Notification Entity.</param>
+        /// <returns>Returns the message body.</returns>
         public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, EmailNotificationItemEntity notification)
         {
             this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
