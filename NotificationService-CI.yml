@@ -1,12 +1,12 @@
 pr:
   branches:
     include:
-    - master
+    - main
 trigger:
   batch: true
   branches:
     include:
-    - master
+    - main
 stages:
 - stage: __default
   jobs:
