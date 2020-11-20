@@ -5,12 +5,15 @@ namespace NotificationService.SvCommon.Common
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
+    using Azure.Identity;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
@@ -42,11 +45,9 @@ namespace NotificationService.SvCommon.Common
 
             var config = builder.Build();
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config["KeyVault:SecretUri"],
-                config["KeyVault:ClientId"],
-                config["KeyVault:ClientSecret"])
+                config["KeyVault:SecretUri"])
             {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds])),
+                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
             };
             _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
 
@@ -117,10 +118,12 @@ namespace NotificationService.SvCommon.Common
             _ = services.Configure<StorageAccountSetting>(s => s.ConnectionString = this.Configuration["StorageAccountConnectionString"]);
             _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection("UserTokenSetting"));
             _ = services.Configure<RetrySetting>(this.Configuration.GetSection("RetrySetting"));
+            _ = services.AddDataProtection()
+                .ProtectKeysWithAzureKeyVault(new Uri("https://tempcsp-vault.vault.azure.net/keys/cspRSA/5eed852d7ce046239eb1dd996edfab53"), new DefaultAzureCredential())
+                .PersistKeysToAzureBlobStorage(new Uri("https://fvinstorage.blob.core.windows.net/csp/key?sp=racwdl&st=2020-11-03T09:37:34Z&se=2020-11-04T09:37:34Z&sv=2019-12-12&sr=c&sig=4ChA2xCcZPGFxJgnzNbh9Rak2j2Y%2FdW6UrxgASAF3Zo%3D"));
 
             // _ = services.AddSingleton<IConfiguration>(this.Configuration);
-            _ = services.AddSingleton<IEncryptionService, EncryptionService>(es =>
-                new EncryptionService(new KeyInfo(this.Configuration["NotificationEncryptionKey"], this.Configuration["NotificationEncryptionIntialVector"])));
+            _ = services.AddSingleton<IEncryptionService, EncryptionService>();
 
             _ = services.AddTransient<IHttpContextAccessor, HttpContextAccessor>()
                 .AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>()

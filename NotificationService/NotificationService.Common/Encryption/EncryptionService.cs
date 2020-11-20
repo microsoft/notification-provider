@@ -3,6 +3,8 @@
 
 namespace NotificationService.Common.Encryption
 {
+    using Microsoft.AspNetCore.DataProtection;
+    using Microsoft.Extensions.Configuration;
     using System;
     using System.IO;
     using System.Security.Cryptography;
@@ -20,10 +22,25 @@ namespace NotificationService.Common.Encryption
         /// <summary>
         /// Initializes a new instance of the <see cref="EncryptionService"/> class.
         /// </summary>
-        /// <param name="keyInfo">Key Information used for Encryption/Decryption.</param>
-        public EncryptionService(KeyInfo keyInfo = null)
+        /// <param name="dataProtectionProvider">dataProtectionProvider for AES Key.</param>
+        /// <param name="configuration">Configuration Provider.</param>
+        public EncryptionService(IDataProtectionProvider dataProtectionProvider, IConfiguration configuration)
         {
-            this.keyInfo = keyInfo;
+            if (dataProtectionProvider == null)
+            {
+                throw new ArgumentException($"dataProtectionProvider is null");
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentException($"configuration is null");
+            }
+
+            var dataProtector = dataProtectionProvider.CreateProtector("NotificationService");
+
+            this.keyInfo = new KeyInfo(
+                dataProtector.Unprotect(configuration["NotificationEncryptionKey"]),
+                dataProtector.Unprotect(configuration["NotificationEncryptionIntialVector"]));
         }
 
         /// <inheritdoc/>

@@ -8,7 +8,8 @@ namespace NotificationService.BusinessLibrary
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
-    using System.ServiceModel.Channels;
+
+    // using System.ServiceModel.Channels;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Options;
