@@ -1,0 +1,97 @@
+pr:
+  branches:
+    include:
+    - main
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      name: Azure Pipelines
+      vmImage: windows-latest
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: Restore Packages
+      inputs:
+        command: restore
+        projects: '**/*.sln'
+        feedsToUse: config
+        nugetConfigPath: nuget.config
+    - task: DotNetCoreCLI@2
+      displayName: Build solution
+      inputs:
+        command: build
+        projects: '**/*.sln'
+        arguments: --configuration Release --no-restore
+    - task: DotNetCoreCLI@2
+      displayName: Execute Unit Tests
+      inputs:
+        command: test
+        projects: '**/*.UnitTests.csproj'
+        arguments: --no-build  --configuration Release  --collect "Code coverage"
+        testRunTitle: RecruitingDataSync - Unit Tests
+    - task: DotNetCoreCLI@2
+      displayName: Package NotificationHandler app
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: NotificationService/NotificationHandler/NotificationHandler.csproj
+        arguments: --no-build --configuration Release --output NotificationHandler
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: ArchiveFiles@2
+      displayName: Archive NotificationHandler files
+      inputs:
+        rootFolderOrFile: $(System.DefaultWorkingDirectory)/NotificationHandler
+        includeRootFolder: false
+        archiveFile: $(System.DefaultWorkingDirectory)/NotificationHandler.zip
+    - task: PublishBuildArtifacts@1
+      displayName: Publish NotificationHandler Build Artifacts
+      inputs:
+        PathtoPublish: $(System.DefaultWorkingDirectory)/NotificationHandler.zip
+        artifactName: drop
+    - task: DotNetCoreCLI@2
+      displayName: Package NotificationsQueueProcessor app
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: NotificationService/NotificationsQueueProcessor/NotificationsQueueProcessor.csproj
+        arguments: --no-build --configuration Release --output NotificationsQueueProcessor
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: ArchiveFiles@2
+      displayName: Archive NotificationsQueueProcessor files
+      inputs:
+        rootFolderOrFile: $(System.DefaultWorkingDirectory)/NotificationsQueueProcessor
+        includeRootFolder: false
+        archiveFile: $(System.DefaultWorkingDirectory)/NotificationsQueueProcessor.zip
+    - task: PublishBuildArtifacts@1
+      displayName: Publish NotificationsQueueProcessor Build Artifacts
+      inputs:
+        PathtoPublish: $(System.DefaultWorkingDirectory)/NotificationsQueueProcessor.zip
+        artifactName: drop
+    - task: DotNetCoreCLI@2
+      displayName: Package NotificationService app
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: NotificationService/NotificationService/NotificationService.csproj
+        arguments: --no-build --configuration Release --output NotificationService
+        zipAfterPublish: false
+        modifyOutputPath: false
+    - task: ArchiveFiles@2
+      displayName: Archive NotificationService files
+      inputs:
+        rootFolderOrFile: $(System.DefaultWorkingDirectory)/NotificationService
+        includeRootFolder: false
+        archiveFile: $(System.DefaultWorkingDirectory)/NotificationService.zip
+    - task: PublishBuildArtifacts@1
+      displayName: Publish NotificationService Build Artifacts
+      inputs:
+        PathtoPublish: $(System.DefaultWorkingDirectory)/NotificationService.zip
+        artifactName: drop
