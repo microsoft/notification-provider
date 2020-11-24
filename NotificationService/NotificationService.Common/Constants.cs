@@ -172,5 +172,16 @@ namespace NotificationService.Common
         /// NotificationProviderType.
         /// </summary>
         public const string NotificationProviderType = "NotificationProviderType";
+
+        /// <summary>
+        /// The notification encryption key.
+        /// </summary>
+        public const string NotificationEncryptionKey = "NotificationEncryptionKey";
+
+        /// <summary>
+        /// The notification encryption intial vector.
+        /// </summary>
+        public const string NotificationEncryptionIntialVector = "NotificationEncryptionIntialVector";
+
     }
 }
