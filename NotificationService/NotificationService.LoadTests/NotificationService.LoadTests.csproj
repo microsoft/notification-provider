@@ -65,12 +65,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NotificationService.Common\NotificationService.Common.csproj">
-      <Project>{ddd90353-7a22-4e0e-a09b-33791b872d91}</Project>
-      <Name>NotificationService.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
