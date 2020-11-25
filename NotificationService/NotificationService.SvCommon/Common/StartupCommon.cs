@@ -5,6 +5,10 @@ namespace NotificationService.SvCommon.Common
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
+    using Azure.Core.Cryptography;
+    using Azure.Identity;
+    using Azure.Security.KeyVault.Keys.Cryptography;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
@@ -13,6 +17,7 @@ namespace NotificationService.SvCommon.Common
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Azure.KeyVault;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
@@ -42,11 +47,9 @@ namespace NotificationService.SvCommon.Common
 
             var config = builder.Build();
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config["KeyVault:SecretUri"],
-                config["KeyVault:ClientId"],
-                config["KeyVault:ClientSecret"])
+                config["KeyVault:SecretUri"])
             {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds])),
+                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
             };
             _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
 
@@ -118,9 +121,9 @@ namespace NotificationService.SvCommon.Common
             _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection("UserTokenSetting"));
             _ = services.Configure<RetrySetting>(this.Configuration.GetSection("RetrySetting"));
 
-            // _ = services.AddSingleton<IConfiguration>(this.Configuration);
-            _ = services.AddSingleton<IEncryptionService, EncryptionService>(es =>
-                new EncryptionService(new KeyInfo(this.Configuration["NotificationEncryptionKey"], this.Configuration["NotificationEncryptionIntialVector"])));
+            _ = services.AddSingleton<IConfiguration>(this.Configuration);
+            _ = services.AddSingleton<IEncryptionService, EncryptionService>();
+            _ = services.AddSingleton<IKeyEncryptionKey, CryptographyClient>(cc => new CryptographyClient(new Uri(this.Configuration["KeyVault:RSAKeyUri"]), new DefaultAzureCredential()));
 
             _ = services.AddTransient<IHttpContextAccessor, HttpContextAccessor>()
                 .AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>()
