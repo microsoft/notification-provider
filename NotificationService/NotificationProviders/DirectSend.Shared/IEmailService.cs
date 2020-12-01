@@ -16,6 +16,13 @@ namespace DirectSend
         /// </summary>
         /// <param name="email">The EmailMessage.</param>
         /// <returns>A <see cref="Task"/>.</returns>
-        Task SendAsync(EmailMessage email);
+        Task SendEmailAsync(EmailMessage email);
+
+        /// <summary>
+        /// Sends the asynchronous.
+        /// </summary>
+        /// <param name="email">The EmailMessage.</param>
+        /// <returns>A <see cref="Task"/>.</returns>
+        Task SendMeetingInviteAsync(EmailMessage email);
     }
 }

@@ -24,6 +24,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using NotificationService.UnitTests.BusinessLibrary.V1.EmailManager;
     using Newtonsoft.Json;
     using NUnit.Framework;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Tests for ProcessEmailNotifications method of Email Manager.
@@ -733,6 +734,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
+
         /// <summary>
         /// Tests for ProcessEmailNotifications method using Direct Send configuration.
         /// </summary>
@@ -789,6 +791,73 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             _ = this.NotificationProvider
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.DirectSend).ProcessNotificationEntities(this.ApplicationName, emailNotificationItemEntities))
+                .Returns(Task.CompletedTask);
+
+            this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+
+            Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
+            Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
+            Assert.Pass();
+        }
+
+        /// <summary>
+        /// Tests for ProcessMeetingNotifications method using Direct Send configuration.
+        /// </summary>
+        [Test]
+        public void ProcessMeetingNotificationsTestSendUsingDirectSend()
+        {
+
+            var retrySetting = new RetrySetting
+            {
+                MaxRetries = 10,
+                TransientRetryCount = 3,
+            };
+            var notificationId = Guid.NewGuid().ToString();
+            IList<MeetingNotificationItemEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemEntity>()
+            {
+                new MeetingNotificationItemEntity()
+                {
+                    Application = this.ApplicationName,
+                    NotificationId = notificationId,
+                    RequiredAttendees = "user@contoso.com",
+                    From = "user@xxx.contoso.com",
+                    Subject = "TestEmailSubject",
+                    Body = "CfDJ8KvR5DP4DK5GqV1jviPzBnsv3onVDZ-ztz-AvRl_6nvVNg86jfmKjgySREDPW9xNrwpKALT5BIFNX6VK3wzKsxc51dbkQjPPG9l7436wQktrAMRadumTpGKNKG1lLlP0FA",
+                    Id = notificationId,
+                    Status = NotificationItemStatus.Queued,
+                },
+            };
+            var mailSettings = new List<MailSettings>()
+            {
+                new MailSettings()
+                {
+                    ApplicationName = this.ApplicationName,
+                    MailOn = true,
+                    SendForReal = true,
+                },
+            };
+
+            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
+            {
+                { "RetrySetting:MaxRetries", "10" },
+                { "RetrySetting:TransientRetryCount", "3" },
+                { Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
+                { Constants.NotificationProviderType, NotificationProviderType.DirectSend.ToString() },
+            };
+
+            this.Configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(testConfigValues)
+                .Build();
+
+            _ = this.EmailNotificationRepository
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetMeetingNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Returns(Task.FromResult(meetingNotificationItemEntities));
+
+            _ = this.NotificationProvider
+                .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.DirectSend).ProcessMeetingNotificationEntities(this.ApplicationName, meetingNotificationItemEntities))
                 .Returns(Task.CompletedTask);
 
             this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);

@@ -9,6 +9,7 @@ namespace NotificationService.BusinessLibrary
     using System.Text;
     using Newtonsoft.Json;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Static class with utility methods.
@@ -36,6 +37,20 @@ namespace NotificationService.BusinessLibrary
         }
 
         public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<EmailNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
+        {
+            IList<string> cloudMessages = new List<string>();
+            var cloudMessage = new
+            {
+                NotificationIds = notificationItemEntities.Select(nie => nie.NotificationId).ToArray(),
+                Application = applicationName,
+                NotificationType = NotificationType.Mail,
+                IgnoreAlreadySent = ignoreAlreadySent,
+            };
+            cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+            return cloudMessages;
+        }
+
+        public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
         {
             IList<string> cloudMessages = new List<string>();
             var cloudMessage = new

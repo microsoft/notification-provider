@@ -28,8 +28,8 @@ namespace DirectSend
     {
         // https://dotnetcoretutorials.com/2017/11/02/using-mailkit-send-receive-email-asp-net-core/
         private readonly ISmtpClientPool clientPool;
-        private ILogger logger;
-        private SendAccountConfiguration mailConfiguration;
+        private readonly ILogger logger;
+        private readonly SendAccountConfiguration mailConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectSendMailService"/> class.
@@ -52,7 +52,7 @@ namespace DirectSend
         /// </summary>
         /// <param name="emailMessage">The EmailMessage.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task SendAsync(EmailMessage emailMessage)
+        public async Task SendEmailAsync(EmailMessage emailMessage)
         {
             if (emailMessage == null)
             {
@@ -77,6 +77,10 @@ namespace DirectSend
 
             var message = new MimeMessage();
             message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            if (emailMessage.CcAddresses != null && emailMessage.CcAddresses.Any())
+            {
+                message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            }
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
             message.Importance = MessageImportance.High;
 
@@ -119,6 +123,64 @@ namespace DirectSend
                 };
             }
 
+            await this.SendItemAsync(message, traceProps).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sends the asynchronous.
+        /// </summary>
+        /// <param name="emailMessage">The EmailMessage.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task SendMeetingInviteAsync(EmailMessage emailMessage)
+        {
+            if (emailMessage == null)
+            {
+                throw new ArgumentNullException(nameof(emailMessage));
+            }
+
+            string recipients = string.Join(",", emailMessage.ToAddresses.Select(r => r.Address).ToList());
+
+            var traceProps = new Dictionary<string, string>();
+            traceProps["OperationName"] = this.GetType().FullName;
+            traceProps["Recipients"] = recipients;
+
+            var trimmedAddresses = emailMessage.ToAddresses.Where(a => !string.IsNullOrEmpty(a.Address)).ToArray();
+            emailMessage.ToAddresses = trimmedAddresses;
+
+            if (!emailMessage.ToAddresses.Any())
+            {
+                ArgumentNullException ex = new ArgumentNullException("ToAddresses", "Email message is missing 'To' addresses.");
+                this.logger.WriteException(ex, traceProps);
+                return;
+            }
+
+            var message = new MimeMessage();
+            message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            if (emailMessage.CcAddresses != null && emailMessage.CcAddresses.Any())
+            {
+                message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            }
+
+            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
+            message.Importance = MessageImportance.High;
+
+            message.Subject = emailMessage.Subject;
+
+            var ical = new TextPart("calendar")
+            {
+                ContentTransferEncoding = ContentEncoding.Base64,
+                Text = emailMessage.Content,
+            };
+
+            ical.ContentType.Parameters.Add("method", "REQUEST");
+
+            message.Body = ical;
+
+            await this.SendItemAsync(message, traceProps).ConfigureAwait(false);
+        }
+
+        private async Task SendItemAsync(MimeMessage message, Dictionary<string,string> traceProps)
+        {
             IDSSmtpClient client = null;
             string status = "Fail";
 
@@ -158,10 +220,10 @@ namespace DirectSend
                 }
                 catch (SmtpCommandException ex)
                 {
-                        this.logger.WriteException(ex, traceProps);
-                        this.logger.TraceInformation($"SmtpCommandException with message {ex.Message} has been handled ", traceProps);
-                        client.Refresh(traceProps);
-                        await client.SendAsync(message, traceProps).ConfigureAwait(false);
+                    this.logger.WriteException(ex, traceProps);
+                    this.logger.TraceInformation($"SmtpCommandException with message {ex.Message} has been handled ", traceProps);
+                    client.Refresh(traceProps);
+                    await client.SendAsync(message, traceProps).ConfigureAwait(false);
                 }
                 catch (SocketException ex)
                 {
@@ -217,7 +279,7 @@ namespace DirectSend
                 {
                     { "Duration", timer.Elapsed.TotalMilliseconds },
                 };
-                this.logger.WriteCustomEvent("DirectSendMailService_SendMail", traceProps);
+                this.logger.WriteCustomEvent("DirectSendMailService_SendMail", traceProps, metrics);
 
                 this.logger.WriteMetric("DirectSendMailService_SendMailCount", 1, traceProps);
             }

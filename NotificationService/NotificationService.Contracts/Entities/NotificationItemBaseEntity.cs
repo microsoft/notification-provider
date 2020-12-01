@@ -55,5 +55,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "TryCount")]
         public int TryCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets error message when the processing failed.
+        /// </summary>
+        [DataMember(Name = "ErrorMessage")]
+        public string ErrorMessage { get; set; }
     }
 }

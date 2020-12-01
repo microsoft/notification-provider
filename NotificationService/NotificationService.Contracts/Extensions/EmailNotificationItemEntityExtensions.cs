@@ -71,6 +71,13 @@ namespace NotificationService.Contracts
             TrackingId = emailNotificationItemEntity?.TrackingId,
         };
 
+        /// <summary>
+        /// Converts to directsendemailmessage.
+        /// </summary>
+        /// <param name="emailNotificationItemEntity">The email notification item entity.</param>
+        /// <param name="body">The body.</param>
+        /// <param name="directSendSetting">The direct send setting.</param>
+        /// <returns>A <see cref="EmailMessage"/>.</returns>
         public static DirectSend.Models.Mail.EmailMessage ToDirectSendEmailMessage(this EmailNotificationItemEntity emailNotificationItemEntity, MessageBody body, DirectSendSetting directSendSetting)
         {
             return new DirectSend.Models.Mail.EmailMessage()
@@ -79,6 +86,8 @@ namespace NotificationService.Contracts
                 Content = body?.Content,
                 ToAddresses = emailNotificationItemEntity.To.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList(),
+                CcAddresses = emailNotificationItemEntity.CC.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(ccrecipient => new DirectSend.Models.Mail.EmailAddress { Address = ccrecipient }).ToList(),
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),

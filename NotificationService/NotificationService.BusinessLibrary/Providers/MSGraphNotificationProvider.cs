@@ -19,6 +19,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Logger;
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// MS Graph Notification Provider.
@@ -226,7 +227,7 @@ namespace NotificationService.BusinessLibrary.Providers
         /// </summary>
         /// <param name="applicationName">The application Name.</param>
         /// <param name="notificationEntities">List of notification entities to process.</param>
-        /// <param name="emailAccountUsed">Email account used to process the notifications.</param>
+        /// <param name="selectedAccount">selectedAccount.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         private async Task ProcessEntitiesInBatch(string applicationName, IList<EmailNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount)
         {
@@ -335,5 +336,7 @@ namespace NotificationService.BusinessLibrary.Providers
 
             this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.");
         }
+
+        public Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities) => throw new NotImplementedException();
     }
 }

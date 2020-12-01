@@ -5,24 +5,17 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
-    using System.Net;
-    using System.Net.Http.Headers;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;
-    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
-    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
-    using NotificationService.Common.Utility;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
 
@@ -95,6 +88,25 @@ namespace NotificationService.BusinessLibrary
             this.encryptionService = encryptionService;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
+        }
+
+        /// <summary>
+        /// Constructs list of responses for each notification item entity.
+        /// </summary>
+        /// <param name="notificationResponses">List of notification response items.</param>
+        /// <param name="notificationItemEntities">List of notification item entities.</param>
+        /// <returns>Notification response items list with response data populated.</returns>
+        public IList<NotificationResponse> NotificationEntitiesToResponse(IList<NotificationResponse> notificationResponses, IList<MeetingNotificationItemEntity> notificationItemEntities)
+        {
+            notificationItemEntities.ToList().ForEach(nie => notificationResponses.Add(new NotificationResponse()
+            {
+                NotificationId = nie.NotificationId,
+                Status = nie.Status,
+                TrackingId = nie.TrackingId,
+                ErrorMessage = nie.ErrorMessage,
+            }));
+
+            return notificationResponses;
         }
 
         /// <summary>
@@ -192,6 +204,36 @@ namespace NotificationService.BusinessLibrary
             MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
             this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
             return messageBody;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> CreateMeetingNotificationEntities(string applicationName, MeetingNotificationItem[] meetingNotificationItems, NotificationItemStatus status)
+        {
+            if (meetingNotificationItems is null)
+            {
+                throw new ArgumentNullException(nameof(meetingNotificationItems));
+            }
+
+            var traceProps = new Dictionary<string, string>();
+            traceProps[Constants.Application] = applicationName;
+
+            this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
+            IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
+
+            foreach (var item in meetingNotificationItems)
+            {
+                var notificationEntity = item.ToEntity(applicationName, this.encryptionService);
+                notificationEntity.NotificationId = !string.IsNullOrWhiteSpace(item.NotificationId) ? item.NotificationId : Guid.NewGuid().ToString();
+                notificationEntity.Id = Guid.NewGuid().ToString();
+                notificationEntity.CreatedDateTime = DateTime.UtcNow;
+                notificationEntity.UpdatedDateTime = DateTime.UtcNow;
+                notificationEntity.Status = status;
+                notificationEntities.Add(notificationEntity);
+            }
+
+            await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities).ConfigureAwait(false);
+            this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
+            return notificationEntities;
         }
     }
 }

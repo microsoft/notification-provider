@@ -28,6 +28,14 @@ namespace DirectSend.Models.Mail
         public IEnumerable<EmailAddress> ToAddresses { get; set; }
 
         /// <summary>
+        /// Gets or sets converts cc addresses.
+        /// </summary>
+        /// <value>
+        /// To addresses.
+        /// </value>
+        public IEnumerable<EmailAddress> CcAddresses { get; set; }
+
+        /// <summary>
         /// Gets or sets from addresses.
         /// </summary>
         /// <value>

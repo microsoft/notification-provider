@@ -64,9 +64,7 @@ namespace NotificationsQueueProcessor
             };
             itm[0] = envInitializer;
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-               configuration["KeyVault:SecretUri"],
-               configuration["KeyVault:ClientId"],
-               configuration["KeyVault:ClientSecret"])
+               configuration["KeyVault:SecretUri"])
             {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
             };
