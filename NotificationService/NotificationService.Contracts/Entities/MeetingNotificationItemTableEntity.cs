@@ -162,7 +162,7 @@
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        public string TemplateId { get; set; }
+        public string TemplateName { get; set; }
 
         /// <summary>
         /// Gets or sets the Template Content Arguments.

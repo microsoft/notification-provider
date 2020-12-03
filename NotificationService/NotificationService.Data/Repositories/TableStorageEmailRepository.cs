@@ -311,7 +311,7 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemTableEntity.RecurrencePattern = meetingNotificationItemEntity.RecurrencePattern.ToString();
             meetingNotificationItemTableEntity.ReminderMinutesBeforeStart = meetingNotificationItemEntity.ReminderMinutesBeforeStart;
             meetingNotificationItemTableEntity.TemplateData = meetingNotificationItemEntity.TemplateData;
-            meetingNotificationItemTableEntity.TemplateId = meetingNotificationItemEntity.TemplateId;
+            meetingNotificationItemTableEntity.TemplateName = meetingNotificationItemEntity.TemplateName;
             meetingNotificationItemTableEntity.MeetingEnd = meetingNotificationItemEntity.End;
             meetingNotificationItemTableEntity.MeetingStart = meetingNotificationItemEntity.Start;
             meetingNotificationItemTableEntity.SequenceNumber = meetingNotificationItemEntity.SequenceNumber ?? default;
@@ -361,7 +361,7 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemEntity.RecurrencePattern = meetingNotificationItemTableEntity.RecurrencePattern == null ? MeetingRecurrencePattern.None : (MeetingRecurrencePattern)Enum.Parse(typeof(MeetingRecurrencePattern), meetingNotificationItemTableEntity.RecurrencePattern);
             meetingNotificationItemEntity.ReminderMinutesBeforeStart = meetingNotificationItemTableEntity.ReminderMinutesBeforeStart;
             meetingNotificationItemEntity.TemplateData = meetingNotificationItemTableEntity.TemplateData;
-            meetingNotificationItemEntity.TemplateId = meetingNotificationItemTableEntity.TemplateId;
+            meetingNotificationItemEntity.TemplateName = meetingNotificationItemTableEntity.TemplateName;
             meetingNotificationItemEntity.End = meetingNotificationItemTableEntity.MeetingEnd;
             meetingNotificationItemEntity.Start = meetingNotificationItemTableEntity.MeetingStart;
             meetingNotificationItemEntity.EndDate = meetingNotificationItemTableEntity.EndDate;

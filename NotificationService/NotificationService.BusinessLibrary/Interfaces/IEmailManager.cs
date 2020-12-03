@@ -53,7 +53,15 @@ namespace NotificationService.BusinessLibrary
         /// </summary>
         /// <param name="notificationResponses">The notification responses.</param>
         /// <param name="notificationItemEntities">The notification item entities.</param>
-        /// <returns></returns>
+        /// <returns>A List of <see cref="NotificationResponse"/>.</returns>
         IList<NotificationResponse> NotificationEntitiesToResponse(IList<NotificationResponse> notificationResponses, IList<MeetingNotificationItemEntity> notificationItemEntities);
+
+        /// <summary>
+        /// Gets the notification message body asynchronous.
+        /// </summary>
+        /// <param name="applicationName">Name of the application.</param>
+        /// <param name="notification">The notification.</param>
+        /// <returns>A <see cref="MessageBody"/>.</returns>
+        Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification);
     }
 }

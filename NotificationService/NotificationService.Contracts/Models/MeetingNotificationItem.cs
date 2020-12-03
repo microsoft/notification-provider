@@ -44,6 +44,8 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets from.
         /// </summary>
+        [DataMember(Name = "from")]
+        [Required(ErrorMessage = "'From' is mandatory for meeting notifications.")]
         public string From { get; set; }
 
         /// <summary>
@@ -88,11 +90,15 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the Start.
         /// </summary>
+        [DataMember(Name = "start")]
+        [Required(ErrorMessage = "'Start' is mandatory for meeting notifications.")]
         public DateTime Start { get; set; }
 
         /// <summary>
         /// Gets or sets the End.
         /// </summary>
+        [DataMember(Name = "End")]
+        [Required(ErrorMessage = "'end' is mandatory for meeting notifications.")]
         public DateTime End { get; set; }
 
         /// <summary>
@@ -172,7 +178,7 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        public string TemplateId { get; set; }
+        public string TemplateName { get; set; }
 
         /// <summary>
         /// Gets or sets the Template Content Arguments.

@@ -159,7 +159,88 @@ namespace NotificationService.BusinessLibrary
             return notificationResponses;
         }
 
+        /// <summary>
+        /// Get Notification Message Body Async.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="notification">email notification item entity.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// applicationName - applicationName cannot be null or empty.
+        /// or
+        /// notification - notification cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// TemplateData cannot be null or empty.
+        /// or
+        /// Template cannot be found, please provide a valid template and application name
+        /// </exception>
         public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, EmailNotificationItemEntity notification)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            string notificationBody = null;
+            try
+            {
+                if (string.IsNullOrEmpty(applicationName))
+                {
+                    throw new ArgumentNullException(nameof(applicationName), "applicationName cannot be null or empty.");
+                }
+
+                if (notification is null)
+                {
+                    throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
+                }
+
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                {
+                    if (string.IsNullOrEmpty(notification.TemplateData))
+                    {
+                        throw new ArgumentException("TemplateData cannot be null or empty.");
+                    }
+
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    if (template == null)
+                    {
+                        throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
+                    }
+
+                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, this.encryptionService.Decrypt(notification.TemplateData));
+                }
+                else
+                {
+                    notificationBody = this.encryptionService.Decrypt(notification.Body);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.WriteException(ex);
+                throw;
+            }
+
+            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
+            this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            return messageBody;
+        }
+
+        /// <summary>
+        /// Gets the notification message body asynchronous.
+        /// </summary>
+        /// <param name="applicationName">Name of the application.</param>
+        /// <param name="notification">The notification.</param>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// applicationName - applicationName cannot be null or empty.
+        /// or
+        /// notification - notification cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// TemplateData cannot be null or empty.
+        /// or
+        /// Template cannot be found, please provide a valid template and application name.
+        /// </exception>
+        public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification)
         {
             this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
             string notificationBody = null;

@@ -53,7 +53,7 @@
                     Ocurrences = meetingNotificationItem.Ocurrences,
                     Priority = meetingNotificationItem.Priority,
                     RecurrencePattern = meetingNotificationItem.RecurrencePattern,
-                    TemplateId = meetingNotificationItem.TemplateId,
+                    TemplateName = meetingNotificationItem.TemplateName,
                     TemplateData = meetingNotificationItem.TemplateData,
                     Application = applicationName,
                 };

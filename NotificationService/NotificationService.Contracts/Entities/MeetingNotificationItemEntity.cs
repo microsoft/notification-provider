@@ -168,14 +168,14 @@
         public bool IsPrivate { get; set; }
 
         /// <summary>
-        /// Gets or sets the TemplateId.
+        /// Gets or sets the Template Content Arguments.
         /// </summary>
-        public string TemplateId { get; set; }
+        public string TemplateData { get; set; }
 
         /// <summary>
         /// Gets or sets the Template Content Arguments.
         /// </summary>
-        public string TemplateData { get; set; }
+        public string TemplateName { get; set; }
 
         /// <summary>
         /// Gets or sets the OccurrenceId.
