@@ -183,7 +183,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
 
                 foreach (var item in entitiesToQueue)
                 {

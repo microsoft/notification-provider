@@ -188,5 +188,10 @@ namespace NotificationService.Common
         /// </summary>
         public const string NotificationEncryptionIntialVector = "NotificationEncryptionIntialVector";
 
+        /// <summary>
+        /// The meetingnotificationsqueue.
+        /// </summary>
+        public const string Notificationsqueue = "notifications-queue";
+
     }
 }

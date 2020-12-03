@@ -17,6 +17,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
 
@@ -171,6 +172,52 @@ namespace NotificationService.BusinessLibrary.Business.v1
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<IList<NotificationResponse>> ProcessMeetingNotifications(string applicationName, QueueNotificationItem queueNotificationItem)
+        {
+            var traceprops = new Dictionary<string, string>();
+            traceprops[Constants.Application] = applicationName;
+            traceprops[Constants.MeetingNotificationCount] = queueNotificationItem?.NotificationIds.Length.ToString(CultureInfo.InvariantCulture);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            bool result = false;
+            this.logger.WriteCustomEvent("ProcessMeetingNotifications Started", traceprops);
+            try
+            {
+                this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotifications)} method of {nameof(EmailServiceManager)}.");
+                if (string.IsNullOrWhiteSpace(applicationName))
+                {
+                    throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+                }
+
+                if (queueNotificationItem is null)
+                {
+                    throw new ArgumentNullException(nameof(queueNotificationItem));
+                }
+
+                IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
+                IList<MeetingNotificationItemEntity> notificationItemEntities = await this.ProcessMeetingNotificationsUsingProvider(applicationName, queueNotificationItem).ConfigureAwait(false);
+                var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
+                this.logger.TraceInformation($"Finished {nameof(this.ProcessEmailNotifications)} method of {nameof(EmailServiceManager)}.");
+                result = true;
+                return responses;
+            }
+            catch (Exception ex)
+            {
+                result = true;
+                this.logger.WriteException(ex, traceprops);
+                throw;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                traceprops[Constants.Result] = result.ToString();
+                var metrics = new Dictionary<string, double>();
+                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                this.logger.WriteCustomEvent("ProcessEmailNotifications Completed", traceprops, metrics);
+            }
+        }
+
         /// <summary>
         /// Creates the entities in database and send email notifications using MS Graph Provider.
         /// </summary>
@@ -227,6 +274,52 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.logger.TraceVerbose($"Started {nameof(this.ProcessNotificationEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
             var retEntities = await this.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
             this.logger.TraceVerbose($"Completed {nameof(this.ProcessNotificationEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
+            retEntities = retEntities.Concat(notificationEntitiesToBeSkipped).ToList();
+            this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
+
+            return retEntities;
+        }
+
+        /// <summary>
+        /// Fetches the records for given notification ids and resends using MS Graph Provider.
+        /// </summary>
+        /// <param name="applicationName">Application associated with email notifications.</param>
+        /// <param name="queueNotificationItem">Queue Notification Entity.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        private async Task<IList<MeetingNotificationItemEntity>> ProcessMeetingNotificationsUsingProvider(string applicationName, QueueNotificationItem queueNotificationItem)
+        {
+            var traceProps = new Dictionary<string, string>();
+            traceProps[Constants.Application] = applicationName;
+            IList<MeetingNotificationItemEntity> notSentEntities = new List<MeetingNotificationItemEntity>();
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
+
+            List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
+
+            this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
+            IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(notificationIds).ConfigureAwait(false);
+            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
+
+            var notificationEntitiesToBeSkipped = new List<MeetingNotificationItemEntity>();
+            if (notificationEntities.Count == 0)
+            {
+                throw new ArgumentException("No records found for the input notification ids.", nameof(notificationIds));
+            }
+
+            if (queueNotificationItem.IgnoreAlreadySent)
+            {
+                notificationEntitiesToBeSkipped = notificationEntities.Where(x => x.Status == NotificationItemStatus.Sent).ToList();
+                notificationEntities = notificationEntities.Where(x => x.Status != NotificationItemStatus.Sent).ToList();
+            }
+
+            if (notificationEntities.Count == 0)
+            {
+                return notificationEntitiesToBeSkipped;
+            }
+
+            this.logger.TraceVerbose($"Started {nameof(this.ProcessMeetingNotificationsUsingProvider)} method in {nameof(EmailServiceManager)}.", traceProps);
+            var retEntities = await this.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
+            this.logger.TraceVerbose($"Completed {nameof(this.ProcessMeetingNotificationsUsingProvider)} method in {nameof(EmailServiceManager)}.", traceProps);
             retEntities = retEntities.Concat(notificationEntitiesToBeSkipped).ToList();
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
 
@@ -314,6 +407,94 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
                 await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
                 this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count.ToString()}", traceProps);
+            }
+
+            this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
+            return notificationEntities;
+        }
+
+
+        /// <summary>
+        /// Chooses an account for application, sends the notifications via Graph and returns back the status.
+        /// </summary>
+        /// <param name="applicationName">Application associated to the notifications.</param>
+        /// <param name="notificationEntities">List of notification entities to be processed.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        private async Task<IList<MeetingNotificationItemEntity>> ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities)
+        {
+            var traceProps = new Dictionary<string, string>();
+            traceProps[Constants.Application] = applicationName;
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
+            if (this.mailSettings is null || this.mailSettings.Any(a => a.ApplicationName == applicationName) is false)
+            {
+                this.logger.TraceInformation($"ApplicationName is not present in MailSettings {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
+                foreach (var item in notificationEntities)
+                {
+                    item.Status = NotificationItemStatus.Failed;
+                    item.ErrorMessage = $"ApplicationName is not present in MailSettings.";
+                }
+            }
+            else
+            {
+                var mailOn = this.mailSettings.Find(a => a.ApplicationName == applicationName).MailOn;
+                var sendForReal = this.mailSettings.Find(a => a.ApplicationName == applicationName).SendForReal;
+                var toOverride = this.mailSettings.Find(a => a.ApplicationName == applicationName).ToOverride;
+
+                if (!mailOn)
+                {
+                    this.logger.TraceInformation($"mailOn is set to {mailOn} {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
+                    foreach (var item in notificationEntities)
+                    {
+                        item.Status = NotificationItemStatus.FakeMail;
+                        item.ErrorMessage = $"MailOn is set as false for the application:{applicationName}.";
+                    }
+                }
+                else if (!sendForReal && string.IsNullOrEmpty(toOverride))
+                {
+                    this.logger.TraceInformation($"sendForReal is set to {sendForReal} and toOverride is {toOverride} {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
+                    foreach (var item in notificationEntities)
+                    {
+                        item.Status = NotificationItemStatus.Failed;
+                        item.ErrorMessage = $"sendForReal is set to {sendForReal} and toOverride is null or empty for the application:{applicationName}.";
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        await this.notificationProvider.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        foreach (var item in notificationEntities)
+                        {
+                            item.Status = NotificationItemStatus.Failed;
+                            item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
+                        }
+                    }
+                }
+            }
+
+            this.logger.TraceVerbose($"Starting {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessMeetingNotificationEntities)}", traceProps);
+
+            // Update the status of processed entities
+            await this.emailNotificationRepository.UpdateMeetingNotificationItemEntities(notificationEntities).ConfigureAwait(false);
+            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessMeetingNotificationEntities)}", traceProps);
+
+            // Requeue items that were updated as Queued, due to transient failures
+            var retryItemsToBeQueued = notificationEntities?.Where(nie => nie.Status == NotificationItemStatus.Retrying)?.ToList();
+
+            if (retryItemsToBeQueued?.Count > 0)
+            {
+                this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
+                this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
+
+                this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);
+                IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
+                await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
+                this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);
             }
 
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
