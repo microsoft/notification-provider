@@ -17,11 +17,11 @@ namespace NotificationService.Contracts
     [ExcludeFromCodeCoverage]
     public static class EmailNotificationItemEntityExtensions
     {
-       /// <summary>
+        /// <summary>
         /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailMessage"/>.
         /// </summary>
         /// <param name="emailNotificationItemEntity">Email Notification Item Entity.</param>
-        /// <param name="encryptionService">Instance of encryption service to unprotect the secure content before sending to Graph.</param>
+        /// <param name="body">Message Bosy.</param>
         /// <returns><see cref="EmailMessage"/>.</returns>
         public static EmailMessage ToGraphEmailMessage(this EmailNotificationItemEntity emailNotificationItemEntity, MessageBody body)
         {
@@ -84,9 +84,9 @@ namespace NotificationService.Contracts
             {
                 Subject = emailNotificationItemEntity?.Subject,
                 Content = body?.Content,
-                ToAddresses = emailNotificationItemEntity.To.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                ToAddresses = emailNotificationItemEntity.To?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList(),
-                CcAddresses = emailNotificationItemEntity.CC.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                CcAddresses = emailNotificationItemEntity.CC?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(ccrecipient => new DirectSend.Models.Mail.EmailAddress { Address = ccrecipient }).ToList(),
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),

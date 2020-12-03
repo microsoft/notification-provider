@@ -97,6 +97,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     var sendForReal = this.mailSettings.Find(a => a.ApplicationName == applicationName).SendForReal;
                     var toOverride = this.mailSettings.Find(a => a.ApplicationName == applicationName).ToOverride;
                     DirectSend.Models.Mail.EmailMessage message = new DirectSend.Models.Mail.EmailMessage();
+                    message.Subject = item.Subject;
                     if (!sendForReal)
                     {
                         message.ToAddresses = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
@@ -206,14 +207,17 @@ namespace NotificationService.BusinessLibrary.Providers
                 str.AppendLine("CLASS:PRIVATE");
             }
 
-            foreach (var to in meetingNotificationItem.RequiredAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
             {
                 str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;RSVP=FALSE:mailto:{0}", to));
             }
 
-            foreach (var cc in meetingNotificationItem.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+            if (!string.IsNullOrEmpty(meetingNotificationItem.OptionalAttendees))
             {
-                str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;RSVP=FALSE:mailto:{0}", cc));
+                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+                {
+                    str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;RSVP=FALSE:mailto:{0}", cc));
+                }
             }
 
             str.AppendLine("BEGIN:VALARM");
