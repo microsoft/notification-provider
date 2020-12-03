@@ -162,7 +162,6 @@ namespace DirectSend
             }
 
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
-            message.Importance = MessageImportance.High;
 
             message.Subject = emailMessage.Subject;
 
