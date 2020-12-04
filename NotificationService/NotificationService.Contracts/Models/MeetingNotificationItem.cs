@@ -90,21 +90,21 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the Start.
         /// </summary>
-        [DataMember(Name = "start")]
-        [Required(ErrorMessage = "'Start' is mandatory for meeting notifications.")]
-        public DateTime Start { get; set; }
+        [DataMember(Name = "MeetingStartTime")]
+        [Required(ErrorMessage = "'MeetingStartTime' is mandatory for meeting notifications.")]
+        public DateTime MeetingStartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the End.
         /// </summary>
-        [DataMember(Name = "End")]
-        [Required(ErrorMessage = "'end' is mandatory for meeting notifications.")]
-        public DateTime End { get; set; }
+        [DataMember(Name = "MeetingEndTime")]
+        [Required(ErrorMessage = "'MeetingEndTime' is mandatory for meeting notifications.")]
+        public DateTime MeetingEndTime { get; set; }
 
         /// <summary>
         /// Gets or sets the End date.
         /// </summary>
-        public DateTime? EndDate { get; set; }
+        public DateTime? RecrurrenceEndDate { get; set; }
 
         // Recurrence Properties
 
@@ -121,32 +121,32 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the Interval.
         /// </summary>
-        public int Interval { get; set; }
+        public int RecurrenceInterval { get; set; }
 
         /// <summary>
         /// Gets or sets the DaysOfWeek.
         /// </summary>
-        public string DaysOfWeek { get; set; }
+        public string RecurrenceDaysOfWeek { get; set; }
 
         /// <summary>
         /// Gets or sets the DayofMonth.
         /// </summary>
-        public int? DayofMonth { get; set; }
+        public int? RecurrenceDayofMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the Day of the week index for a Monthly recurring pattern.
         /// </summary>
-        public string DayOfWeekByMonth { get; set; }
+        public string RecurrenceDayOfWeekByMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the MonthOfYear.
         /// </summary>
-        public int MonthOfYear { get; set; }
+        public int RecurrenceMonthOfYear { get; set; }
 
         /// <summary>
         /// Gets or sets the ocurrence.
         /// </summary>
-        public int? Ocurrences { get; set; }
+        public int? NoOfMeetingOcurrences { get; set; }
 
         // other properties
 
@@ -156,7 +156,7 @@ namespace NotificationService.Contracts.Models
         public bool IsAllDayEvent { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the IsOnlineMeeting.
+        /// Gets or sets a value indicating whether gets or sets the IsOnlineMeeting.Not Available for Direct Send.
         /// </summary>
         public bool IsOnlineMeeting { get; set; }
 
@@ -166,7 +166,7 @@ namespace NotificationService.Contracts.Models
         public bool IsResponseRequested { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether gets or sets the IsCancel.
+        /// Gets or sets a value indicating whether gets or sets the IsCancel.Currently Cancel Meeting is not implemented.
         /// </summary>
         public bool IsCancel { get; set; }
 

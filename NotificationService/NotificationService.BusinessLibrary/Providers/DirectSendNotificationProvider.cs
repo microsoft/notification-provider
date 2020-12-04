@@ -242,7 +242,7 @@ namespace NotificationService.BusinessLibrary.Providers
             str.AppendLine("DTEND:" + meetingNotificationItem.End.ToString(this.strTimeFormat, CultureInfo.InvariantCulture));
 
             // if (meetingNotificationItem.OccurenceId.HasValue) str.AppendLine("RECURRENCE-ID:" + invitation.OccurenceId.Value.ToString(c_strTimeFormat));
-            // str.AppendLine(GenerateRecurrenceRuleForSMTP(invitation));
+            str.AppendLine(this.GenerateRecurrenceRuleForSMTP(meetingNotificationItem));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "UID:{0}", "icauid")); // currently harcoded as meeting invite is not being sent properly, if UID is null/empty
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "DESCRIPTION:{0}", meetingNotificationItem.Body));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "X-ALT-DESC;FMTTYPE=text/html:{0}", meetingNotificationItem.Body));
