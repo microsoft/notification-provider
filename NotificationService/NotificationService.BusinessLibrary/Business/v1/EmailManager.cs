@@ -210,7 +210,10 @@ namespace NotificationService.BusinessLibrary
                 }
                 else
                 {
-                    notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    if (!string.IsNullOrEmpty(notification.Body))
+                    {
+                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    }
                 }
             }
             catch (Exception ex)
@@ -273,7 +276,10 @@ namespace NotificationService.BusinessLibrary
                 }
                 else
                 {
-                    notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    if (!string.IsNullOrEmpty(notification.Body))
+                    {
+                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    }
                 }
             }
             catch (Exception ex)

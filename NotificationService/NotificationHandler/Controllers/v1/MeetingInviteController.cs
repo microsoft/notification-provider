@@ -5,6 +5,7 @@ namespace NotificationHandler.Controllers
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace NotificationHandler.Controllers
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
     using NotificationService.SvCommon.Attributes;
 
@@ -79,7 +81,24 @@ namespace NotificationHandler.Controllers
             }
 
             traceProps[Constants.Application] = applicationName;
-            IList<NotificationResponse> notificationResponses;
+            IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
+            foreach (var item in meetingNotificationItems)
+            {
+                var res = item.ValidateMeetingInvite();
+                notificationResponses.Add(
+                    new NotificationResponse
+                    {
+                        TrackingId = item.TrackingId,
+                        Status = res.Result ? NotificationItemStatus.NotQueued : NotificationItemStatus.Invalid,
+                        ErrorMessage = res.Message,
+                    });
+            }
+
+            if (notificationResponses.Any(x => x.Status == NotificationItemStatus.Invalid))
+            {
+                return this.BadRequest(notificationResponses);
+            }
+
             this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotifications)} method of {nameof(MeetingInviteController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.QueueMeetingNotifications(applicationName, meetingNotificationItems).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.QueueMeetingNotifications)} method of {nameof(MeetingInviteController)}.", traceProps);

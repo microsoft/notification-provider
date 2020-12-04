@@ -105,7 +105,6 @@ namespace NotificationService.BusinessLibrary.Providers
                     DirectSend.Models.Mail.EmailMessage message = new DirectSend.Models.Mail.EmailMessage();
                     message.Subject = item.Subject;
                     MessageBody body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, item).ConfigureAwait(false);
-                    item.Body = body.Content;
                     message.FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = this.directSendSetting?.FromAddressDisplayName, Address = this.directSendSetting?.FromAddress } };
                     if (!sendForReal)
                     {
@@ -122,7 +121,7 @@ namespace NotificationService.BusinessLibrary.Providers
                         message.ToAddresses = toAddress;
                     }
 
-                    message.Content = this.ConvertMeetingInviteToBody(item);
+                    message.Content = this.ConvertMeetingInviteToBody(item, body.Content);
                     await this.mailService.SendMeetingInviteAsync(message).ConfigureAwait(false);
                     item.Status = NotificationItemStatus.Sent;
                 }
@@ -218,8 +217,9 @@ namespace NotificationService.BusinessLibrary.Providers
         /// Converts the meeting invite to body.
         /// </summary>
         /// <param name="meetingNotificationItem">The meeting notification item.</param>
+        /// <param name="meetingBody">meetingBody.</param>
         /// <returns>A string for meeting invite.</returns>
-        private string ConvertMeetingInviteToBody(MeetingNotificationItemEntity meetingNotificationItem)
+        private string ConvertMeetingInviteToBody(MeetingNotificationItemEntity meetingNotificationItem, string meetingBody)
         {
             StringBuilder str = new StringBuilder();
 #pragma warning disable IDE0058 // Expression value is never used
@@ -244,8 +244,8 @@ namespace NotificationService.BusinessLibrary.Providers
             // if (meetingNotificationItem.OccurenceId.HasValue) str.AppendLine("RECURRENCE-ID:" + invitation.OccurenceId.Value.ToString(c_strTimeFormat));
             str.AppendLine(this.GenerateRecurrenceRuleForSMTP(meetingNotificationItem));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "UID:{0}", "icauid")); // currently harcoded as meeting invite is not being sent properly, if UID is null/empty
-            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "DESCRIPTION:{0}", meetingNotificationItem.Body));
-            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "X-ALT-DESC;FMTTYPE=text/html:{0}", meetingNotificationItem.Body));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "DESCRIPTION:{0}", meetingBody));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "X-ALT-DESC;FMTTYPE=text/html:{0}", meetingBody));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "SUMMARY:{0}", meetingNotificationItem.Subject));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "LOCATION:{0}", meetingNotificationItem.Location));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ORGANIZER:MAILTO:{0}", meetingNotificationItem.From));

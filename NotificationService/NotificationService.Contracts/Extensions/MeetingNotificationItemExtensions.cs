@@ -63,5 +63,45 @@
                 return null;
             }
         }
+
+        /// <summary>
+        /// Validates the meeting invite.
+        /// </summary>
+        /// <param name="meetingNotificationItem">The meeting notification item.</param>
+        /// <returns>A <see cref="ValidationResult"/>.</returns>
+        public static ValidationResult ValidateMeetingInvite(this MeetingNotificationItem meetingNotificationItem)
+        {
+            var res = new ValidationResult();
+            if (meetingNotificationItem == null)
+            {
+                res.Result = true;
+            }
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Weekly && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek))
+            {
+                res.Result = false;
+                res.Message = $"RecurrenceDaysOfWeek cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Weekly}";
+            }
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Monthly && !string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDayOfWeekByMonth))
+            {
+                res.Result = false;
+                res.Message = $"RecurrenceDayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Monthly} and RecurrenceDaysOfWeek is mentioned";
+            }
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && meetingNotificationItem.RecurrenceMonthOfYear == 0)
+            {
+                res.Result = false;
+                res.Message = $"RecurrenceMonthOfYear cannot be 0, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and RecurrenceDaysOfWeek is not mentioned";
+            }
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && !string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && (string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDayOfWeekByMonth) || meetingNotificationItem.RecurrenceMonthOfYear == 0))
+            {
+                res.Result = false;
+                res.Message = $"RecurrenceMonthOfYear and RecurrenceDayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and RecurrenceDaysOfWeek is mentioned";
+            }
+            else
+            {
+                res.Result = true;
+            }
+
+            return res;
+        }
     }
 }
