@@ -54,7 +54,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         public void SendEmailNotificationsTestValidInputWithBatch()
         {
             this.MsGraphSetting.Value.EnableBatching = true;
-            this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.SendEmailNotifications(this.ApplicationName, this.EmailNotificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
@@ -131,11 +131,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
 
-            _ = this.NotificationProvider
+            _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))
                 .Returns(this.MSGraphNotificationProvider);
 
-            var emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            var emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 
             Task<IList<NotificationResponse>> result = emailServiceManager.SendEmailNotifications(this.ApplicationName, notificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
@@ -148,7 +148,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Setup(gp => gp.SendEmailNotification(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<EmailMessagePayload>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
 
-            emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 
             result = emailServiceManager.SendEmailNotifications(this.ApplicationName, notificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
@@ -164,7 +164,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Setup(gp => gp.SendEmailNotification(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<EmailMessagePayload>(), It.IsAny<string>()))
                 .ThrowsAsync(new AggregateException());
 
-            emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 
             result = emailServiceManager.SendEmailNotifications(this.ApplicationName, notificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
@@ -249,11 +249,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
 
-            _ = this.NotificationProvider
+            _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))
                 .Returns(this.MSGraphNotificationProvider);
 
-            var emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            var emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 
             Task<IList<NotificationResponse>> result = emailServiceManager.SendEmailNotifications(this.ApplicationName, notificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");

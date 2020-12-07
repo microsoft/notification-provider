@@ -211,7 +211,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             finally
             {
                 stopwatch.Stop();
-                traceprops[Constants.Result] = result.ToString();
+                traceprops[Constants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
                 metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("ProcessEmailNotifications Completed", traceprops, metrics);

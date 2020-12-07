@@ -111,7 +111,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             var meetingNotificationItems = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
                                                 new MeetingNotificationItemEntity { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow}, };
             var meetingEntities = emailManager.NotificationEntitiesToResponse(new List<NotificationResponse>(), meetingNotificationItems);
-            Assert.IsTrue(meetingEntities.Count == 2);            
+            Assert.IsTrue(meetingEntities.Count == 2);
         }
     }
 }
