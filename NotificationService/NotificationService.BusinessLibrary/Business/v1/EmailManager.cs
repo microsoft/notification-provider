@@ -5,24 +5,17 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
-    using System.Net;
-    using System.Net.Http.Headers;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;
-    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
-    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
-    using NotificationService.Common.Utility;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
 
@@ -98,6 +91,25 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <summary>
+        /// Constructs list of responses for each notification item entity.
+        /// </summary>
+        /// <param name="notificationResponses">List of notification response items.</param>
+        /// <param name="notificationItemEntities">List of notification item entities.</param>
+        /// <returns>Notification response items list with response data populated.</returns>
+        public IList<NotificationResponse> NotificationEntitiesToResponse(IList<NotificationResponse> notificationResponses, IList<MeetingNotificationItemEntity> notificationItemEntities)
+        {
+            notificationItemEntities.ToList().ForEach(nie => notificationResponses.Add(new NotificationResponse()
+            {
+                NotificationId = nie.NotificationId,
+                Status = nie.Status,
+                TrackingId = nie.TrackingId,
+                ErrorMessage = nie.ErrorMessage,
+            }));
+
+            return notificationResponses;
+        }
+
+        /// <summary>
         /// Creates the notification entity records in database with the input status.
         /// </summary>
         /// <param name="applicationName">Application associated with notification items.</param>
@@ -147,6 +159,24 @@ namespace NotificationService.BusinessLibrary
             return notificationResponses;
         }
 
+        /// <summary>
+        /// Get Notification Message Body Async.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="notification">email notification item entity.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// applicationName - applicationName cannot be null or empty.
+        /// or
+        /// notification - notification cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// TemplateData cannot be null or empty.
+        /// or
+        /// Template cannot be found, please provide a valid template and application name
+        /// </exception>
         public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, EmailNotificationItemEntity notification)
         {
             this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
@@ -180,7 +210,10 @@ namespace NotificationService.BusinessLibrary
                 }
                 else
                 {
-                    notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    if (!string.IsNullOrEmpty(notification.Body))
+                    {
+                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    }
                 }
             }
             catch (Exception ex)
@@ -192,6 +225,102 @@ namespace NotificationService.BusinessLibrary
             MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
             this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
             return messageBody;
+        }
+
+        /// <summary>
+        /// Gets the notification message body asynchronous.
+        /// </summary>
+        /// <param name="applicationName">Name of the application.</param>
+        /// <param name="notification">The notification.</param>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// applicationName - applicationName cannot be null or empty.
+        /// or
+        /// notification - notification cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// TemplateData cannot be null or empty.
+        /// or
+        /// Template cannot be found, please provide a valid template and application name.
+        /// </exception>
+        public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            string notificationBody = null;
+            try
+            {
+                if (string.IsNullOrEmpty(applicationName))
+                {
+                    throw new ArgumentNullException(nameof(applicationName), "applicationName cannot be null or empty.");
+                }
+
+                if (notification is null)
+                {
+                    throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
+                }
+
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                {
+                    if (string.IsNullOrEmpty(notification.TemplateData))
+                    {
+                        throw new ArgumentException("TemplateData cannot be null or empty.");
+                    }
+
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    if (template == null)
+                    {
+                        throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
+                    }
+
+                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, this.encryptionService.Decrypt(notification.TemplateData));
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(notification.Body))
+                    {
+                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.WriteException(ex);
+                throw;
+            }
+
+            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
+            this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            return messageBody;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> CreateMeetingNotificationEntities(string applicationName, MeetingNotificationItem[] meetingNotificationItems, NotificationItemStatus status)
+        {
+            if (meetingNotificationItems is null)
+            {
+                throw new ArgumentNullException(nameof(meetingNotificationItems));
+            }
+
+            var traceProps = new Dictionary<string, string>();
+            traceProps[Constants.Application] = applicationName;
+
+            this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
+            IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
+
+            foreach (var item in meetingNotificationItems)
+            {
+                var notificationEntity = item.ToEntity(applicationName, this.encryptionService);
+                notificationEntity.NotificationId = !string.IsNullOrWhiteSpace(item.NotificationId) ? item.NotificationId : Guid.NewGuid().ToString();
+                notificationEntity.Id = Guid.NewGuid().ToString();
+                notificationEntity.CreatedDateTime = DateTime.UtcNow;
+                notificationEntity.UpdatedDateTime = DateTime.UtcNow;
+                notificationEntity.Status = status;
+                notificationEntities.Add(notificationEntity);
+            }
+
+            await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities).ConfigureAwait(false);
+            this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
+            return notificationEntities;
         }
     }
 }

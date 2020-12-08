@@ -9,6 +9,7 @@ namespace NotificationService.BusinessLibrary
     using System.Text;
     using Newtonsoft.Json;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Static class with utility methods.
@@ -35,6 +36,13 @@ namespace NotificationService.BusinessLibrary
             }
         }
 
+        /// <summary>
+        /// Gets the cloud messages for entities.
+        /// </summary>
+        /// <param name="applicationName">Name of the application.</param>
+        /// <param name="notificationItemEntities">The notification item entities.</param>
+        /// <param name="ignoreAlreadySent">if set to <c>true</c> [ignore already sent].</param>
+        /// <returns>A List of <see cref="string"/>.</returns>
         public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<EmailNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
         {
             IList<string> cloudMessages = new List<string>();
@@ -43,6 +51,27 @@ namespace NotificationService.BusinessLibrary
                 NotificationIds = notificationItemEntities.Select(nie => nie.NotificationId).ToArray(),
                 Application = applicationName,
                 NotificationType = NotificationType.Mail,
+                IgnoreAlreadySent = ignoreAlreadySent,
+            };
+            cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+            return cloudMessages;
+        }
+
+        /// <summary>
+        /// Gets the cloud messages for entities.
+        /// </summary>
+        /// <param name="applicationName">Name of the application.</param>
+        /// <param name="notificationItemEntities">The notification item entities.</param>
+        /// <param name="ignoreAlreadySent">if set to <c>true</c> [ignore already sent].</param>
+        /// <returns>A List of <see cref="string"/>.</returns>
+        public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
+        {
+            IList<string> cloudMessages = new List<string>();
+            var cloudMessage = new
+            {
+                NotificationIds = notificationItemEntities.Select(nie => nie.NotificationId).ToArray(),
+                Application = applicationName,
+                NotificationType = NotificationType.Meet,
                 IgnoreAlreadySent = ignoreAlreadySent,
             };
             cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));

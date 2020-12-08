@@ -9,10 +9,13 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -109,6 +112,78 @@ namespace NotificationService.BusinessLibrary.Business.v1
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
                 var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
+
+                foreach (var item in entitiesToQueue)
+                {
+                    this.logger.TraceVerbose($"Started {nameof(BusinessUtilities.GetCloudMessagesForEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                    IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, item);
+                    this.logger.TraceVerbose($"Completed {nameof(BusinessUtilities.GetCloudMessagesForEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
+
+                    this.logger.TraceVerbose($"Started {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                    await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
+                    this.logger.TraceVerbose($"Completed {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                }
+
+                var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
+                this.logger.TraceInformation($"Completed {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                result = true;
+                return responses;
+            }
+            catch (Exception e)
+            {
+                this.logger.WriteException(e, traceProps);
+                result = false;
+                throw;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                traceProps[Constants.Result] = result.ToString();
+                var metrics = new Dictionary<string, double>();
+                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                this.logger.WriteCustomEvent("QueueEmailNotifications Completed", traceProps, metrics);
+            }
+        }
+
+        public async Task<IList<NotificationResponse>> QueueMeetingNotifications(string applicationName, MeetingNotificationItem[] meetingNotificationItems)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var traceProps = new Dictionary<string, string>();
+            bool result = false;
+            try
+            {
+                this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                if (string.IsNullOrWhiteSpace(applicationName))
+                {
+                    throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+                }
+
+                if (meetingNotificationItems is null)
+                {
+                    throw new ArgumentNullException(nameof(meetingNotificationItems));
+                }
+
+                traceProps[Constants.Application] = applicationName;
+                traceProps[Constants.MeetingNotificationCount] = meetingNotificationItems.Length.ToString(CultureInfo.InvariantCulture);
+
+                this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
+                IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
+                this.logger.TraceVerbose($"Started {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                IList<MeetingNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateMeetingNotificationEntities(applicationName, meetingNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
+                this.logger.TraceVerbose($"Completed {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                List<List<MeetingNotificationItemEntity>> entitiesToQueue;
+                if (string.Equals(this.configuration?[Constants.NotificationProviderType], NotificationProviderType.Graph))
+                {
+                    entitiesToQueue = BusinessUtilities.SplitList<MeetingNotificationItemEntity>(notificationItemEntities.ToList(), this.mSGraphSetting.BatchRequestLimit).ToList();
+                }
+                else
+                {
+                    entitiesToQueue = new List<List<MeetingNotificationItemEntity>> { notificationItemEntities.ToList() };
+                }
+
+                // Queue a single cloud message for all entities created to enable parallel processing.
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
 
                 foreach (var item in entitiesToQueue)
                 {

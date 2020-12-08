@@ -134,6 +134,11 @@ namespace NotificationService.Common
         public const string EmailNotificationCount = "EmailNotificationCount";
 
         /// <summary>
+        /// MeetingNotificationCount literal.
+        /// </summary>
+        public const string MeetingNotificationCount = "MeetingNotificationCount";
+
+        /// <summary>
         /// Result literal.
         /// </summary>
         public const string Result = "Result";
@@ -182,6 +187,11 @@ namespace NotificationService.Common
         /// The notification encryption intial vector.
         /// </summary>
         public const string NotificationEncryptionIntialVector = "NotificationEncryptionIntialVector";
+
+        /// <summary>
+        /// The meetingnotificationsqueue.
+        /// </summary>
+        public const string Notificationsqueue = "notifications-queue";
 
     }
 }

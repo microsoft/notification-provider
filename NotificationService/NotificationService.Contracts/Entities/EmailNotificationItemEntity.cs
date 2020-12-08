@@ -117,12 +117,6 @@ namespace NotificationService.Contracts
         public string EmailAccountUsed { get; set; }
 
         /// <summary>
-        /// Gets or sets error message when the email processing failed.
-        /// </summary>
-        [DataMember(Name = "ErrorMessage")]
-        public string ErrorMessage { get; set; }
-
-        /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
         [DataMember(Name = "TemplateName")]
