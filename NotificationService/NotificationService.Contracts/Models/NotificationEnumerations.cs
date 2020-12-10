@@ -70,4 +70,36 @@ namespace NotificationService.Contracts
         /// </summary>
         Confidential = 3,
     }
+
+    /// <summary>
+    /// Meeting Recurrence Pattern enum.
+    /// </summary>
+    public enum MeetingRecurrencePattern
+    {
+        /// <summary>
+        /// None
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Daily
+        /// </summary>
+        Daily = 1,
+
+        /// <summary>
+        /// Weekly
+        /// </summary>
+        Weekly = 2,
+
+        /// <summary>
+        /// Monthly
+        /// </summary>
+        Monthly = 3,
+
+        /// <summary>
+        /// Yearly
+        /// </summary>
+        Yearly = 4,
+    }
+
 }

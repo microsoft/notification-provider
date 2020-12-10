@@ -66,7 +66,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 Id = notificationId,
             };
 
-            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(this.ApplicationName, null));
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(this.ApplicationName, (EmailNotificationItemEntity)null));
             _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(null, notificationItemEntity));
         }
     }

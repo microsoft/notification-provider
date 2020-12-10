@@ -37,5 +37,15 @@ namespace NotificationService.Contracts
         /// If MailOn is false, notification is considered as fake
         /// </summary>
         FakeMail,
+
+        /// <summary>
+        /// Invalid Notification.
+        /// </summary>
+        Invalid,
+
+        /// <summary>
+        /// Not Queued.
+        /// </summary>
+        NotQueued,
     }
 }

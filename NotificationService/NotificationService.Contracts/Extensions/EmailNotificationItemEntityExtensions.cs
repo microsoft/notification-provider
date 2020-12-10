@@ -17,11 +17,11 @@ namespace NotificationService.Contracts
     [ExcludeFromCodeCoverage]
     public static class EmailNotificationItemEntityExtensions
     {
-       /// <summary>
+        /// <summary>
         /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailMessage"/>.
         /// </summary>
         /// <param name="emailNotificationItemEntity">Email Notification Item Entity.</param>
-        /// <param name="encryptionService">Instance of encryption service to unprotect the secure content before sending to Graph.</param>
+        /// <param name="body">Message Bosy.</param>
         /// <returns><see cref="EmailMessage"/>.</returns>
         public static EmailMessage ToGraphEmailMessage(this EmailNotificationItemEntity emailNotificationItemEntity, MessageBody body)
         {
@@ -71,14 +71,23 @@ namespace NotificationService.Contracts
             TrackingId = emailNotificationItemEntity?.TrackingId,
         };
 
+        /// <summary>
+        /// Converts to directsendemailmessage.
+        /// </summary>
+        /// <param name="emailNotificationItemEntity">The email notification item entity.</param>
+        /// <param name="body">The body.</param>
+        /// <param name="directSendSetting">The direct send setting.</param>
+        /// <returns>A <see cref="EmailMessage"/>.</returns>
         public static DirectSend.Models.Mail.EmailMessage ToDirectSendEmailMessage(this EmailNotificationItemEntity emailNotificationItemEntity, MessageBody body, DirectSendSetting directSendSetting)
         {
             return new DirectSend.Models.Mail.EmailMessage()
             {
                 Subject = emailNotificationItemEntity?.Subject,
                 Content = body?.Content,
-                ToAddresses = emailNotificationItemEntity.To.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                ToAddresses = emailNotificationItemEntity.To?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList(),
+                CcAddresses = emailNotificationItemEntity.CC?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(ccrecipient => new DirectSend.Models.Mail.EmailAddress { Address = ccrecipient }).ToList(),
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),

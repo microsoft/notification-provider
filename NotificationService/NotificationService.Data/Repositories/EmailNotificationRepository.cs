@@ -15,6 +15,7 @@ namespace NotificationService.Data
     using NotificationService.Common;
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Repository for Email Notifications.
@@ -317,5 +318,17 @@ namespace NotificationService.Data
             };
             return selectExpression;
         }
+
+        /// <inheritdoc/>
+        public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
     }
 }
