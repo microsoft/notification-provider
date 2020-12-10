@@ -8,8 +8,8 @@ namespace NotificationService.UnitTests.Service.BackgroundServices
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
-    using WebNotifications.BackgroundServices;
     using NUnit.Framework;
+    using WebNotifications.BackgroundServices;
 
     /// <summary>
     /// Ctor Tests.

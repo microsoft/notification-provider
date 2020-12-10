@@ -61,7 +61,7 @@ namespace NotificationService.BusinessLibrary
         /// <param name="repositoryFactory">An instance of <see cref="IRepositoryFactory"/>.</param>
         /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
         /// <param name="emailManager">An instance of <see cref="EmailManager"/>.</param>
-        /// <param name="mailTemplateRepository">An instance of <see cref="IMailTemplateRepository"/></param>
+        /// <param name="mailTemplateRepository">An instance of <see cref="IMailTemplateRepository"/>.</param>
         public NotificationReportManager(
             ILogger logger,
             IRepositoryFactory repositoryFactory,

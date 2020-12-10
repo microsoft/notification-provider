@@ -81,6 +81,7 @@ namespace DirectSend
             {
                 message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
             }
+
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
             message.Importance = MessageImportance.High;
 
@@ -178,7 +179,7 @@ namespace DirectSend
             await this.SendItemAsync(message, traceProps).ConfigureAwait(false);
         }
 
-        private async Task SendItemAsync(MimeMessage message, Dictionary<string,string> traceProps)
+        private async Task SendItemAsync(MimeMessage message, Dictionary<string, string> traceProps)
         {
             IDSSmtpClient client = null;
             string status = "Fail";

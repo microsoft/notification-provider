@@ -26,7 +26,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="applicationName">Name of the application.</param>
         /// <param name="notificationEntities">The notification entities.</param>
-        /// <returns></returns>
+        /// <returns>Task.</returns>
         Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities);
     }
 }

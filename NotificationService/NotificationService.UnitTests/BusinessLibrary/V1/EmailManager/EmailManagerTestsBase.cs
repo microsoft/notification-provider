@@ -13,6 +13,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -24,7 +25,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using NotificationService.Contracts;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
-    using Newtonsoft.Json;
     using NotificationService.UnitTests.Mocks;
 
     /// <summary>
@@ -294,8 +294,15 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(mergedTemplate);
             this.EmailManager = new EmailManager(this.Configuration, this.EmailNotificationRepository.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
 
-            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting,
-            Options.Create(retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(
+                this.Configuration,
+                this.EmailAccountManager.Object,
+                this.Logger,
+                this.MsGraphSetting,
+                Options.Create(retrySetting),
+                this.TokenHelper.Object,
+                this.MsGraphProvider.Object,
+                this.EmailManager);
 
             _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))

@@ -13,6 +13,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using Microsoft.Extensions.Localization.Internal;
     using Microsoft.Extensions.Options;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -20,11 +21,10 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
     using NotificationService.Data;
     using NotificationService.UnitTests.BusinessLibrary.V1.EmailManager;
-    using Newtonsoft.Json;
     using NUnit.Framework;
-    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Tests for ProcessEmailNotifications method of Email Manager.
@@ -101,7 +101,8 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting", JsonConvert.SerializeObject(retrySetting) },
             };
-            //this.Configuration = new ConfigurationBuilder()
+
+            // this.Configuration = new ConfigurationBuilder()
             //    .AddInMemoryCollection(testConfigValues)
             //    .Build();
             this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
@@ -116,6 +117,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         /// <summary>
         /// Tests for ProcessEmailNotifications method with overridden From address from Application configuration.
         /// </summary>
+        /// <returns>The Task.</returns>
         [Test]
         public async Task ProcessEmailNotificationsTest_AlreadyProcessed()
         {
@@ -256,7 +258,6 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             _ = this.EmailAccountManager
                 .Setup(ema => ema.FetchAccountToBeUsedForApplication(It.IsAny<string>(), It.IsAny<List<ApplicationAccounts>>()))
                 .Returns(applicationAccounts[0].Accounts[0]);
-
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
 
@@ -741,7 +742,6 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         [Test]
         public void ProcessEmailNotificationsTestSendUsingDirectSend()
         {
-
             var retrySetting = new RetrySetting
             {
                 MaxRetries = 10,
@@ -808,7 +808,6 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         [Test]
         public void ProcessMeetingNotificationsTestSendUsingDirectSend()
         {
-
             var retrySetting = new RetrySetting
             {
                 MaxRetries = 10,

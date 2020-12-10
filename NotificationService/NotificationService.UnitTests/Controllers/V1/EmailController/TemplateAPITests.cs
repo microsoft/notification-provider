@@ -37,7 +37,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         }
 
         /// <summary>
-        /// Tests for DeleteMailTemplate method 
+        /// Tests for DeleteMailTemplate method.
         /// </summary>
         [Test]
         public void DeleteMailTemplateTest()
