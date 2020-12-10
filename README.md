@@ -1,17 +1,20 @@
-# Project
+# Notification Provider
+Notification Provider is an implementation to send Email Notifications using the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0)/[Direct Send](https://docs.microsoft.com/en-us/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365#option-2-send-mail-directly-from-your-printer-or-application-to-microsoft-365-or-office-365-direct-send), and supports sending more than 10k emails in a day. This service has robust retry mechanisms and telemetry hooks to ensure proper tracking of email notifications. The library is extensible, providing the users the option to use Graph/DirectSend as Notification Providers to send the email Notifications and Table Storage or CosmosDB to store the Notification History and Templates.
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+## Benefits of Notification Provider
+1. Uses Asynchronous processing of emails
+2. Accepts email in batches
+3. Extendible solution for your choice of storage and Notification Providers
+4. Already supports GraphAPI/DirectSend as NotificationProviders
+5. Already supports Azure Table Storage(recommended) and Cosmos DB as storage for email tracking
+6. Uses Application Insights for logging, log level can be configured
+7. Have different endpoints for resend/getting history/sending a single email/sending emails in batches etc
+8. Supports Attachments/Templates and more to come.
+9. Differnt API Endpoints for Template management
 
-As the maintainer of this project, please make a few updates:
-
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+_Please find further details in the WIKI here._
 
 ## Contributing
-
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
