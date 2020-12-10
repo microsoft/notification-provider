@@ -1,4 +1,6 @@
 # Notification Provider
+![Integration Build](https://github.com/microsoft/notification-provider/workflows/Integration%20Build/badge.svg)
+
 Notification Provider is an implementation to send Email Notifications using the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0)/[Direct Send](https://docs.microsoft.com/en-us/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365#option-2-send-mail-directly-from-your-printer-or-application-to-microsoft-365-or-office-365-direct-send), and supports sending more than 10k emails in a day. This service has robust retry mechanisms and telemetry hooks to ensure proper tracking of email notifications. The library is extensible, providing the users the option to use Graph/DirectSend as Notification Providers to send the email Notifications and Table Storage or CosmosDB to store the Notification History and Templates.
 
 ## Benefits of Notification Provider
