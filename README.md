@@ -14,7 +14,7 @@ Notification Provider is an implementation to send Email Notifications using the
 8. Supports Attachments/Templates and more to come.
 9. Differnt API Endpoints for Template management
 
-_Please find further details in the WIKI here._
+_Please find further details in the [WIKI here](https://github.com/microsoft/notification-provider/wiki/Notification-Provider)._
 
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
