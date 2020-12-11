@@ -3,6 +3,13 @@
 
 namespace NotificationService.BusinessLibrary.Business.v1
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -12,13 +19,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
     using NotificationService.Data;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Business Manager for Notification Handler.

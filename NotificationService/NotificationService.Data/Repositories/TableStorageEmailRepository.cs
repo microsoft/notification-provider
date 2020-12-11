@@ -504,7 +504,7 @@ namespace NotificationService.Data.Repositories
         /// </summary>
         /// <param name="meetingNotificationItemEntities">The meeting notification item entities.</param>
         /// <returns>A <see cref="Task"/>.</returns>
-        /// <exception cref="System.ArgumentNullException">meetingNotificationItemEntities</exception>
+        /// <exception cref="System.ArgumentNullException">meetingNotificationItemEntities.</exception>
         public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities)
         {
             if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)

@@ -25,7 +25,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// Marks the notifications' read status asynchronously.
         /// </summary>
         /// <param name="applicationName">Name of the application.</param>
-        /// <param name="notificationIds">The instance for <see cref="IEnumerable{string}"/>.</param>
+        /// <param name="notificationIds">The instance for <see cref="IEnumerable{String}"/>.</param>
         /// <returns>An instance of <see cref="Task"/> representing an asynchronous operation.</returns>
         Task MarkNotificationsAsReadAsync(string applicationName, IEnumerable<string> notificationIds);
 

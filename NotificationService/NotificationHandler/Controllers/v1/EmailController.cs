@@ -250,7 +250,7 @@ namespace NotificationHandler.Controllers
         /// </summary>
         /// <param name="applicationName">Application sourcing the email notification.</param>
         /// <param name="mailTemplateName">Template name.</param>
-        /// <returns>"status of delete operation."</returns>
+        /// <returns>status of delete operation.</returns>
         [HttpPost]
         [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
         [Route("deleteTemplate/{applicationName}/{mailTemplateName}")]

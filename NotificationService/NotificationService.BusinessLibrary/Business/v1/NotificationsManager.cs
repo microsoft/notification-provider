@@ -232,7 +232,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
         /// </summary>
         /// <param name="trackingIds">The tracking ids.</param>
         /// <param name="webNotificationItemEntities">The instance of <see cref="IEnumerable{WebNotificationItemEntity}"/>.</param>
-        /// <returns>The instance of <see cref="IEnumerable{string}"/>.</returns>
+        /// <returns>The instance of <see cref="IEnumerable{String}"/>.</returns>
         private static IEnumerable<string> LocateAbsentTrackingIds(IEnumerable<string> trackingIds, IEnumerable<WebNotificationItemEntity> webNotificationItemEntities)
         {
             Debug.Assert(trackingIds?.Any() ?? false, "Missing tracking Ids");
