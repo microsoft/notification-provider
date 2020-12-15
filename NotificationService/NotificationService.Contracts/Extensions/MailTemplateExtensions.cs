@@ -92,4 +92,3 @@ namespace NotificationService.Contracts.Extensions
         }
     }
 }
-

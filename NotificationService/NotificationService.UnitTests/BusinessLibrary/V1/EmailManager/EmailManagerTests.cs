@@ -2,24 +2,24 @@
 // Licensed under the MIT License.
 
 namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
-{    
-    using Moq;
-    using NotificationService.Data.Interfaces;
-    using NotificationService.Common.Logger;
-    using NotificationService.Common;
+{
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using NotificationService.Common.Encryption;
+    using Moq;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NUnit.Framework;
-    using NotificationService.Contracts.Models;
-    using System.Threading.Tasks;
-    using NotificationService.Data;
-    using NotificationService.Contracts.Entities;
+    using NotificationService.Common;
+    using NotificationService.Common.Encryption;
+    using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
+    using NotificationService.Data;
+    using NotificationService.Data.Interfaces;
+    using NUnit.Framework;
 
     /// <summary>
     /// EmailManagerTests.
@@ -93,8 +93,11 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         public async Task CreateMeetingNotificationEntitiesTests()
         {
             var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
-            var meetingNotificationItems = new List<MeetingNotificationItem> { new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
-                                                new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow}, };
+            var meetingNotificationItems = new List<MeetingNotificationItem>
+            {
+                new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
+                new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
+            };
             var meetingEntities = await emailManager.CreateMeetingNotificationEntities("TestApp", meetingNotificationItems.ToArray(), NotificationService.Contracts.NotificationItemStatus.Queued);
             Assert.IsTrue(meetingEntities.Count == 2);
             this.EmailNotificationRepo.Verify(x => x.CreateMeetingNotificationItemEntities(It.IsAny<List<MeetingNotificationItemEntity>>()), Times.Once);
@@ -103,13 +106,20 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// <summary>
         /// Notifications the entities to response tests.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public void NotificationEntitiesToResponseTests()
         {
             var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
-            var meetingNotificationItems = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
-                                                new MeetingNotificationItemEntity { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow}, };
+            var meetingNotificationItems = new List<MeetingNotificationItemEntity>
+            {
+                new MeetingNotificationItemEntity
+                {
+                    EndDate = DateTime.UtcNow.AddHours(1),
+                    Start = DateTime.UtcNow.AddHours(1),
+                    End = DateTime.UtcNow,
+                },
+                new MeetingNotificationItemEntity { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
+            };
             var meetingEntities = emailManager.NotificationEntitiesToResponse(new List<NotificationResponse>(), meetingNotificationItems);
             Assert.IsTrue(meetingEntities.Count == 2);
         }

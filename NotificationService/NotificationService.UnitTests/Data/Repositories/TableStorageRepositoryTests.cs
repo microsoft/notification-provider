@@ -1,20 +1,24 @@
-﻿namespace NotificationService.UnitTests.Data.Repositories
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.UnitTests.Data.Repositories
 {
-    using NotificationService.Data;
-    using NotificationService.Common.Logger;
     using System;
     using System.Collections.Generic;
-    using System.Text;
-    using Moq;
-    using NUnit.Framework;
-    using NotificationService.Data.Repositories;
-    using Microsoft.Extensions.Options;
-    using NotificationService.Common;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
+    using Microsoft.Extensions.Options;
+    using Moq;
+    using NotificationService.Common;
+    using NotificationService.Common.Logger;
     using NotificationService.Contracts.Entities;
-    using System.Linq;
+    using NotificationService.Data;
+    using NotificationService.Data.Repositories;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Table Storage Repository Tests Class.
+    /// </summary>
     public class TableStorageRepositoryTests
     {
         /// <summary>
@@ -65,7 +69,7 @@
         [Test]
         public async Task GetEmailNotificationItemEntityTests()
         {
-            IEnumerable<MeetingNotificationItemTableEntity> entities = new List<MeetingNotificationItemTableEntity> { new MeetingNotificationItemTableEntity { NotificationId = "notificationId1" }};
+            IEnumerable<MeetingNotificationItemTableEntity> entities = new List<MeetingNotificationItemTableEntity> { new MeetingNotificationItemTableEntity { NotificationId = "notificationId1" } };
             _ = this.meetingHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<MeetingNotificationItemTableEntity>>(), null, null)).Returns(entities);
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object);

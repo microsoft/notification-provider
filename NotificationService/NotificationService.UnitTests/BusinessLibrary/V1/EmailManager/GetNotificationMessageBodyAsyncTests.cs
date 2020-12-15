@@ -20,6 +20,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// </summary>
         [SetUp]
         public void Setup() => this.SetupTestBase();
+
         /// <summary>
         /// Tests for GetNotificationMessageBodyAsync method for valid inputs.
         /// </summary>

@@ -146,6 +146,7 @@ namespace NotificationService.Data
                 TableOperation retrieveOperation = TableOperation.Retrieve<MailTemplateEntity>(applicationName, templateName);
                 TableResult tableResult = await this.cloudTable.ExecuteAsync(retrieveOperation).ConfigureAwait(false);
                 MailTemplateEntity mailTemplateEntity = tableResult.Result as MailTemplateEntity;
+
                 // Create the TableOperation object that Delets the entity.
                 TableOperation deleteOperation = TableOperation.Delete(mailTemplateEntity);
                 var response = await this.cloudTable.ExecuteAsync(deleteOperation).ConfigureAwait(false);

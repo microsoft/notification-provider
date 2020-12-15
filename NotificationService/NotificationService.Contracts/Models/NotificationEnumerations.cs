@@ -101,5 +101,4 @@ namespace NotificationService.Contracts
         /// </summary>
         Yearly = 4,
     }
-
 }

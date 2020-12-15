@@ -413,7 +413,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
             return notificationEntities;
         }
 
-
         /// <summary>
         /// Chooses an account for application, sends the notifications via Graph and returns back the status.
         /// </summary>

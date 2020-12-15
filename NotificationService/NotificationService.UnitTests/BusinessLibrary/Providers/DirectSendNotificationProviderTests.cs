@@ -1,21 +1,22 @@
-﻿namespace NotificationService.UnitTests.BusinessLibrary.Providers
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.UnitTests.BusinessLibrary.Providers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using DirectSend;
+    using DirectSend.Models.Mail;
     using Microsoft.Extensions.Configuration;
     using Moq;
-    using NotificationService.BusinessLibrary;
-    using NotificationService.Data;
-    using NUnit.Framework;
-    using NotificationService.Common.Logger;
-    using DirectSend;
-    using NotificationService.BusinessLibrary.Providers;
-    using System.Threading;
-    using NotificationService.Contracts.Entities;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NotificationService.Common.Configurations;
     using Newtonsoft.Json;
-    using DirectSend.Models.Mail;
-    using System.Linq;
+    using NotificationService.BusinessLibrary;
+    using NotificationService.BusinessLibrary.Providers;
+    using NotificationService.Common.Configurations;
+    using NotificationService.Common.Logger;
+    using NotificationService.Contracts.Entities;
+    using NUnit.Framework;
 
     public class DirectSendNotificationProviderTests
     {
@@ -45,7 +46,7 @@
             this.mockedEmailService = new Mock<IEmailService>();
             this.mockedEmailManager = new Mock<IEmailManager>();
             this.Logger = new Mock<ILogger>().Object;
-            _ = this.Configuration.Setup(x => x["MailSettings"]).Returns(JsonConvert.SerializeObject(new List<MailSettings> { new MailSettings { ApplicationName= "TestApp", SendForReal = false, ToOverride = "dummy@contoso.com" } }));
+            _ = this.Configuration.Setup(x => x["MailSettings"]).Returns(JsonConvert.SerializeObject(new List<MailSettings> { new MailSettings { ApplicationName = "TestApp", SendForReal = false, ToOverride = "dummy@contoso.com" } }));
             _ = this.Configuration.Setup(x => x["DirectSendSetting__SmtpServer"]).Returns("testServer");
             _ = this.Configuration.Setup(x => x["DirectSendSetting__SmtpPort"]).Returns("25");
             var configurationSection = new Mock<IConfigurationSection>();
@@ -60,12 +61,11 @@
             var provider = new DirectSendNotificationProvider(this.Configuration.Object, this.mockedEmailService.Object, this.Logger, this.mockedEmailManager.Object);
             var entities = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = "notificationId1", RequiredAttendees = "user@contos.com;user1@contos.com", OptionalAttendees = "user2@contos.com" } };
             await provider.ProcessMeetingNotificationEntities("TestApp", entities);
-            this.mockedEmailService.Verify(x => x.SendMeetingInviteAsync(It.Is<EmailMessage>(q => q.ToAddresses.Any(r => r.Address == "dummy@contoso.com") && q.CcAddresses == null)), Times.Once);            
+            this.mockedEmailService.Verify(x => x.SendMeetingInviteAsync(It.Is<EmailMessage>(q => q.ToAddresses.Any(r => r.Address == "dummy@contoso.com") && q.CcAddresses == null)), Times.Once);
             _ = this.Configuration.Setup(x => x["MailSettings"]).Returns(JsonConvert.SerializeObject(new List<MailSettings> { new MailSettings { ApplicationName = "TestApp", SendForReal = true, ToOverride = "dummy@contoso.com" } }));
             provider = new DirectSendNotificationProvider(this.Configuration.Object, this.mockedEmailService.Object, this.Logger, this.mockedEmailManager.Object);
             await provider.ProcessMeetingNotificationEntities("TestApp", entities);
             this.mockedEmailService.Verify(x => x.SendMeetingInviteAsync(It.Is<EmailMessage>(q => q.ToAddresses.Any(r => r.Address == "user@contos.com") && q.ToAddresses.Any(r => r.Address == "user2@contos.com"))), Times.Once);
-
         }
 
         [Test]

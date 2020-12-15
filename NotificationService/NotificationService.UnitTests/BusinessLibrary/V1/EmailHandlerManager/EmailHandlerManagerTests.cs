@@ -1,22 +1,23 @@
-﻿namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTests
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTests
 {
-    using Moq;
-    using NotificationService.BusinessLibrary.Business.v1;
-    using NUnit.Framework;
-    using NotificationService.Common.Logger;
-    using System;
     using System.Collections.Generic;
-    using System.Text;
-    using Microsoft.Extensions.Configuration;
-    using NotificationService.Common;
-    using Microsoft.Extensions.Options;
-    using NotificationService.Data;
-    using NotificationService.BusinessLibrary;
-    using NotificationService.Contracts.Models;
-    using System.Threading.Tasks;
-    using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts;
     using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Options;
+    using Moq;
+    using NotificationService.BusinessLibrary;
+    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.Common;
+    using NotificationService.Common.Logger;
+    using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
+    using NotificationService.Data;
+    using NUnit.Framework;
 
     public class EmailHandlerManagerTests
     {
@@ -31,7 +32,7 @@
         public Mock<IConfiguration> Configuration { get; set; }
 
         /// <summary>
-        /// The ms graph settings
+        /// The ms graph settings.
         /// </summary>
         private IOptions<MSGraphSetting> msGraphSettings;
 
@@ -49,7 +50,6 @@
             this.msGraphSettings = Options.Create<MSGraphSetting>(new MSGraphSetting { Authority = "aa" });
             this.mockedCloudStorageClient = new Mock<ICloudStorageClient>();
             this.mockedEmailManager = new Mock<IEmailManager>();
-
         }
 
         /// <summary>
@@ -68,7 +68,6 @@
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Count == 1);
             Assert.IsTrue(response[0].NotificationId == "notificationId1");
-
         }
     }
 }

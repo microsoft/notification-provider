@@ -11,8 +11,8 @@ namespace NotificationService.UnitTests.Service.Provider
     using Microsoft.AspNetCore.SignalR;
     using Microsoft.Extensions.Logging;
     using Moq;
-    using WebNotifications.Providers;
     using NUnit.Framework;
+    using WebNotifications.Providers;
 
     /// <summary>
     /// GetUserId test for UserObjectIdentifier.
