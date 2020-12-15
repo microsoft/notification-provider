@@ -38,6 +38,16 @@ namespace NotificationService.Data
         Task<string> UploadBlobAsync(string blobName, string content);
 
         /// <summary>
+        /// Uploads the Attachment to the blob.
+        /// </summary>
+        /// <param name="applicationName">Application Name to make the container.</param>
+        /// <param name="notificationId">Notification Id for the Folder.</param>
+        /// <param name="fileName">File Name for the name of the blob.</param>
+        /// <param name="content">Blob Content.</param>
+        /// <returns>The Blob URI, till the folder level.</returns>
+        Task<string> UploadAttachmentToBlobAsync(string applicationName, string notificationId, string fileName, string content);
+
+        /// <summary>
         /// Downloads the content from the blob as a stream.
         /// </summary>
         /// <param name="blobName">Blob name.</param>

@@ -65,6 +65,11 @@ namespace NotificationService.BusinessLibrary
         private readonly ITemplateMerge templateMerge;
 
         /// <summary>
+        /// Instance of <see cref="ICloudStorageClient"/>.
+        /// </summary>
+        private readonly ICloudStorageClient cloudStorageClient;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EmailManager"/> class.
         /// </summary>
         /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
@@ -73,13 +78,15 @@ namespace NotificationService.BusinessLibrary
         /// <param name="encryptionService">Instance of Encryption Service.</param>
         /// <param name="templateManager">Instance of templateManager.</param>
         /// <param name="templateMerge">Instance of templateMerge.</param>
+        /// <param name="cloudStorageClient">An instance of <see cref="ICloudStorageClient"/>.</param>
         public EmailManager(
             IConfiguration configuration,
             IRepositoryFactory repositoryFactory,
             ILogger logger,
             IEncryptionService encryptionService,
             IMailTemplateManager templateManager,
-            ITemplateMerge templateMerge)
+            ITemplateMerge templateMerge,
+            ICloudStorageClient cloudStorageClient)
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
@@ -88,6 +95,7 @@ namespace NotificationService.BusinessLibrary
             this.encryptionService = encryptionService;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
+            this.cloudStorageClient = cloudStorageClient;
         }
 
         /// <summary>
@@ -120,6 +128,7 @@ namespace NotificationService.BusinessLibrary
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[Constants.Application] = applicationName;
+            string blobReference = string.Empty;
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
@@ -132,6 +141,13 @@ namespace NotificationService.BusinessLibrary
                 notificationEntity.CreatedDateTime = DateTime.UtcNow;
                 notificationEntity.UpdatedDateTime = DateTime.UtcNow;
                 notificationEntity.Status = status;
+
+                if (item.Attachments.Any())
+                {
+                    blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, notificationEntity.NotificationId, item.Attachments.First().FileName, item.Attachments.First().FileBase64).ConfigureAwait(false);
+                }
+
+                notificationEntity.AttachmentReference = blobReference;
                 notificationEntities.Add(notificationEntity);
             }
 

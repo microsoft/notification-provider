@@ -109,8 +109,14 @@ namespace NotificationService
 
             _ = services.AddScoped<INotificationReportManager, NotificationReportManager>()
                 .AddScoped<IEmailManager, EmailManager>(s =>
-                    new EmailManager(this.Configuration, s.GetService<IRepositoryFactory>(), s.GetService<ILogger>(), s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
-                    s.GetService<IMailTemplateManager>(), s.GetService<ITemplateMerge>()))
+                    new EmailManager(
+                        this.Configuration,
+                        s.GetService<IRepositoryFactory>(),
+                        s.GetService<ILogger>(),
+                        s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
+                        s.GetService<IMailTemplateManager>(),
+                        s.GetService<ITemplateMerge>(),
+                        s.GetService<ICloudStorageClient>()))
                 .AddScoped<IEmailServiceManager, EmailServiceManager>(s =>
                     new EmailServiceManager(this.Configuration, s.GetService<IRepositoryFactory>(), s.GetService<ICloudStorageClient>(), s.GetService<ILogger>(),
                     s.GetService<INotificationProviderFactory>(), s.GetService<IEmailManager>()))
