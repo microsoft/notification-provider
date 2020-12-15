@@ -100,31 +100,24 @@ namespace NotificationService.Data
         public async Task<string> UploadAttachmentToBlobAsync(string applicationName, string notificationId, string fileName, string content)
         {
             string containerName = applicationName.ToLower(CultureInfo.InvariantCulture);
-            try
+            BlobContainerClient attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, containerName);
+            if (!attachmentBlobContainerClient.Exists())
             {
-                BlobContainerClient attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, containerName);
-                if (!attachmentBlobContainerClient.Exists())
-                {
-                    this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(CloudStorageClient)} - No container found with name {containerName}.");
+                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(CloudStorageClient)} - No container found with name {containerName}.");
 
-                    var response = attachmentBlobContainerClient.CreateIfNotExists();
+                var response = attachmentBlobContainerClient.CreateIfNotExists();
 
-                    attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, containerName);
-                }
-
-                BlobClient blobClient = attachmentBlobContainerClient.GetBlobClient(string.Concat(notificationId, "/", fileName));
-                var contentBytes = Convert.FromBase64String(content);
-                using (var stream = new MemoryStream(contentBytes))
-                {
-                    var result = await blobClient.UploadAsync(stream, overwrite: true).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                this.logger.TraceError(ex.ToString());
+                attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, containerName);
             }
 
-            return string.Concat(this.blobContainerClient.Uri, "/", notificationId);
+            BlobClient blobClient = attachmentBlobContainerClient.GetBlobClient(string.Concat(notificationId, "/", fileName));
+            var contentBytes = Convert.FromBase64String(content);
+            using (var stream = new MemoryStream(contentBytes))
+            {
+                var result = await blobClient.UploadAsync(stream, overwrite: true).ConfigureAwait(false);
+            }
+
+            return string.Concat(attachmentBlobContainerClient.Uri, "/", notificationId);
         }
 
         /// <inheritdoc/>

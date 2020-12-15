@@ -250,6 +250,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.RowKey = emailNotificationItemEntity.NotificationId;
             emailNotificationItemTableEntity.Application = emailNotificationItemEntity.Application;
             emailNotificationItemTableEntity.Attachments = emailNotificationItemEntity.Attachments;
+            emailNotificationItemTableEntity.AttachmentReference = emailNotificationItemEntity.AttachmentReference;
             emailNotificationItemTableEntity.BCC = emailNotificationItemEntity.BCC;
             emailNotificationItemTableEntity.Body = emailNotificationItemEntity.Body;
             emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
@@ -388,6 +389,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.RowKey = emailNotificationItemTableEntity.NotificationId;
             emailNotificationItemEntity.Application = emailNotificationItemTableEntity.Application;
             emailNotificationItemEntity.Attachments = emailNotificationItemTableEntity.Attachments;
+            emailNotificationItemEntity.AttachmentReference = emailNotificationItemTableEntity.AttachmentReference;
             emailNotificationItemEntity.BCC = emailNotificationItemTableEntity.BCC;
             emailNotificationItemEntity.Body = emailNotificationItemTableEntity.Body;
             emailNotificationItemEntity.CC = emailNotificationItemTableEntity.CC;

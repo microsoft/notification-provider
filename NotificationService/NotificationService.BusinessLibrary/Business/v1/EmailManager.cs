@@ -8,6 +8,7 @@ namespace NotificationService.BusinessLibrary
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
     using NotificationService.Common.Encryption;
@@ -128,7 +129,6 @@ namespace NotificationService.BusinessLibrary
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[Constants.Application] = applicationName;
-            string blobReference = string.Empty;
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
@@ -144,10 +144,17 @@ namespace NotificationService.BusinessLibrary
 
                 if (item.Attachments.Any())
                 {
-                    blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, notificationEntity.NotificationId, item.Attachments.First().FileName, item.Attachments.First().FileBase64).ConfigureAwait(false);
+                    List<string> attachmentReferences = new List<string>();
+                    string blobReference = string.Empty;
+                    foreach (var attachment in item.Attachments)
+                    {
+                        blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, notificationEntity.NotificationId, attachment.FileName, attachment.FileBase64).ConfigureAwait(false);
+                        attachmentReferences.Add(blobReference);
+                    }
+
+                    notificationEntity.AttachmentReference = JsonConvert.SerializeObject(attachmentReferences);
                 }
 
-                notificationEntity.AttachmentReference = blobReference;
                 notificationEntities.Add(notificationEntity);
             }
 
