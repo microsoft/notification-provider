@@ -192,6 +192,5 @@ namespace NotificationService.Common
         /// The meetingnotificationsqueue.
         /// </summary>
         public const string Notificationsqueue = "notifications-queue";
-
     }
 }

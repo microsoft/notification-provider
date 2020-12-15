@@ -11,7 +11,7 @@ namespace NotificationService.UnitTests.Mocks
     using NotificationService.Contracts.Entities;
 
     /// <summary>
-    /// 
+    /// Mock Notification Provider Class.
     /// </summary>
     /// <seealso cref="NotificationService.BusinessLibrary.Interfaces.INotificationProvider" />
     public class MockNotificationProvider : INotificationProvider

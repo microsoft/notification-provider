@@ -22,8 +22,6 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
     [ExcludeFromCodeCoverage]
     public class NotificationReportControllerTests
     {
-        private Mock<INotificationReportManager> notificationReportManager;
-        private ILogger logger;
         private readonly NotificationReportRequest request = new NotificationReportRequest()
         {
             NotificationStatusFilter = new List<NotificationItemStatus> { NotificationItemStatus.Sent, NotificationItemStatus.Processing },
@@ -39,6 +37,8 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
 
         private readonly string applicationName = "TestApp";
         private readonly string notificationId = Guid.NewGuid().ToString();
+        private Mock<INotificationReportManager> notificationReportManager;
+        private ILogger logger;
 
         /// <summary>
         /// Initialization for the tests.
@@ -106,9 +106,9 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
         /// Tests for GetReportNotifications method.
         /// </summary>
 
-        //[Test]
-        //public void GetReportNotificationsTest()
-        //{
+        // [Test]
+        // public void GetReportNotificationsTest()
+        // {
         //    NotificationReportController notificationReportController = new NotificationReportController(this.notificationReportManager.Object, this.logger);
         //    IList<NotificationReportResponse> responses = new List<NotificationReportResponse>();
         //    var request = new NotificationReportRequest()
@@ -122,20 +122,16 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
         //        ApplicationFilter = new List<string>() { "test", "app1", },
         //        CreatedDateTimeStart = "2020-07-21",
         //    };
-
         //    List<NotificationReportResponse> dbEntities = new List<NotificationReportResponse>();
         //    dbEntities.Add(new NotificationReportResponse() { NotificationId = "1", Application = "SelectedApp" });
         //    dbEntities.Add(new NotificationReportResponse() { NotificationId = "2", Application = "SelectedApp" });
-
         //    var tuple = Tuple.Create<IList<NotificationReportResponse>, TableContinuationToken>(dbEntities, new TableContinuationToken { NextPartitionKey = "a", NextRowKey = "b" });
-
         //    _ = this.notificationReportManager
         //        .Setup(reportManager => reportManager.GetReportNotifications(request)).Returns(Task.FromResult(tuple));
-
         //    Task<IActionResult> result = notificationReportController.GetReportNotifications(request);
         //    Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
         //    this.notificationReportManager.Verify(mgr => mgr.GetReportNotifications(request), Times.Once);
         //    Assert.Pass();
-        //}
+        // }
     }
 }

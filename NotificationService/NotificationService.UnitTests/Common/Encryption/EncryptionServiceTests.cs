@@ -39,7 +39,7 @@ namespace NotificationService.UnitTests.Common.Encryption
             this.mockedConfiguration = new Mock<IConfiguration>();
             Aes myAes = Aes.Create();
             _ = this.mockedConfiguration.Setup(x => x[Constants.NotificationEncryptionKey]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedKey")));
-            _ = this.mockedConfiguration.Setup(x => x[Constants.NotificationEncryptionIntialVector]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedIV")));            
+            _ = this.mockedConfiguration.Setup(x => x[Constants.NotificationEncryptionIntialVector]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedIV")));
         }
 
         /// <summary>

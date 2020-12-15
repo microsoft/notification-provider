@@ -147,7 +147,7 @@ namespace NotificationService.BusinessLibrary.Trackers
         /// </summary>
         /// <param name="userObjectIdentifier">The user object identifier.</param>
         /// <param name="applicationName">Name of the application.</param>
-        /// <returns>The instance of <see cref="IEnumerable{string}"/>.</returns>
+        /// <returns>The instance of <see cref="IEnumerable{String}"/>.</returns>
         private IEnumerable<string> GetConnectionIdsInternal(string userObjectIdentifier, string applicationName)
         {
             List<string> connectionIds = new List<string>();

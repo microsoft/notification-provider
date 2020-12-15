@@ -34,7 +34,7 @@ namespace NotificationService.Data
         /// <param name="applicationName">Application sourcing the email template.</param>
         /// <returns><see cref="MailTemplateEntity"/> list of mail template entities .</returns>
         Task<IList<MailTemplateEntity>> GetAllTemplateEntities(string applicationName);
-        
+
         /// <summary>
         /// Deletes Email template.
         /// </summary>

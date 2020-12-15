@@ -1,7 +1,7 @@
-﻿/*// <copyright file="MSGraphProviderTests.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+/*
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -246,7 +246,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
             _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
             _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
 
-            
             var httpresponsemessage = new HttpResponseMessage
             {
                 Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
