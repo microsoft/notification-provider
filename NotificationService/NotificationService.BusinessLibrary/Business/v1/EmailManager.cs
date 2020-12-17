@@ -141,24 +141,10 @@ namespace NotificationService.BusinessLibrary
                 notificationEntity.CreatedDateTime = DateTime.UtcNow;
                 notificationEntity.UpdatedDateTime = DateTime.UtcNow;
                 notificationEntity.Status = status;
-
-                if (item.Attachments.Any())
-                {
-                    List<string> attachmentReferences = new List<string>();
-                    string blobReference = string.Empty;
-                    foreach (var attachment in item.Attachments)
-                    {
-                        blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, notificationEntity.NotificationId, attachment.FileName, attachment.FileBase64).ConfigureAwait(false);
-                        attachmentReferences.Add(blobReference);
-                    }
-
-                    notificationEntity.AttachmentReference = JsonConvert.SerializeObject(attachmentReferences);
-                }
-
                 notificationEntities.Add(notificationEntity);
             }
 
-            await this.emailNotificationRepository.CreateEmailNotificationItemEntities(notificationEntities).ConfigureAwait(false);
+            await this.emailNotificationRepository.CreateEmailNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
         }

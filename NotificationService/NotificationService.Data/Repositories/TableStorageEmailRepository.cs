@@ -45,22 +45,29 @@ namespace NotificationService.Data.Repositories
         private readonly ILogger logger;
 
         /// <summary>
+        /// Instance of <see cref="IMailAttachmentRepository"/>.
+        /// </summary>
+        private readonly IMailAttachmentRepository mailAttachmentRepository;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageEmailRepository"/> class.
         /// </summary>
         /// <param name="storageAccountSetting">primary key of storage account.</param>
         /// <param name="cloudStorageClient"> cloud storage client for table storage.</param>
         /// <param name="logger">logger.</param>
-        public TableStorageEmailRepository(IOptions<StorageAccountSetting> storageAccountSetting, ITableStorageClient cloudStorageClient, ILogger logger)
+        /// <param name="mailAttachmentRepository">Instnce of the Mail Attachment Repository.</param>
+        public TableStorageEmailRepository(IOptions<StorageAccountSetting> storageAccountSetting, ITableStorageClient cloudStorageClient, ILogger logger, IMailAttachmentRepository mailAttachmentRepository)
         {
             this.storageAccountSetting = storageAccountSetting?.Value ?? throw new System.ArgumentNullException(nameof(storageAccountSetting));
             this.cloudStorageClient = cloudStorageClient ?? throw new System.ArgumentNullException(nameof(cloudStorageClient));
             this.emailHistoryTable = this.cloudStorageClient.GetCloudTable("EmailHistory");
             this.meetingHistoryTable = this.cloudStorageClient.GetCloudTable("MeetingHistory");
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+            this.mailAttachmentRepository = mailAttachmentRepository;
         }
 
         /// <inheritdoc/>
-        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities)
+        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
         {
             if (emailNotificationItemEntities is null || emailNotificationItemEntities.Count == 0)
             {
@@ -68,8 +75,14 @@ namespace NotificationService.Data.Repositories
             }
 
             this.logger.TraceInformation($"Started {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            IList<EmailNotificationItemEntity> updatedEmailNotificationItemEntities = emailNotificationItemEntities;
+            if (applicationName != null)
+            {
+                updatedEmailNotificationItemEntities = this.mailAttachmentRepository.UploadAttachment(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).Result;
+            }
+
             TableBatchOperation batchOperation = new TableBatchOperation();
-            foreach (var item in emailNotificationItemEntities)
+            foreach (var item in updatedEmailNotificationItemEntities)
             {
                 batchOperation.Insert(this.ConvertToEmailNotificationItemTableEntity(item));
             }
@@ -82,7 +95,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntities(IList<string> notificationIds)
+        public Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntities(IList<string> notificationIds, string applicationName = null)
         {
             if (notificationIds is null || notificationIds.Count == 0)
             {
@@ -100,8 +113,14 @@ namespace NotificationService.Data.Repositories
             var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
             emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
             IList<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => this.ConvertToEmailNotificationItemEntity(e)).ToList();
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
+            if (applicationName != null)
+            {
+                updatedNotificationEntities = this.mailAttachmentRepository.DownloadAttachment(notificationEntities, applicationName).Result;
+            }
+
             this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            return Task.FromResult(notificationEntities);
+            return Task.FromResult(updatedNotificationEntities);
         }
 
         /// <inheritdoc/>

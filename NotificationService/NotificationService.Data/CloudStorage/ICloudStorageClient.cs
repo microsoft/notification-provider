@@ -41,11 +41,10 @@ namespace NotificationService.Data
         /// Uploads the Attachment to the blob.
         /// </summary>
         /// <param name="applicationName">Application Name to make the container.</param>
-        /// <param name="notificationId">Notification Id for the Folder.</param>
-        /// <param name="fileName">File Name for the name of the blob.</param>
+        /// <param name="blobPath">Path of the blob to store the content.</param>
         /// <param name="content">Blob Content.</param>
         /// <returns>The Blob URI, till the folder level.</returns>
-        Task<string> UploadAttachmentToBlobAsync(string applicationName, string notificationId, string fileName, string content);
+        Task<string> UploadAttachmentToBlobAsync(string applicationName, string blobPath, string content);
 
         /// <summary>
         /// Downloads the content from the blob as a stream.
@@ -53,6 +52,14 @@ namespace NotificationService.Data
         /// <param name="blobName">Blob name.</param>
         /// <returns>Blob content.</returns>
         Task<string> DownloadBlobAsync(string blobName);
+
+        /// <summary>
+        /// Downloads attachment from blob.
+        /// </summary>
+        /// <param name="applicationName">ApplicationName to identify the container.</param>
+        /// <param name="blobPath">Path of the blob to read the content.</param>
+        /// <returns>The base64 encoded content.</returns>
+        Task<string> DownloadAttachmentFromBlobAsync(string applicationName, string blobPath);
 
         /// <summary>
         /// Deletes the blob.

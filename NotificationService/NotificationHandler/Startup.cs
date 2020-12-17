@@ -94,6 +94,7 @@ namespace NotificationHandler
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddScoped<IMailTemplateManager, MailTemplateManager>()
                 .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
                 .AddScoped<ITemplateMerge, TemplateMerge>()
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddSingleton<IEmailAccountManager, EmailAccountManager>();

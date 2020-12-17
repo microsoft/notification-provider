@@ -262,7 +262,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.FromResult(It.IsAny<bool>()));
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailNotificationRepository
@@ -270,7 +270,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.CloudStorageClient

@@ -228,7 +228,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         {
             this.logger.TraceInformation($"Started {nameof(this.SendNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.");
             IList<EmailNotificationItemEntity> emailNotificationEntities = await this.emailManager.CreateNotificationEntities(applicationName, emailNotificationItems, NotificationItemStatus.Processing).ConfigureAwait(false);
-            IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(emailNotificationEntities.Select(e => e.NotificationId).ToList()).ConfigureAwait(false);
+            IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(emailNotificationEntities.Select(e => e.NotificationId).ToList(), applicationName).ConfigureAwait(false);
             var retEntities = await this.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.SendNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.");
             return retEntities;
@@ -251,7 +251,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
 
             this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
-            IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(notificationIds).ConfigureAwait(false);
+            IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(notificationIds, applicationName).ConfigureAwait(false);
             this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
 
             var notificationEntitiesToBeSkipped = new List<EmailNotificationItemEntity>();

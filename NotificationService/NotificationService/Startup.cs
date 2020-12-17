@@ -128,6 +128,7 @@ namespace NotificationService
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddScoped<IMailTemplateManager, MailTemplateManager>()
                 .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
                 .AddScoped<ITemplateMerge, TemplateMerge>()
                 .AddSingleton<IEmailAccountManager, EmailAccountManager>()
                 .AddScoped<INotificationProviderFactory, NotificationProviderFactory>()
