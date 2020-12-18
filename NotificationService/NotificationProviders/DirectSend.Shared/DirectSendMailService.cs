@@ -174,8 +174,35 @@ namespace DirectSend
 
             ical.ContentType.Parameters.Add("method", "REQUEST");
 
-            message.Body = ical;
+            Multipart multipart = new Multipart("mixed");
+            multipart.Add(ical);
 
+            IList<string> fileNames = emailMessage.FileName.ToList();
+            IList<string> fileContents = emailMessage.FileContent.ToList();
+            int i = 0;
+            if (fileNames != null && fileContents != null && fileNames.Any() && fileContents.Count == fileNames.Count)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    string content = fileContents.ElementAt(i++);
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        Stream stream = new MemoryStream(Convert.FromBase64String(content));
+                        var indx = fileName.LastIndexOf('.') + 1;
+                        var fileType = fileName.Substring(indx, fileName.Length - indx);
+                        MimePart attachment = new MimePart("mixed", fileType)
+                        {
+                            FileName = fileName,
+                            Content = new MimeContent(stream, ContentEncoding.Default),
+                            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                            ContentTransferEncoding = ContentEncoding.Base64,
+                        };
+                        multipart.Add(attachment);
+                    }
+                }
+            }
+
+            message.Body = multipart;
             await this.SendItemAsync(message, traceProps).ConfigureAwait(false);
         }
 

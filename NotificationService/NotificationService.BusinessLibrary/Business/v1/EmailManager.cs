@@ -327,7 +327,7 @@ namespace NotificationService.BusinessLibrary
                 notificationEntities.Add(notificationEntity);
             }
 
-            await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities).ConfigureAwait(false);
+            await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
         }

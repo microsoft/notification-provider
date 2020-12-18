@@ -6,6 +6,7 @@ namespace NotificationService.Data
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
 
     /// <summary>
     /// Repository interface for all Mail Attachment Items.
@@ -28,5 +29,22 @@ namespace NotificationService.Data
         /// <param name="applicationName">The applicationName to get the container.</param>
         /// <returns>Updated entities with attachments.</returns>
         Task<IList<EmailNotificationItemEntity>> DownloadAttachment(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName);
+
+        /// <summary>
+        /// Upload meeting notifiation attachments.
+        /// </summary>
+        /// <param name="emailNotificationItemEntities"> meeting notification entities.</param>
+        /// <param name="notificationType"> notifiation type to create path.</param>
+        /// <param name="applicationName">applicationname to create container.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IList<MeetingNotificationItemEntity>> UploadMeetingAttachments(IList<MeetingNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName);
+
+        /// <summary>
+        /// Download meeting attachments from blob.
+        /// </summary>
+        /// <param name="emailNotificationItemEntities"> Meeting notification entities. </param>
+        /// <param name="applicationName"> applincationname as container name. </param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IList<MeetingNotificationItemEntity>> DownloadMeetingAttachment(IList<MeetingNotificationItemEntity> emailNotificationItemEntities, string applicationName);
     }
 }

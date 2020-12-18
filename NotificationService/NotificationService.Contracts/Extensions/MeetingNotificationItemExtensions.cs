@@ -5,6 +5,7 @@ namespace NotificationService.Contracts.Extensions
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
     using NotificationService.Common.Encryption;
     using NotificationService.Contracts.Entities;
@@ -28,7 +29,7 @@ namespace NotificationService.Contracts.Extensions
             {
                 return new MeetingNotificationItemEntity
                 {
-                    Attachments = meetingNotificationItem.Attachments,
+                    Attachments = ToNotificationAttachmentEntities(meetingNotificationItem.Attachments),
                     ICalUid = meetingNotificationItem.ICalUid,
                     OptionalAttendees = meetingNotificationItem.OptionalAttendees,
                     RequiredAttendees = meetingNotificationItem.RequiredAttendees,
@@ -65,6 +66,27 @@ namespace NotificationService.Contracts.Extensions
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        ///  Convert List of NotificationAttachment to List of NotificationAttachmentEntity.
+        /// </summary>
+        /// <param name="notificationAttachments"> NotificationAttachment entities. </param>
+        /// <returns> NotificationAttachementEntities. </returns>
+        public static IEnumerable<NotificationAttachmentEntity> ToNotificationAttachmentEntities(IEnumerable<NotificationAttachment> notificationAttachments)
+        {
+            if (notificationAttachments == null)
+            {
+                return null;
+            }
+
+            return notificationAttachments.ToList().Select(e => (e != null ? new NotificationAttachmentEntity()
+            {
+                FileBase64 = e.FileBase64,
+                FileName = e.FileName,
+                IsInline = e.IsInline,
+            }
+            : null));
         }
 
         /// <summary>

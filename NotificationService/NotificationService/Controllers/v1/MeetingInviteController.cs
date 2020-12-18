@@ -14,6 +14,7 @@ namespace NotificationService.Controllers
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Models;
     using NotificationService.SvCommon.Attributes;
     using NotificationService.SvCommon.Common;
 
@@ -82,6 +83,41 @@ namespace NotificationService.Controllers
             this.logger.TraceInformation($"Started {nameof(this.ProcessQueuedMeetingNotifications)} method of {nameof(EmailController)}.", traceprops);
             notificationResponses = await this.emailServiceManager.ProcessMeetingNotifications(applicationName, queueNotificationItem).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ProcessQueuedMeetingNotifications)} method of {nameof(EmailController)}.", traceprops);
+            return notificationResponses;
+        }
+
+        /// <summary>
+        /// Process email notification items synchronously with Graph API.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="meetingInviteItems">Array of email notification items.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpPost]
+        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Route("send/{applicationName}")]
+        public async Task<IList<NotificationResponse>> SendMeetingInvites(string applicationName, [FromBody] MeetingNotificationItem[] meetingInviteItems)
+        {
+            if (string.IsNullOrWhiteSpace(applicationName))
+            {
+                throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+            }
+
+            if (meetingInviteItems is null)
+            {
+                throw new ArgumentNullException(nameof(meetingInviteItems));
+            }
+
+            if (meetingInviteItems.Length == 0)
+            {
+                throw new ArgumentException("Email Notification Items list should not be empty.", nameof(meetingInviteItems));
+            }
+
+            IList<NotificationResponse> notificationResponses;
+            this.logger.TraceInformation($"Started {nameof(this.SendMeetingInvites)} method of {nameof(MeetingInviteController)}.");
+
+            // Extract the user token from Request to send the email notifications as user or from managed service accounts.
+            notificationResponses = await this.emailServiceManager.SendMeetingInvites(applicationName, meetingInviteItems).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvites)} method of {nameof(MeetingInviteController)}.");
             return notificationResponses;
         }
     }

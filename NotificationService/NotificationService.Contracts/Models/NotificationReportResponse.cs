@@ -3,9 +3,9 @@
 
 namespace NotificationService.Contracts
 {
-    using Microsoft.Azure.Cosmos.Table;
     using System;
     using System.Runtime.Serialization;
+    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// Notification Report Response.

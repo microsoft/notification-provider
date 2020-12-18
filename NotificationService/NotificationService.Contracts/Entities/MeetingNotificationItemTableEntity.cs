@@ -217,5 +217,10 @@ namespace NotificationService.Contracts.Entities
         /// </summary>
         [DataMember(Name = "ErrorMessage")]
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        ///  Gets or sets attachment Reference to blob.
+        /// </summary>
+        public string AttachmentReference { get; set; }
     }
 }

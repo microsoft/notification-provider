@@ -9,10 +9,10 @@ namespace NotificationService.UnitTests.Data.Repositories
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Moq;
     using NotificationService.Common;
+    using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Data;
 
@@ -30,7 +30,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         /// <summary>
         /// Gets or sets Logger.
         /// </summary>
-        public ILogger<EmailNotificationRepository> Logger { get; set; }
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// Gets or sets Cosmos Linq Query Mock.
@@ -105,7 +105,7 @@ namespace NotificationService.UnitTests.Data.Repositories
 
             IOrderedQueryable<EmailNotificationItemEntity> queryableEntityReponse = this.NotificationEntities.AsQueryable().OrderBy(e => e.NotificationId);
             this.CosmosDBSetting = Options.Create(new CosmosDBSetting() { Database = "TestDatabase", Container = "TestContainer", Key = "TestKey", Uri = "TestUri" });
-            this.Logger = Mock.Of<ILogger<EmailNotificationRepository>>();
+            this.Logger = Mock.Of<ILogger>();
 
             IQueryable<EmailNotificationItemEntity> queryResult = null;
             _ = this.CosmosLinqQuery

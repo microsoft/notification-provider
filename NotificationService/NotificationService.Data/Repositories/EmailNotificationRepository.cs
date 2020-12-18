@@ -10,9 +10,9 @@ namespace NotificationService.Data
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using NotificationService.Common;
+    using NotificationService.Common.Logger;
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -60,7 +60,7 @@ namespace NotificationService.Data
         /// <param name="logger">Instance of Logger.</param>
         /// <param name="cosmosLinqQuery">Instance of Cosmos Linq query.</param>
         /// <param name="mailAttachmentRepository">Instance of the Mail Attachment repository.</param>
-        public EmailNotificationRepository(IOptions<CosmosDBSetting> cosmosDBSetting, ICosmosDBQueryClient cosmosDBQueryClient, ILogger<EmailNotificationRepository> logger, ICosmosLinqQuery cosmosLinqQuery, IMailAttachmentRepository mailAttachmentRepository)
+        public EmailNotificationRepository(IOptions<CosmosDBSetting> cosmosDBSetting, ICosmosDBQueryClient cosmosDBQueryClient, ILogger logger, ICosmosLinqQuery cosmosLinqQuery, IMailAttachmentRepository mailAttachmentRepository)
         {
             this.cosmosDBSetting = cosmosDBSetting?.Value ?? throw new System.ArgumentNullException(nameof(cosmosDBSetting));
             this.cosmosDBQueryClient = cosmosDBQueryClient ?? throw new System.ArgumentNullException(nameof(cosmosDBQueryClient));
@@ -78,7 +78,7 @@ namespace NotificationService.Data
                 throw new System.ArgumentNullException(nameof(emailNotificationItemEntities));
             }
 
-            this.logger.LogInformation($"Started {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
 
             IList<EmailNotificationItemEntity> updatedEmailNotificationItemEntities = emailNotificationItemEntities;
             if (applicationName != null)
@@ -93,7 +93,7 @@ namespace NotificationService.Data
             }
 
             Task.WaitAll(createTasks.ToArray());
-            this.logger.LogInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
 
             return Task.FromResult(true);
         }
@@ -106,7 +106,7 @@ namespace NotificationService.Data
                 throw new System.ArgumentNullException(nameof(emailNotificationItemEntities));
             }
 
-            this.logger.LogInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
             List<Task> updateTasks = new List<Task>();
             foreach (var item in emailNotificationItemEntities)
             {
@@ -114,7 +114,7 @@ namespace NotificationService.Data
             }
 
             Task.WaitAll(updateTasks.ToArray());
-            this.logger.LogInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
 
             return Task.FromResult(true);
         }
@@ -127,7 +127,7 @@ namespace NotificationService.Data
                 throw new System.ArgumentNullException(nameof(notificationIds));
             }
 
-            this.logger.LogInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
             List<EmailNotificationItemEntity> emailNotificationItemEntities = new List<EmailNotificationItemEntity>();
             var query = this.cosmosContainer.GetItemLinqQueryable<EmailNotificationItemEntity>()
                 .Where(nie => notificationIds.Contains(nie.NotificationId));
@@ -148,7 +148,7 @@ namespace NotificationService.Data
                 updatedNotificationEntities = this.mailAttachmentRepository.DownloadAttachment(emailNotificationItemEntities, applicationName).Result;
             }
 
-            this.logger.LogInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
             return updatedNotificationEntities;
         }
 
@@ -160,7 +160,7 @@ namespace NotificationService.Data
                 throw new System.ArgumentNullException(nameof(notificationId));
             }
 
-            this.logger.LogInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
             List<EmailNotificationItemEntity> emailNotificationItemEntities = new List<EmailNotificationItemEntity>();
             var query = this.cosmosContainer.GetItemLinqQueryable<EmailNotificationItemEntity>()
                 .Where(nie => notificationId == nie.NotificationId);
@@ -177,7 +177,7 @@ namespace NotificationService.Data
 
             if (emailNotificationItemEntities.Count == 1)
             {
-                this.logger.LogInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
+                this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
                 return emailNotificationItemEntities.FirstOrDefault();
             }
             else if (emailNotificationItemEntities.Count > 1)
@@ -213,7 +213,7 @@ namespace NotificationService.Data
                 throw new ArgumentNullException($"Order Expression Cannot be null");
             }
 
-            this.logger.LogInformation($"Started {nameof(this.GetEmailNotifications)} method of {nameof(EmailNotificationRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotifications)} method of {nameof(EmailNotificationRepository)}.");
 
             var filteredNotifications = new List<EmailNotificationItemEntity>();
             var query = this.cosmosContainer.GetItemLinqQueryable<EmailNotificationItemEntity>()
@@ -343,13 +343,13 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds) => throw new NotImplementedException();
+        public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+        public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();

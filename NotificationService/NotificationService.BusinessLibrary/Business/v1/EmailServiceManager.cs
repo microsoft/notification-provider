@@ -18,6 +18,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
 
@@ -173,6 +174,19 @@ namespace NotificationService.BusinessLibrary.Business.v1
         }
 
         /// <inheritdoc/>
+        public async Task<IList<NotificationResponse>> SendMeetingInvites(string applicationName, MeetingNotificationItem[] meetingInviteItems)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.SendMeetingInvites)} method of {nameof(EmailServiceManager)}.");
+            IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
+            IList<MeetingNotificationItemEntity> emailNotificationEntities = await this.emailManager.CreateMeetingNotificationEntities(applicationName, meetingInviteItems, NotificationItemStatus.Processing).ConfigureAwait(false);
+            IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(emailNotificationEntities.Select(e => e.NotificationId).ToList(), applicationName).ConfigureAwait(false);
+            var notificationItemEntities = await this.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
+            var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
+            this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvites)} method of {nameof(EmailServiceManager)}.");
+            return responses;
+        }
+
+        /// <inheritdoc/>
         public async Task<IList<NotificationResponse>> ProcessMeetingNotifications(string applicationName, QueueNotificationItem queueNotificationItem)
         {
             var traceprops = new Dictionary<string, string>();
@@ -297,13 +311,13 @@ namespace NotificationService.BusinessLibrary.Business.v1
             List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
 
             this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
-            IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(notificationIds).ConfigureAwait(false);
+            IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(notificationIds, applicationName).ConfigureAwait(false);
             this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
 
             var notificationEntitiesToBeSkipped = new List<MeetingNotificationItemEntity>();
             if (notificationEntities.Count == 0)
             {
-                throw new ArgumentException("No records found for the input notification ids.", nameof(notificationIds));
+                throw new ArgumentException("No records found for the input notification ids.", nameof(queueNotificationItem));
             }
 
             if (queueNotificationItem.IgnoreAlreadySent)
