@@ -21,16 +21,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     public class DirectSendNotificationProviderTests
     {
         /// <summary>
-        /// Gets or sets Logger.
-        /// </summary>
-        public ILogger Logger { get; set; }
-
-        /// <summary>
-        /// Gets or sets Configuration.
-        /// </summary>
-        public Mock<IConfiguration> Configuration { get; set; }
-
-        /// <summary>
         /// The mocked email service.
         /// </summary>
         private Mock<IEmailService> mockedEmailService;
@@ -54,6 +44,16 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
             _ = this.Configuration.Setup(x => x.GetSection("DirectSendSetting")).Returns(configurationSection.Object);
             _ = this.mockedEmailManager.Setup(x => x.GetNotificationMessageBodyAsync(It.IsAny<string>(), It.IsAny<MeetingNotificationItemEntity>())).ReturnsAsync(new NotificationService.Contracts.MessageBody { Content = "Test" });
         }
+
+        /// <summary>
+        /// Gets or sets Logger.
+        /// </summary>
+        public ILogger Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets Configuration.
+        /// </summary>
+        public Mock<IConfiguration> Configuration { get; set; }
 
         [Test]
         public async Task ProcessMeetingNotificationEntitiesTests()

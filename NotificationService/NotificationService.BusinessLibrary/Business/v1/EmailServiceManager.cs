@@ -84,6 +84,8 @@ namespace NotificationService.BusinessLibrary.Business.v1
         /// <param name="repositoryFactory">An instance of <see cref="IRepositoryFactory"/>.</param>
         /// <param name="cloudStorageClient">An instance of <see cref="ICloudStorageClient"/>.</param>
         /// <param name="logger">Instance of Logger.</param>
+        /// <param name="notificationProviderFactory">An instance of <see cref="INotificationProviderFactory"/>.</param>
+        /// <param name="emailManager">An instance of <see cref="IEmailManager"/>.</param>
         public EmailServiceManager(
             IConfiguration configuration,
             IRepositoryFactory repositoryFactory,

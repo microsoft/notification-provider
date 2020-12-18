@@ -3,13 +3,13 @@
 
 namespace NotificationService.UnitTests.BusinessLibrary.Providers
 {
+    using System.Net.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
     using NotificationService.BusinessLibrary;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
-    using System.Net.Http;
 
     public class MSGraphProvideTestBase
     {

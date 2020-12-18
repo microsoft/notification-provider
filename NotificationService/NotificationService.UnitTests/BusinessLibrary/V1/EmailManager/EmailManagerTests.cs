@@ -26,6 +26,19 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     /// </summary>
     public class EmailManagerTests
     {
+        public EmailManagerTests()
+        {
+            this.Logger = new Mock<ILogger>().Object;
+            this.EncryptionService = new Mock<IEncryptionService>();
+            this.TemplateManager = new Mock<IMailTemplateManager>();
+            this.TemplateMerge = new Mock<ITemplateMerge>();
+            this.Configuration = new Mock<IConfiguration>();
+            this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
+            this.RepositoryFactory = new Mock<IRepositoryFactory>();
+            _ = this.Configuration.Setup(x => x[Constants.StorageType]).Returns("StorageAccount");
+            _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
+        }
+
         /// <summary>
         /// Gets or sets Email Notification Repository Mock.
         /// </summary>
@@ -73,35 +86,13 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         public Mock<IEmailNotificationRepository> EmailNotificationRepo { get; set; }
 
         /// <summary>
-        /// Gets or sets the Cloud Storage Client.
-        /// </summary>
-        /// <value>
-        /// the Cloud Storage Client.
-        /// </value>
-        public Mock<ICloudStorageClient> CloudStorageClient { get; set; }
-
-        public EmailManagerTests()
-        {
-            this.Logger = new Mock<ILogger>().Object;
-            this.EncryptionService = new Mock<IEncryptionService>();
-            this.TemplateManager = new Mock<IMailTemplateManager>();
-            this.TemplateMerge = new Mock<ITemplateMerge>();
-            this.Configuration = new Mock<IConfiguration>();
-            this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
-            this.RepositoryFactory = new Mock<IRepositoryFactory>();
-            this.CloudStorageClient = new Mock<ICloudStorageClient>();
-            _ = this.Configuration.Setup(x => x[Constants.StorageType]).Returns("StorageAccount");
-            _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
-        }
-
-        /// <summary>
         /// Notifications the entities to response tests.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task CreateMeetingNotificationEntitiesTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem>
             {
                 new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
@@ -118,7 +109,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public void NotificationEntitiesToResponseTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
             var meetingNotificationItems = new List<MeetingNotificationItemEntity>
             {
                 new MeetingNotificationItemEntity
