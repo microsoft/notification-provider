@@ -42,7 +42,15 @@ namespace NotificationService.Data
         /// </summary>
         private readonly ILogger logger;
 
+        /// <summary>
+        /// Instance of <see cref="ICosmosLinqQuery"/>.
+        /// </summary>
         private readonly ICosmosLinqQuery cosmosLinqQuery;
+
+        /// <summary>
+        /// Instance of <see cref="IMailAttachmentRepository"/>.
+        /// </summary>
+        private readonly IMailAttachmentRepository mailAttachmentRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailNotificationRepository"/> class.
@@ -51,17 +59,19 @@ namespace NotificationService.Data
         /// <param name="cosmosDBQueryClient">CosmosDB Query Client.</param>
         /// <param name="logger">Instance of Logger.</param>
         /// <param name="cosmosLinqQuery">Instance of Cosmos Linq query.</param>
-        public EmailNotificationRepository(IOptions<CosmosDBSetting> cosmosDBSetting, ICosmosDBQueryClient cosmosDBQueryClient, ILogger<EmailNotificationRepository> logger, ICosmosLinqQuery cosmosLinqQuery)
+        /// <param name="mailAttachmentRepository">Instance of the Mail Attachment repository.</param>
+        public EmailNotificationRepository(IOptions<CosmosDBSetting> cosmosDBSetting, ICosmosDBQueryClient cosmosDBQueryClient, ILogger<EmailNotificationRepository> logger, ICosmosLinqQuery cosmosLinqQuery, IMailAttachmentRepository mailAttachmentRepository)
         {
             this.cosmosDBSetting = cosmosDBSetting?.Value ?? throw new System.ArgumentNullException(nameof(cosmosDBSetting));
             this.cosmosDBQueryClient = cosmosDBQueryClient ?? throw new System.ArgumentNullException(nameof(cosmosDBQueryClient));
             this.cosmosContainer = this.cosmosDBQueryClient.GetCosmosContainer(this.cosmosDBSetting.Database, this.cosmosDBSetting.Container);
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
             this.cosmosLinqQuery = cosmosLinqQuery;
+            this.mailAttachmentRepository = mailAttachmentRepository;
         }
 
         /// <inheritdoc/>
-        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities)
+        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
         {
             if (emailNotificationItemEntities is null)
             {
@@ -69,8 +79,15 @@ namespace NotificationService.Data
             }
 
             this.logger.LogInformation($"Started {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
+
+            IList<EmailNotificationItemEntity> updatedEmailNotificationItemEntities = emailNotificationItemEntities;
+            if (applicationName != null)
+            {
+                updatedEmailNotificationItemEntities = this.mailAttachmentRepository.UploadAttachment(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).Result;
+            }
+
             List<Task> createTasks = new List<Task>();
-            foreach (var item in emailNotificationItemEntities)
+            foreach (var item in updatedEmailNotificationItemEntities)
             {
                 createTasks.Add(this.cosmosContainer.CreateItemAsync(item));
             }
@@ -103,7 +120,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntities(IList<string> notificationIds)
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntities(IList<string> notificationIds, string applicationName = null)
         {
             if (notificationIds is null)
             {
@@ -125,8 +142,14 @@ namespace NotificationService.Data
                 }
             }
 
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = emailNotificationItemEntities;
+            if (applicationName != null)
+            {
+                updatedNotificationEntities = this.mailAttachmentRepository.DownloadAttachment(emailNotificationItemEntities, applicationName).Result;
+            }
+
             this.logger.LogInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
-            return emailNotificationItemEntities;
+            return updatedNotificationEntities;
         }
 
         /// <inheritdoc/>

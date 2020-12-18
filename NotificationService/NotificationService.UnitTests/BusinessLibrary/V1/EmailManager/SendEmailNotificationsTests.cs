@@ -42,7 +42,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         {
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.SendEmailNotifications(this.ApplicationName, this.EmailNotificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -58,7 +58,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.SendEmailNotifications(this.ApplicationName, this.EmailNotificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -115,7 +115,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             };
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             // Test the transient error: Too many Requests/ Request Timeout
@@ -240,7 +240,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Returns(Task.FromResult(responses));
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.TokenHelper

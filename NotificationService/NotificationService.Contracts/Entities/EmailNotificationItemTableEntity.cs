@@ -98,6 +98,12 @@ namespace NotificationService.Contracts
         public IEnumerable<NotificationAttachmentEntity> Attachments { get; set; }
 
         /// <summary>
+        /// Gets or sets the attachment reference.
+        /// </summary>
+        [DataMember(Name = "AttachmentReference")]
+        public string AttachmentReference { get; set; }
+
+        /// <summary>
         /// Gets or sets the Sensitivity.
         /// </summary>
         [DataMember(Name = "Sensitivity")]
