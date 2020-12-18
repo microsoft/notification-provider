@@ -34,7 +34,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         {
             Task<IList<NotificationResponse>> result = this.EmailHandlerManager.QueueEmailNotifications(this.ApplicationName, this.EmailNotificationItems);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()), Times.Once);
             this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
             Assert.Pass();
         }

@@ -77,7 +77,8 @@ namespace NotificationHandler
                         s.GetService<ILogger>(),
                         s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
                         s.GetService<IMailTemplateManager>(),
-                        s.GetService<ITemplateMerge>()))
+                        s.GetService<ITemplateMerge>(),
+                        s.GetService<ICloudStorageClient>()))
                 .AddScoped<IEmailHandlerManager, EmailHandlerManager>(s =>
                     new EmailHandlerManager(
                         this.Configuration,
@@ -93,6 +94,7 @@ namespace NotificationHandler
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddScoped<IMailTemplateManager, MailTemplateManager>()
                 .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
                 .AddScoped<ITemplateMerge, TemplateMerge>()
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddSingleton<IEmailAccountManager, EmailAccountManager>();

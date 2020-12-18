@@ -5,6 +5,7 @@ namespace NotificationService.Data
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -39,7 +40,16 @@ namespace NotificationService.Data
         /// Instance of <see cref="BlobContainerClient"/>.
         /// </summary>
         private readonly BlobContainerClient blobContainerClient;
+
+        /// <summary>
+        /// Instance of <see cref="ILogger"/>.
+        /// </summary>
         private readonly ILogger logger;
+
+        /// <summary>
+        /// Instance of <see cref="BlobContainerClient"/>.
+        /// </summary>
+        private BlobContainerClient attachmentBlobContainerClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CloudStorageClient"/> class.
@@ -96,6 +106,21 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
+        public async Task<string> UploadAttachmentToBlobAsync(string applicationName, string blobPath, string content)
+        {
+            this.GetAttachmentBlobContainerClient(applicationName);
+
+            BlobClient blobClient = this.attachmentBlobContainerClient.GetBlobClient(blobPath);
+            var contentBytes = Convert.FromBase64String(content);
+            using (var stream = new MemoryStream(contentBytes))
+            {
+                var result = await blobClient.UploadAsync(stream, overwrite: true).ConfigureAwait(false);
+            }
+
+            return blobPath;
+        }
+
+        /// <inheritdoc/>
         public async Task<string> DownloadBlobAsync(string blobName)
         {
             BlobClient blobClient = this.blobContainerClient.GetBlobClient(blobName);
@@ -130,6 +155,42 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
+        public async Task<string> DownloadAttachmentFromBlobAsync(string applicationName, string blobPath)
+        {
+            this.GetAttachmentBlobContainerClient(applicationName);
+
+            BlobClient blobClient = this.attachmentBlobContainerClient.GetBlobClient(blobPath);
+            bool isExists = await blobClient.ExistsAsync().ConfigureAwait(false);
+            if (isExists)
+            {
+                var blob = await blobClient.DownloadAsync().ConfigureAwait(false);
+                byte[] streamArray = new byte[blob.Value.ContentLength];
+                long numBytesToRead = blob.Value.ContentLength;
+                int numBytesRead = 0;
+                int maxBytesToRead = 10;
+                do
+                {
+                    if (numBytesToRead < maxBytesToRead)
+                    {
+                        maxBytesToRead = (int)numBytesToRead;
+                    }
+
+                    int n = blob.Value.Content.Read(streamArray, numBytesRead, maxBytesToRead);
+                    numBytesRead += n;
+                    numBytesToRead -= n;
+                }
+                while (numBytesToRead > 0);
+
+                return Convert.ToBase64String(streamArray);
+            }
+            else
+            {
+                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.DownloadAttachmentFromBlobAsync)} - No blob found with name {blobPath}.");
+                return null;
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> DeleteBlobsAsync(string blobName)
         {
             BlobClient blobClient = this.blobContainerClient.GetBlobClient(blobName);
@@ -143,6 +204,20 @@ namespace NotificationService.Data
             {
                 this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.DeleteBlobsAsync)} - No blob found with name {blobName}.");
                 return false;
+            }
+        }
+
+        private void GetAttachmentBlobContainerClient(string containerName)
+        {
+            string container = containerName?.ToLowerInvariant();
+            this.attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, container);
+            if (!this.attachmentBlobContainerClient.Exists())
+            {
+                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.GetAttachmentBlobContainerClient)} - No container found with name {containerName}.");
+
+                var response = this.attachmentBlobContainerClient.CreateIfNotExists();
+
+                this.attachmentBlobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, container);
             }
         }
     }

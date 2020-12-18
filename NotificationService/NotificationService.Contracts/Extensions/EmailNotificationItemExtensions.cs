@@ -44,7 +44,7 @@ namespace NotificationService.Contracts.Extensions
                     Sensitivity = emailNotificationItem.Sensitivity,
                     Subject = emailNotificationItem?.Subject,
                     To = emailNotificationItem?.To,
-                    TemplateData = emailNotificationItem?.TemplateData != null ? encryptionService.Encrypt(emailNotificationItem?.TemplateData) : null,
+                    TemplateData = !string.IsNullOrEmpty(emailNotificationItem?.TemplateData) ? encryptionService.Encrypt(emailNotificationItem?.TemplateData) : null,
                     TemplateName = emailNotificationItem?.TemplateName,
                     TrackingId = emailNotificationItem?.TrackingId,
                 };

@@ -46,7 +46,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         {
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() } });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -62,7 +62,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() } });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -109,7 +109,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() } });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -176,13 +176,13 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             };
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<List<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<List<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
             var result = await this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true }).ConfigureAwait(false);
             Assert.AreEqual(result.Where(x => x.Status == NotificationItemStatus.Sent).Count(), 2);
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Never);
             Assert.Pass();
         }
@@ -248,7 +248,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             };
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -275,7 +275,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             Assert.AreEqual(2, result.Result.Where(x => x.Status == NotificationItemStatus.Sent).Count());
 
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -359,7 +359,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -370,14 +370,14 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.Failed).Count());
             Assert.IsTrue(result.Result.FirstOrDefault(x => x.Status == NotificationItemStatus.Failed).ErrorMessage.Contains("No active/valid email account exists for the application"));
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.Sent).Count());
 
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -458,7 +458,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -469,11 +469,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.FakeMail).Count());
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -544,7 +544,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -555,11 +555,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.Sent).Count());
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -630,7 +630,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -641,11 +641,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.Failed && x.ErrorMessage.Contains("toOverride cannot be null or empty in case of SendForReal is false")).Count());
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -717,7 +717,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.MsGraphProvider
@@ -728,11 +728,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
             Assert.AreEqual(1, result.Result.Where(x => x.Status == NotificationItemStatus.Sent).Count());
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
         }
 
@@ -786,7 +786,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.NotificationProviderFactory
@@ -797,7 +797,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }
@@ -863,7 +863,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
 
             Task<IList<NotificationResponse>> result = this.EmailServiceManager.ProcessEmailNotifications(this.ApplicationName, new QueueNotificationItem { NotificationIds = new string[] { Guid.NewGuid().ToString() }, IgnoreAlreadySent = true });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()), Times.Once);
+            this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()), Times.Once);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
             Assert.Pass();
         }

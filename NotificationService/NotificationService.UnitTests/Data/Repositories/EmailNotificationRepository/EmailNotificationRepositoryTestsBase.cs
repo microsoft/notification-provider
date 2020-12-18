@@ -53,6 +53,11 @@ namespace NotificationService.UnitTests.Data.Repositories
         public EmailNotificationRepository EmailNotificationRepository { get; set; }
 
         /// <summary>
+        /// GEts or sets Mail Attachment Reporisotry instance.
+        /// </summary>
+        public Mock<IMailAttachmentRepository> MailAttachmentRepository { get; set; }
+
+        /// <summary>
         /// Gets Test Application name.
         /// </summary>
         public string ApplicationName
@@ -94,6 +99,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             this.CosmosLinqQuery = new Mock<ICosmosLinqQuery>();
             this.CosmosDBQueryClient = new Mock<ICosmosDBQueryClient>();
             this.CosmosContainer = new Mock<Container>();
+            this.MailAttachmentRepository = new Mock<IMailAttachmentRepository>();
             var mockItemResponse = new Mock<ItemResponse<EmailNotificationItemEntity>>();
             var mockFeedIterator = new Mock<FeedIterator<EmailNotificationItemEntity>>();
 
@@ -123,7 +129,7 @@ namespace NotificationService.UnitTests.Data.Repositories
                 .Setup(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(this.CosmosContainer.Object);
 
-            this.EmailNotificationRepository = new EmailNotificationRepository(this.CosmosDBSetting, this.CosmosDBQueryClient.Object, this.Logger, this.CosmosLinqQuery.Object);
+            this.EmailNotificationRepository = new EmailNotificationRepository(this.CosmosDBSetting, this.CosmosDBQueryClient.Object, this.Logger, this.CosmosLinqQuery.Object, this.MailAttachmentRepository.Object);
         }
     }
 }
