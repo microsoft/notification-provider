@@ -292,7 +292,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             _ = this.TemplateMerge
                 .Setup(tmr => tmr.CreateMailBodyUsingTemplate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(mergedTemplate);
-            this.EmailManager = new EmailManager(this.Configuration, this.EmailNotificationRepository.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
+            this.EmailManager = new EmailManager(this.Configuration, this.EmailNotificationRepository.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(
                 this.Configuration,

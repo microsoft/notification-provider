@@ -46,6 +46,7 @@ namespace NotificationService.BusinessLibrary
         /// <param name="userTokenSetting">User token setting from configuration.</param>
         /// <param name="mSGraphSetting">MS Graph Settings from configuration.</param>
         /// <param name="logger">Instance of <see cref="ILogger"/>.</param>
+        /// <param name="emailAccountManager">Instance of <see cref="IEmailAccountManager"/>.</param>
         public TokenHelper(IOptions<UserTokenSetting> userTokenSetting, IOptions<MSGraphSetting> mSGraphSetting, ILogger logger, IEmailAccountManager emailAccountManager)
         {
             if (userTokenSetting is null)
