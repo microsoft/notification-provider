@@ -3,11 +3,11 @@
 
 namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
     using Moq;
     using NotificationService.Contracts;
     using NUnit.Framework;
-    using System;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// Tests for GetNotificationMessageBodyAsync method of Email Manager.

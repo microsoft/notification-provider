@@ -3,11 +3,9 @@
 
 namespace NotificationService.Contracts
 {
-    using Microsoft.Azure.Cosmos.Table;
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// Base class for Notification Items.
