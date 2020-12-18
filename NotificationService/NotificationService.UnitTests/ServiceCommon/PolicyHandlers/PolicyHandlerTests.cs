@@ -12,9 +12,9 @@ namespace NotificationService.UnitTests.SvCommon.PolicyHandlers
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationService.Contracts;
     using NotificationService.SvCommon;
-    using Newtonsoft.Json;
     using NUnit.Framework;
 
     /// <summary>

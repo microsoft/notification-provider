@@ -17,13 +17,13 @@ namespace WebNotifications
     using NotificationService.Data.Interfaces;
     using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Common;
-    using WebNotifications.Hubs;
-    using WebNotifications.Carriers.Interfaces;
-    using WebNotifications.Carriers;
-    using WebNotifications.Providers;
-    using WebNotifications.Channels.Internals;
-    using WebNotifications.Channels;
     using WebNotifications.BackgroundServices;
+    using WebNotifications.Carriers;
+    using WebNotifications.Carriers.Interfaces;
+    using WebNotifications.Channels;
+    using WebNotifications.Channels.Internals;
+    using WebNotifications.Hubs;
+    using WebNotifications.Providers;
 
     /// <summary>
     /// The <see cref="Startup"/> class configures middlwares in the web application.

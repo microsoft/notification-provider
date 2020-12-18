@@ -36,7 +36,7 @@ namespace NotificationService.Controllers
         private readonly ILogger logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EmailController"/> class.
+        /// Initializes a new instance of the <see cref="MeetingInviteController"/> class.
         /// </summary>
         /// <param name="emailServiceManager">An instance of <see cref="IEmailServiceManager"/>.</param>
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>

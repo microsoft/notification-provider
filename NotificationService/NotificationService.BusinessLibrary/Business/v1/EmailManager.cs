@@ -175,7 +175,7 @@ namespace NotificationService.BusinessLibrary
         /// <exception cref="ArgumentException">
         /// TemplateData cannot be null or empty.
         /// or
-        /// Template cannot be found, please provide a valid template and application name
+        /// Template cannot be found, please provide a valid template and application name.
         /// </exception>
         public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, EmailNotificationItemEntity notification)
         {

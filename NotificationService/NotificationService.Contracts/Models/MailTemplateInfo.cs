@@ -22,7 +22,6 @@ namespace NotificationService.Contracts
         [DataMember(Name = "description")]
         public string Description { get; set; }
 
-
         /// <summary>
         /// Gets or sets the template type.
         /// </summary>

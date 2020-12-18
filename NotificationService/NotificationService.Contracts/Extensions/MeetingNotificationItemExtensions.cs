@@ -1,4 +1,7 @@
-﻿namespace NotificationService.Contracts.Extensions
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.Contracts.Extensions
 {
     using System;
     using System.Collections.Generic;

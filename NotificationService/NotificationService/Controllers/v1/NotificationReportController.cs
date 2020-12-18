@@ -125,8 +125,8 @@ namespace NotificationService.Controllers
         /// <summary>
         /// Gets All Template Entities for the input application.
         /// </summary>
-        /// <param name="applicationName"></param>
-        /// <returns>a list of template entities <see cref="MailTemplate"/></returns>
+        /// <param name="applicationName">Application Name.</param>
+        /// <returns>a list of template entities <see cref="MailTemplate"/>.</returns>
         [HttpGet]
         [Route("templates/{applicationName}")]
         public async Task<IActionResult> GetAllTemplateEntities(string applicationName)
