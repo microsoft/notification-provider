@@ -177,8 +177,8 @@ namespace DirectSend
             Multipart multipart = new Multipart("mixed");
             multipart.Add(ical);
 
-            IList<string> fileNames = emailMessage.FileName.ToList();
-            IList<string> fileContents = emailMessage.FileContent.ToList();
+            IList<string> fileNames = emailMessage.FileName?.ToList();
+            IList<string> fileContents = emailMessage.FileContent?.ToList();
             int i = 0;
             if (fileNames != null && fileContents != null && fileNames.Any() && fileContents.Count == fileNames.Count)
             {
