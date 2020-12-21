@@ -100,7 +100,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             };
             var meetingEntities = await emailManager.CreateMeetingNotificationEntities("TestApp", meetingNotificationItems.ToArray(), NotificationService.Contracts.NotificationItemStatus.Queued);
             Assert.IsTrue(meetingEntities.Count == 2);
-            this.EmailNotificationRepo.Verify(x => x.CreateMeetingNotificationItemEntities(It.IsAny<List<MeetingNotificationItemEntity>>()), Times.Once);
+            this.EmailNotificationRepo.Verify(x => x.CreateMeetingNotificationItemEntities(It.IsAny<List<MeetingNotificationItemEntity>>(), It.IsAny<string>()), Times.Once);
         }
 
         /// <summary>

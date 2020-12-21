@@ -852,7 +852,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetMeetingNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetMeetingNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(meetingNotificationItemEntities));
 
             _ = this.NotificationProviderFactory
@@ -876,7 +876,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         public async Task ProcessMeetingNotificationsTestValidInputWithBatch()
         {
             this.MsGraphSetting.Value.EnableBatching = true;
-            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1) } } });
+            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>(), It.IsAny<string>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1) } } });
             _ = this.EmailNotificationRepository.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.NotificationRepo.Object);
 
             _ = this.NotificationProviderFactory.Setup(x => x.GetNotificationProvider(It.IsAny<NotificationProviderType>())).Returns(this.NotificationProvider);
@@ -896,7 +896,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         public async Task ProcessMeetingNotificationsTest_IgnoreAlreadySent()
         {
             this.MsGraphSetting.Value.EnableBatching = true;
-            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1), Status = NotificationItemStatus.Sent } } });
+            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>(), It.IsAny<string>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1), Status = NotificationItemStatus.Sent } } });
             _ = this.EmailNotificationRepository.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.NotificationRepo.Object);
 
             _ = this.NotificationProviderFactory.Setup(x => x.GetNotificationProvider(It.IsAny<NotificationProviderType>())).Returns(this.NotificationProvider);
@@ -927,7 +927,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             this.Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
-            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1), Status = NotificationItemStatus.Queued } } });
+            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>(), It.IsAny<string>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1), Status = NotificationItemStatus.Queued } } });
             _ = this.EmailNotificationRepository.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.NotificationRepo.Object);
 
             _ = this.NotificationProviderFactory.Setup(x => x.GetNotificationProvider(It.IsAny<NotificationProviderType>())).Returns(this.NotificationProvider);
@@ -972,7 +972,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Build();
 
             this.MsGraphSetting.Value.EnableBatching = true;
-            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1) } } });
+            _ = this.NotificationRepo.Setup(x => x.GetMeetingNotificationItemEntities(It.IsAny<List<string>>(), It.IsAny<string>())).ReturnsAsync(new List<MeetingNotificationItemEntity> { { new MeetingNotificationItemEntity { NotificationId = "TestNotificationId", RequiredAttendees = "user@contoso.com", Subject = "Test Subject", Start = DateTime.Now, End = DateTime.Now.AddDays(1) } } });
             _ = this.EmailNotificationRepository.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.NotificationRepo.Object);
 
             _ = this.NotificationProviderFactory.Setup(x => x.GetNotificationProvider(It.IsAny<NotificationProviderType>())).Returns(this.NotificationProvider);

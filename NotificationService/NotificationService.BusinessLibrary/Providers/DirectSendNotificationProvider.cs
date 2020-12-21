@@ -121,6 +121,8 @@ namespace NotificationService.BusinessLibrary.Providers
                         message.ToAddresses = toAddress;
                     }
 
+                    message.FileName = item.Attachments?.Select(e => e.FileName);
+                    message.FileContent = item.Attachments?.Select(e => e.FileBase64);
                     message.Content = this.ConvertMeetingInviteToBody(item, body.Content);
                     await this.mailService.SendMeetingInviteAsync(message).ConfigureAwait(false);
                     item.Status = NotificationItemStatus.Sent;

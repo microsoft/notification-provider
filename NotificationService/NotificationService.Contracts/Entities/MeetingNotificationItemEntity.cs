@@ -20,7 +20,7 @@ namespace NotificationService.Contracts.Entities
         public MeetingNotificationItemEntity()
         {
             this.Priority = NotificationPriority.Normal;
-            this.Attachments = Array.Empty<NotificationAttachment>();
+            this.Attachments = Array.Empty<NotificationAttachmentEntity>();
             this.SendOnUtcDate = DateTime.UtcNow;
             this.TrackingId = string.Empty;
         }
@@ -74,7 +74,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the attachments.
         /// </summary>
-        public IEnumerable<NotificationAttachment> Attachments { get; set; }
+        public IEnumerable<NotificationAttachmentEntity> Attachments { get; set; }
 
         /// <summary>
         /// Gets or sets the ReminderMinutesBeforeStart.
@@ -189,5 +189,10 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets the SequenceNumber. Applicable for SMTP only.
         /// </summary>
         public int? SequenceNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the attachment reference.
+        /// </summary>
+        public string AttachmentReference { get; set; }
     }
 }

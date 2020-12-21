@@ -50,7 +50,6 @@ namespace NotificationService.Data
         /// <summary>
         /// Gets the list of Notification Items based on query expression.
         /// </summary>
-        /// <typeparam name="T">of Type.</typeparam>
         /// <param name="notificationReportRequest">NotificationReportRequest param.</param>
         /// <returns>Returns list of Notification Responses.</returns>
         Task<Tuple<IList<EmailNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest);
@@ -59,8 +58,9 @@ namespace NotificationService.Data
         /// Gets the meeting notification items from database for the input ids.
         /// </summary>
         /// <param name="notificationIds">List of notifications ids.</param>
+        /// <param name="applicationName"> applicationName as containerName. </param>
         /// <returns>List of notitication items corresponding to input ids.</returns>
-        Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds);
+        Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName);
 
         /// <summary>
         /// Gets the meeting notification item from database for the input id.
@@ -73,8 +73,9 @@ namespace NotificationService.Data
         /// Creates entities in database for the input meeting notification items.
         /// </summary>
         /// <param name="meetingNotificationItemEntity">List of <see cref="MeetingNotificationItemEntity"/>.</param>
+        /// <param name="applicationName"> application name as container</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity);
+        Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName);
 
         /// <summary>
         /// Saves the changes on meeting notification entities into database.
