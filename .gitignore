@@ -202,3 +202,9 @@ ModelManifest.xml
 /NotificationService/.vs/NotificationService/DesignTimeBuild/.dtbcache.v2
 /NotificationService/.vs/NotificationService/config/applicationhost.config
 /NotificationService/.vs/NotificationService
+/NotificationService/NotificationsQueueProcessor/Properties/ServiceDependencies/cspNotificationsQueueProcessor - Zip Deploy/profile.arm.json
+/NotificationService/NotificationsQueueProcessor/Properties/PublishProfiles/cspNotificationsQueueProcessor - Zip Deploy.pubxml
+/NotificationService/NotificationService/Properties/ServiceDependencies/cspNotificationService - Web Deploy/profile.arm.json
+/NotificationService/NotificationService/Properties/PublishProfiles/cspNotificationService - Web Deploy.pubxml
+/NotificationService/NotificationHandler/Properties/ServiceDependencies/cspNotificationHandler - Web Deploy/profile.arm.json
+/NotificationService/NotificationHandler/Properties/PublishProfiles/cspNotificationHandler - Web Deploy.pubxml
