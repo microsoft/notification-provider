@@ -21,7 +21,7 @@ namespace NotificationsQueueProcessor
         /// <summary>
         /// Meeting notification type.
         /// </summary>
-        public const string MeetingNotificationType = "meet";
+        public const string MeetingNotificationType = "meetinginvite";
 
         /// <summary>
         /// Authority Environment variable name.

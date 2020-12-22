@@ -8,7 +8,9 @@
   "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
   "settings": {
     "documentationRules": {
-      "companyName": "Microsoft Corporation"
+      "companyName": "Microsoft Corporation",
+      "xmlHeader": false,
+      "copyrightText": "Copyright (c) {companyName}.\nLicensed under the MIT License."
     }
   }
 }

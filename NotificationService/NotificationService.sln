@@ -21,6 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.UnitTests", "NotificationService.UnitTests\NotificationService.UnitTests.csproj", "{26F530EB-C24D-4DF0-8636-377E0F5F9090}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DDD90353-7A22-4E0E-A09B-33791B872D91} = {DDD90353-7A22-4E0E-A09B-33791B872D91}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.LoadTests", "NotificationService.LoadTests\NotificationService.LoadTests.csproj", "{1698099C-7635-4E8F-8803-E44B223835C5}"
 EndProject

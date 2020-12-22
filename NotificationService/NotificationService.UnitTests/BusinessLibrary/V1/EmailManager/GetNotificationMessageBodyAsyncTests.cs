@@ -3,11 +3,11 @@
 
 namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
     using Moq;
     using NotificationService.Contracts;
     using NUnit.Framework;
-    using System;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// Tests for GetNotificationMessageBodyAsync method of Email Manager.
@@ -20,6 +20,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// </summary>
         [SetUp]
         public void Setup() => this.SetupTestBase();
+
         /// <summary>
         /// Tests for GetNotificationMessageBodyAsync method for valid inputs.
         /// </summary>
@@ -66,7 +67,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 Id = notificationId,
             };
 
-            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(this.ApplicationName, null));
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(this.ApplicationName, (EmailNotificationItemEntity)null));
             _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailManager.GetNotificationMessageBodyAsync(null, notificationItemEntity));
         }
     }

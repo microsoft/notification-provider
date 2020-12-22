@@ -13,6 +13,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -24,7 +25,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using NotificationService.Contracts;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
-    using Newtonsoft.Json;
+    using NotificationService.UnitTests.Mocks;
 
     /// <summary>
     /// Base class for Email Manager class tests.
@@ -127,7 +128,30 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// <summary>
         /// Gets or sets INotificationProvider Mock.
         /// </summary>
-        public Mock<INotificationProviderFactory> NotificationProvider { get; set; }
+        public Mock<INotificationProviderFactory> NotificationProviderFactory { get; set; }
+
+        /// <summary>
+        /// Gets or sets the notification repo.
+        /// </summary>
+        /// <value>
+        /// The notification repo.
+        /// </value>
+        public Mock<IEmailNotificationRepository> NotificationRepo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the notification repo.
+        /// </summary>
+        /// <value>
+        /// The notification repo.
+        /// </value>
+        public INotificationProvider NotificationProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ms graph notification provider.
+        /// </summary>
+        /// <value>
+        /// The ms graph notification provider.
+        /// </value>
         public MSGraphNotificationProvider MSGraphNotificationProvider { get; set; }
 
         /// <summary>
@@ -145,7 +169,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.EmailAccountManager = new Mock<IEmailAccountManager>();
             this.TemplateManager = new Mock<IMailTemplateManager>();
             this.TemplateMerge = new Mock<ITemplateMerge>();
-            this.NotificationProvider = new Mock<INotificationProviderFactory>();
+            this.NotificationProviderFactory = new Mock<INotificationProviderFactory>();
+            this.NotificationRepo = new Mock<IEmailNotificationRepository>();
+            this.NotificationProvider = new MockNotificationProvider();
 
             var notificationId = Guid.NewGuid().ToString();
             IList<NotificationBatchItemResponse> responses = new List<NotificationBatchItemResponse>();
@@ -236,7 +262,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.FromResult(It.IsAny<bool>()));
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailNotificationRepository
@@ -244,7 +270,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>()))
+                .Setup(repository => repository.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntities(It.IsAny<IList<string>>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.CloudStorageClient
@@ -268,15 +294,22 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(mergedTemplate);
             this.EmailManager = new EmailManager(this.Configuration, this.EmailNotificationRepository.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
 
-            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting,
-            Options.Create(retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(
+                this.Configuration,
+                this.EmailAccountManager.Object,
+                this.Logger,
+                this.MsGraphSetting,
+                Options.Create(retrySetting),
+                this.TokenHelper.Object,
+                this.MsGraphProvider.Object,
+                this.EmailManager);
 
-            _ = this.NotificationProvider
+            _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))
                 .Returns(this.MSGraphNotificationProvider);
 
             this.EmailHandlerManager = new EmailHandlerManager(this.Configuration, this.MsGraphSetting, this.CloudStorageClient.Object, this.Logger, this.EmailManager);
-            this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProvider.Object, this.EmailManager);
+            this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
         }
     }
 }

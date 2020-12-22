@@ -3,9 +3,9 @@
 
 namespace WebNotifications
 {
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// The <see cref="Program"/> class with the Main method of the application.

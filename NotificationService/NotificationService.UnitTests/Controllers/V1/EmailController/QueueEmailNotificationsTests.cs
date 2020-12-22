@@ -7,12 +7,14 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc;
     using Moq;
     using NotificationHandler.Controllers;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Models;
     using NUnit.Framework;
 
     /// <summary>
@@ -24,6 +26,11 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         private readonly EmailNotificationItem[] emailNotificationItems = new EmailNotificationItem[]
             {
                 new EmailNotificationItem() { To = "user@contoso.com" },
+            };
+
+        private readonly MeetingNotificationItem[] meetingNotificationItems = new MeetingNotificationItem[]
+            {
+                new MeetingNotificationItem() { RequiredAttendees = "user@contoso.com" },
             };
 
         private readonly string applicationName = "TestApp";
@@ -71,6 +78,25 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
 
             _ = Assert.ThrowsAsync<ArgumentException>(async () => await emailController.QueueEmailNotifications(null, this.emailNotificationItems));
             _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await emailController.QueueEmailNotifications(this.applicationName, null));
+        }
+
+        /// <summary>
+        /// Tests for QueueEmailNotifications method for valid inputs.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task QueueMeetingNotificationsTestValidInput()
+        {
+            _ = this.emailHandlerManager.Setup(x => x.QueueMeetingNotifications(It.IsAny<string>(), It.IsAny<MeetingNotificationItem[]>())).ReturnsAsync(new List<NotificationResponse> { new NotificationResponse { NotificationId = "NotificationId" } });
+            MeetingInviteController meetinginviteController = new MeetingInviteController(this.emailHandlerManager.Object, this.mailTemplateManager.Object, this.logger);
+            IList<NotificationResponse> responses = new List<NotificationResponse>();
+            var result = await meetinginviteController.QueueMeetingNotifications(this.applicationName, this.meetingNotificationItems);
+            Assert.NotNull(result);
+            var res = result as AcceptedResult;
+            var items = res.Value as List<NotificationResponse>;
+            Assert.IsTrue(items.Count == 1 && items[0].NotificationId == "NotificationId");
+            this.emailHandlerManager.Verify(mgr => mgr.QueueMeetingNotifications(It.IsAny<string>(), It.IsAny<MeetingNotificationItem[]>()), Times.Once);
+            Assert.Pass();
         }
     }
 }

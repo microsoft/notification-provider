@@ -99,6 +99,12 @@ namespace NotificationService.Contracts
         public IEnumerable<NotificationAttachmentEntity> Attachments { get; set; }
 
         /// <summary>
+        /// Gets or sets the attachment reference.
+        /// </summary>
+        [DataMember(Name = "AttachmentReference")]
+        public string AttachmentReference { get; set; }
+
+        /// <summary>
         /// Gets or sets the Sensitivity.
         /// </summary>
         [DataMember(Name = "Sensitivity")]
@@ -115,12 +121,6 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "EmailAccountUsed")]
         public string EmailAccountUsed { get; set; }
-
-        /// <summary>
-        /// Gets or sets error message when the email processing failed.
-        /// </summary>
-        [DataMember(Name = "ErrorMessage")]
-        public string ErrorMessage { get; set; }
 
         /// <summary>
         /// Gets or sets the TemplateId.

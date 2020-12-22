@@ -13,7 +13,6 @@ namespace NotificationHandler
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Utilities;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
@@ -72,11 +71,20 @@ namespace NotificationHandler
             });
 
             _ = services.AddScoped<IEmailManager, EmailManager>(s =>
-                    new EmailManager(this.Configuration, s.GetService<IRepositoryFactory>(), s.GetService<ILogger>(), s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
-                    s.GetService<IMailTemplateManager>(), s.GetService<ITemplateMerge>()))
+                    new EmailManager(
+                        this.Configuration,
+                        s.GetService<IRepositoryFactory>(),
+                        s.GetService<ILogger>(),
+                        s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
+                        s.GetService<IMailTemplateManager>(),
+                        s.GetService<ITemplateMerge>()))
                 .AddScoped<IEmailHandlerManager, EmailHandlerManager>(s =>
-                    new EmailHandlerManager(this.Configuration, Options.Create(this.Configuration.GetSection("MSGraphSetting").Get<MSGraphSetting>()), s.GetService<ICloudStorageClient>(),
-                    s.GetService<ILogger>(), s.GetService<IEmailManager>()))
+                    new EmailHandlerManager(
+                        this.Configuration,
+                        Options.Create(this.Configuration.GetSection("MSGraphSetting").Get<MSGraphSetting>()),
+                        s.GetService<ICloudStorageClient>(),
+                        s.GetService<ILogger>(),
+                        s.GetService<IEmailManager>()))
                 .AddScoped<IRepositoryFactory, RepositoryFactory>()
                 .AddScoped<EmailNotificationRepository>()
                 .AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>())
@@ -85,6 +93,7 @@ namespace NotificationHandler
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddScoped<IMailTemplateManager, MailTemplateManager>()
                 .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
                 .AddScoped<ITemplateMerge, TemplateMerge>()
                 .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddSingleton<IEmailAccountManager, EmailAccountManager>();
