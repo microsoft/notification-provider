@@ -111,7 +111,7 @@ namespace NotificationService.BusinessLibrary.Providers
             this.applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration?["ApplicationAccounts"]);
             this.emailAccountManager = emailAccountManager;
             this.logger = logger;
-            this.maxTryCount = int.Parse(this.configuration["RetrySetting:MaxRetries"], CultureInfo.InvariantCulture);
+            _ = int.TryParse(this.configuration["RetrySetting:MaxRetries"], out this.maxTryCount);
             if (this.configuration?["MailSettings"] != null)
             {
                 this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);
