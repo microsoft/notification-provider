@@ -194,5 +194,10 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets the attachment reference.
         /// </summary>
         public string AttachmentReference { get; set; }
+
+        /// <summary>
+        /// Gets or sets Mailbox Account used to deliver the email.
+        /// </summary>
+        public string EmailAccountUsed { get; set; }
     }
 }

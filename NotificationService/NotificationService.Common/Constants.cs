@@ -192,5 +192,15 @@ namespace NotificationService.Common
         /// The meetingnotificationsqueue.
         /// </summary>
         public const string Notificationsqueue = "notifications-queue";
+
+        /// <summary>
+        /// A formatter for Meeting invite Start and End Dates for Graph api base meeting invite.
+        /// </summary>
+        public const string GraphMeetingInviteDateTimeFormatter = "yyyy-MM-ddThh:mm:ss";
+
+        /// <summary>
+        /// A formatter for Meeting invite RecurrenceRangeDate for Graph api base meeting invite.
+        /// </summary>
+        public const string GraphMeetingInviteRecurrenceRangeDateFormatter = "yyyy-MM-dd";
     }
 }

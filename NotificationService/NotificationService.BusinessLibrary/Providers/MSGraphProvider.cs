@@ -12,12 +12,11 @@ namespace NotificationService.BusinessLibrary
     using System.Threading.Tasks;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using Polly;
-    using Polly.Extensions.Http;
-    using Polly.Retry;
+    using NotificationService.Contracts.Models.Graph.Invite;
 
     /// <summary>
     /// Provider to interact with MS Graph APIs.
@@ -60,6 +59,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.jsonSerializerSettings = new JsonSerializerSettings
             {
+                Converters = new List<JsonConverter> { new StringEnumConverter() },
                 ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
             };
@@ -159,6 +159,45 @@ namespace NotificationService.BusinessLibrary
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.SendEmailNotification)} method of {nameof(MSGraphProvider)}.");
+            return isSuccess;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> SendMeetingInvite(AuthenticationHeaderValue authenticationHeaderValue, InvitePayload payLoad, string notificationId)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
+            HttpResponseMessage response = null;
+            bool isSuccess = false;
+            response = await this.httpClient.PostAsync(
+                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}",
+                    new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+
+            this.logger.TraceInformation($"Method {nameof(this.SendMeetingInvite)}: Completed Graph Send Email Call.");
+            var responseHeaders = response.Headers.ToString();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                isSuccess = true;
+            }
+            else if (response.StatusCode == HttpStatusCode.TooManyRequests || response.StatusCode == HttpStatusCode.RequestTimeout)
+            {
+                isSuccess = false;
+            }
+            else
+            {
+                string content = string.Empty;
+                if (response != null)
+                {
+                    content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {content}");
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
             return isSuccess;
         }
     }
