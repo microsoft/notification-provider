@@ -17,14 +17,13 @@ namespace NotificationService.SvCommon.Common
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Azure.KeyVault;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.AzureAppConfiguration;
     using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using NotificationService.BusinessLibrary;
     using NotificationService.Common;
-    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
@@ -52,6 +51,17 @@ namespace NotificationService.SvCommon.Common
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
             };
             _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
+
+            this.Configuration = builder.Build();
+
+            _ = builder.AddAzureAppConfiguration(options =>
+            {
+                var settings = options.Connect(this.Configuration["AzureAppConfigConnectionstring"]).Select(KeyFilter.Any);
+                _ = settings.ConfigureRefresh(refreshOptions =>
+                  {
+                      _ = refreshOptions.Register(key: this.Configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
+                  }).UseFeatureFlags();
+            });
 
             this.Configuration = builder.Build();
         }
