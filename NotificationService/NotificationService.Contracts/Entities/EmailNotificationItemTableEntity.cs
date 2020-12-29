@@ -20,7 +20,6 @@ namespace NotificationService.Contracts
         public EmailNotificationItemTableEntity()
         {
             this.Priority = "Normal";
-            this.Attachments = Array.Empty<NotificationAttachmentEntity>();
             this.SendOnUtcDate = DateTime.UtcNow;
             this.TrackingId = string.Empty;
         }
@@ -74,12 +73,6 @@ namespace NotificationService.Contracts
         public string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the body.
-        /// </summary>
-        [DataMember(Name = "Body")]
-        public string Body { get; set; }
-
-        /// <summary>
         /// Gets or sets the header.
         /// </summary>
         [DataMember(Name = "Header")]
@@ -90,18 +83,6 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "Footer")]
         public string Footer { get; set; }
-
-        /// <summary>
-        /// Gets or sets the attachments.
-        /// </summary>
-        [DataMember(Name = "Attachments")]
-        public IEnumerable<NotificationAttachmentEntity> Attachments { get; set; }
-
-        /// <summary>
-        /// Gets or sets the attachment reference.
-        /// </summary>
-        [DataMember(Name = "AttachmentReference")]
-        public string AttachmentReference { get; set; }
 
         /// <summary>
         /// Gets or sets the Sensitivity.
@@ -133,11 +114,6 @@ namespace NotificationService.Contracts
         [DataMember(Name = "TemplateName")]
         public string TemplateName { get; set; }
 
-        /// <summary>
-        /// Gets or sets the TemplateData.
-        /// </summary>
-        [DataMember(Name = "TemplateData")]
-        public string TemplateData { get; set; }
 
         /// <summary>
         /// Gets or sets Unique Identifier for the Notification Item.
@@ -168,5 +144,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "TryCount")]
         public int TryCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the EmailBodyBlobPath.
+        /// </summary>
+        [DataMember(Name = "EmailBodyBlobPath")]
+        public string EmailBodyBlobPath { get; set; }
     }
 }

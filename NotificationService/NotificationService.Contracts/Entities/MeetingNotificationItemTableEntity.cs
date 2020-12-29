@@ -64,11 +64,6 @@ namespace NotificationService.Contracts.Entities
         public string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the body.
-        /// </summary>
-        public string Body { get; set; }
-
-        /// <summary>
         /// Gets or sets the ReminderMinutesBeforeStart.
         /// </summary>
         public string ReminderMinutesBeforeStart { get; set; }
@@ -166,11 +161,6 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets the TemplateId.
         /// </summary>
         public string TemplateName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Template Content Arguments.
-        /// </summary>
-        public string TemplateData { get; set; }
 
         /// <summary>
         /// Gets or sets the OccurrenceId.

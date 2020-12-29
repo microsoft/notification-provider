@@ -166,7 +166,7 @@ namespace NotificationService.Data
         /// <returns>Blob name.</returns>
         private string GetBlobName(string applicationName, string templateName)
         {
-            return $"{applicationName}/{templateName}";
+            return $"{applicationName}/EmailTemplates/{templateName}";
         }
     }
 }

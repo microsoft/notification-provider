@@ -17,15 +17,9 @@ namespace NotificationService.Contracts.Extensions
         /// </summary>
         /// <param name="emailNotificationItem">Email Notification Item.</param>
         /// <param name="applicationName">Application associated to the notification item.</param>
-        /// <param name="encryptionService">Instance of encryption service to protect the secure content before saving in datastore.</param>
         /// <returns><see cref="EmailNotificationItemEntity"/>.</returns>
-        public static EmailNotificationItemEntity ToEntity(this EmailNotificationItem emailNotificationItem, string applicationName, IEncryptionService encryptionService)
+        public static EmailNotificationItemEntity ToEntity(this EmailNotificationItem emailNotificationItem, string applicationName)
         {
-            if (encryptionService is null)
-            {
-                throw new ArgumentNullException(nameof(encryptionService));
-            }
-
             if (emailNotificationItem != null)
             {
                 return new EmailNotificationItemEntity()
@@ -33,7 +27,7 @@ namespace NotificationService.Contracts.Extensions
                     Application = applicationName,
                     Attachments = emailNotificationItem?.Attachments?.Select(attachment => new NotificationAttachmentEntity { IsInline = attachment.IsInline, FileName = attachment?.FileName, FileBase64 = attachment?.FileBase64 }).ToList(),
                     BCC = emailNotificationItem?.BCC,
-                    Body = emailNotificationItem?.Body != null ? encryptionService.Encrypt(emailNotificationItem?.Body) : null,
+                    Body = emailNotificationItem?.Body,
                     CC = emailNotificationItem?.CC,
                     Footer = emailNotificationItem?.Footer,
                     From = emailNotificationItem?.From,
@@ -44,7 +38,7 @@ namespace NotificationService.Contracts.Extensions
                     Sensitivity = emailNotificationItem.Sensitivity,
                     Subject = emailNotificationItem?.Subject,
                     To = emailNotificationItem?.To,
-                    TemplateData = !string.IsNullOrEmpty(emailNotificationItem?.TemplateData) ? encryptionService.Encrypt(emailNotificationItem?.TemplateData) : null,
+                    TemplateData = emailNotificationItem?.TemplateData,
                     TemplateName = emailNotificationItem?.TemplateName,
                     TrackingId = emailNotificationItem?.TrackingId,
                 };

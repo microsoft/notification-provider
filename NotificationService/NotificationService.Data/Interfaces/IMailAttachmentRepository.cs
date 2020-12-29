@@ -46,5 +46,40 @@ namespace NotificationService.Data
         /// <param name="applicationName"> applincationname as container name. </param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<IList<MeetingNotificationItemEntity>> DownloadMeetingAttachment(IList<MeetingNotificationItemEntity> emailNotificationItemEntities, string applicationName);
+
+        /// <summary>
+        /// UploadEmail to blob.
+        /// </summary>
+        /// <param name="emailNotificationItemEntities">List of <see cref="EmailNotificationItemEntity"/>.</param>
+        /// <param name="notificationType">notificationType.</param>
+        /// <param name="applicationName">applicationName.</param>
+        /// <returns>AA List of <see cref="EmailNotificationItemEntity"/>.</returns>
+        Task<IList<EmailNotificationItemEntity>> UploadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName);
+
+        /// <summary>
+        /// Downloads email from blob.
+        /// </summary>
+        /// <param name="emailNotificationItemEntities">List of <see cref="EmailNotificationItemEntity"/>.</param>
+        /// <param name="applicationName">applicationName.</param>
+        /// <returns>A List of <see cref="EmailNotificationItemEntity"/>.</returns>
+        Task<IList<EmailNotificationItemEntity>> DownloadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName);
+
+
+        /// <summary>
+        /// UploadEmail to blob.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntities">List of <see cref="MeetingNotificationItemEntity"/>.</param>
+        /// <param name="notificationType">notificationType.</param>
+        /// <param name="applicationName">applicationName.</param>
+        /// <returns>AA List of <see cref="MeetingNotificationItemEntity"/>.</returns>
+        Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string notificationType, string applicationName);
+
+        /// <summary>
+        /// Downloads email from blob.
+        /// </summary>
+        /// <param name="MeetinglNotificationItemEntities">List of <see cref="MeetingNotificationItemEntity"/>.</param>
+        /// <param name="applicationName">applicationName.</param>
+        /// <returns>A List of <see cref="MeetingNotificationItemEntity"/>.</returns>
+        Task<IList<MeetingNotificationItemEntity>> DownloadMeetingInvite(IList<MeetingNotificationItemEntity> MeetinglNotificationItemEntities, string applicationName);
     }
 }
