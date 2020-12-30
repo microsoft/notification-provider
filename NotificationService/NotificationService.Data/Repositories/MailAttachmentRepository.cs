@@ -81,6 +81,7 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in meetingNotificationItemEntities)
                 {
+                    var notificationEntity = item;
                     var blobEmailData = new BlobEmailData
                     {
                         NotificationId = item.NotificationId,
@@ -90,6 +91,7 @@ namespace NotificationService.Data.Repositories
                     };
                     var blobpath = this.GetBlobPath(applicationName, item.NotificationId);
                     var uloadedblobpath = await this.cloudStorageClient.UploadBlobAsync(blobpath, this.encryptionService.Encrypt(JsonConvert.SerializeObject(blobEmailData))).ConfigureAwait(false);
+                    notificationEntities.Add(item);
                 }
             }
 
