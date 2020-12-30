@@ -20,17 +20,17 @@ namespace NotificationService.UnitTests.Service.Channels
         /// <summary>
         /// The channel mock.
         /// </summary>
-        private ChannelMocker channelMocker;
+        protected ChannelMocker channelMocker;
 
         /// <summary>
         /// The channel provider mock.
         /// </summary>
-        private Mock<IChannelProvider> channelProviderMock;
+        protected Mock<IChannelProvider> channelProviderMock;
 
         /// <summary>
         /// The notifications channel.
         /// </summary>
-        private NotificationsChannel notificationsChannel;
+        protected NotificationsChannel notificationsChannel;
 
         /// <summary>
         /// Setups the first.

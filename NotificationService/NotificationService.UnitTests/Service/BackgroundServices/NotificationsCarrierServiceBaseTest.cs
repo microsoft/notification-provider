@@ -21,7 +21,7 @@ namespace NotificationService.UnitTests.Service.BackgroundServices
         /// <summary>
         /// The notifications channel mock.
         /// </summary>
-        private Mock<INotificationsChannel> notificationsChannelMock;
+        protected Mock<INotificationsChannel> notificationsChannelMock;
 
         /// <summary>
         /// The notifications carrier mock.
@@ -31,7 +31,7 @@ namespace NotificationService.UnitTests.Service.BackgroundServices
         /// <summary>
         /// The service provider mock.
         /// </summary>
-        private Mock<IServiceProvider> serviceProviderMock;
+        protected Mock<IServiceProvider> serviceProviderMock;
 
         /// <summary>
         /// The notifications carrier service.
