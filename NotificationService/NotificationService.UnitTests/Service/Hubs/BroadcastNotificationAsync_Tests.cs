@@ -31,7 +31,7 @@ namespace NotificationService.UnitTests.Service.Hubs_Tests
         /// Broadcasts the notification asynchronously with null notification.
         /// </summary>
         [Test]
-        public async Task BroadcastNotificationAsync_WithNullNotification()
+        public void BroadcastNotificationAsync_WithNullNotification()
         {
             var ex = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.notificationsHub.BroadcastNotificationAsync(null));
             Assert.IsTrue(ex.ParamName.Equals("notification", StringComparison.OrdinalIgnoreCase));

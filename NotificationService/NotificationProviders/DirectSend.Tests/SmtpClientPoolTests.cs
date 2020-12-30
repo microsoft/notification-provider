@@ -23,8 +23,8 @@ namespace DirectSend.Tests
         public async Task GetClientTest()
         {
             var smtpConfig = new SmtpConfiguration { SmtpServer = "server", SmtpPort = 25 };
-            mockedfactory.Setup(x => x.CreateClient(It.Is<ISmtpConfiguration>(t => t.SmtpPort == 25 && t.SmtpServer.Equals("server")), It.IsAny<ILogger>())).Returns(new Mock<IDSSmtpClient>().Object);
-            var clientPool = new SmtpClientPool(smtpConfig, mockedLogger.Object, mockedfactory.Object);
+            this.mockedfactory.Setup(x => x.CreateClient(It.Is<ISmtpConfiguration>(t => t.SmtpPort == 25 && t.SmtpServer.Equals("server")), It.IsAny<ILogger>())).Returns(new Mock<IDSSmtpClient>().Object);
+            var clientPool = new SmtpClientPool(smtpConfig, this.mockedLogger.Object, this.mockedfactory.Object);
             var dic = new Dictionary<string, string>();
             var client = await clientPool.GetClient(dic);
             Assert.IsNotNull(client);
@@ -35,7 +35,7 @@ namespace DirectSend.Tests
         {
             var smtpConfig = new SmtpConfiguration { SmtpServer = "server", SmtpPort = 25 };
             //mockedfactory.Setup(x => x.CreateClient(It.Is<ISmtpConfiguration>(t => t.SmtpPort == 25 && t.SmtpServer.Equals("server")), It.IsAny<ILogger>())).Returns(new Mock<IDSSmtpClient>().Object);
-            var clientPool = new SmtpClientPool(smtpConfig, mockedLogger.Object, mockedfactory.Object);
+            var clientPool = new SmtpClientPool(smtpConfig, this.mockedLogger.Object, this.mockedfactory.Object);
             var dic = new Dictionary<string, string>();
             var client = await clientPool.GetClient(dic);
             Assert.IsNull(client);
@@ -46,7 +46,7 @@ namespace DirectSend.Tests
         {
             var smtpConfig = new SmtpConfiguration { SmtpServer = "server", SmtpPort = 25 };
             //mockedfactory.Setup(x => x.CreateClient(It.Is<ISmtpConfiguration>(t => t.SmtpPort == 25 && t.SmtpServer.Equals("server")), It.IsAny<ILogger>())).Returns(new Mock<IDSSmtpClient>().Object);
-            var clientPool = new SmtpClientPool(smtpConfig, mockedLogger.Object, mockedfactory.Object);
+            var clientPool = new SmtpClientPool(smtpConfig, this.mockedLogger.Object, this.mockedfactory.Object);
             var client = new Mock<IDSSmtpClient>().Object;
             var dic = new Dictionary<string, string>();
             await clientPool.ReturnClient(client, new Dictionary<string, string>());

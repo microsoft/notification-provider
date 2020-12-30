@@ -19,26 +19,19 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
     using NotificationService.Data;
     using NUnit.Framework;
 
+    /// <summary>
+    /// EmailHandlerManagerTests.
+    /// </summary>
     public class EmailHandlerManagerTests
     {
         /// <summary>
-        /// Gets or sets Logger.
-        /// </summary>
-        public ILogger Logger { get; set; }
-
-        /// <summary>
-        /// Gets or sets Configuration.
-        /// </summary>
-        public Mock<IConfiguration> Configuration { get; set; }
-
-        /// <summary>
         /// The ms graph settings.
         /// </summary>
-        private IOptions<MSGraphSetting> msGraphSettings;
+        private readonly IOptions<MSGraphSetting> msGraphSettings;
 
-        private Mock<ICloudStorageClient> mockedCloudStorageClient;
+        private readonly Mock<ICloudStorageClient> mockedCloudStorageClient;
 
-        private Mock<IEmailManager> mockedEmailManager;
+        private readonly Mock<IEmailManager> mockedEmailManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailHandlerManagerTests"/> class.
@@ -51,6 +44,16 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
             this.mockedCloudStorageClient = new Mock<ICloudStorageClient>();
             this.mockedEmailManager = new Mock<IEmailManager>();
         }
+
+        /// <summary>
+        /// Gets or sets Logger.
+        /// </summary>
+        public ILogger Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets Configuration.
+        /// </summary>
+        public Mock<IConfiguration> Configuration { get; set; }
 
         /// <summary>
         /// Queues the meeting notifications tests.

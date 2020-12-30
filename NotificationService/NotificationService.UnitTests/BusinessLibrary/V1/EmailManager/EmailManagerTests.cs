@@ -26,6 +26,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     /// </summary>
     public class EmailManagerTests
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmailManagerTests"/> class.
+        /// </summary>
         public EmailManagerTests()
         {
             this.Logger = new Mock<ILogger>().Object;

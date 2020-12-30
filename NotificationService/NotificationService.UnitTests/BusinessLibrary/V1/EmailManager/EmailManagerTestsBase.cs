@@ -35,7 +35,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     {
         private readonly string sendEmailUrl = "v1/sendEmail";
         private readonly string cloudQueueUri = "https://teststorage.blob.core.windows.net";
-        private readonly AccountCredential accountCredential = null;
 
         /// <summary>
         /// Gets or sets Graph Provider Mock.

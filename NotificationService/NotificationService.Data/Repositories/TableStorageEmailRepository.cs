@@ -156,6 +156,11 @@ namespace NotificationService.Data.Repositories
         /// <inheritdoc/>
         public Task<Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
         {
+            if (notificationReportRequest == null)
+            {
+                throw new ArgumentNullException(nameof(notificationReportRequest));
+            }
+
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotifications)} method of {nameof(TableStorageEmailRepository)}.");
             var entities = new List<EmailNotificationItemTableEntity>();
             var notificationEntities = new List<EmailNotificationItemEntity>();
@@ -195,6 +200,110 @@ namespace NotificationService.Data.Repositories
             }
 
             Task.WaitAll(this.emailHistoryTable.ExecuteBatchAsync(batchOperation));
+
+            this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+
+            return Task.FromResult(true);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName)
+        {
+            if (notificationIds is null || notificationIds.Count == 0)
+            {
+                throw new System.ArgumentNullException(nameof(notificationIds));
+            }
+
+            string filterExpression = null;
+            foreach (var item in notificationIds)
+            {
+                filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : filterExpression + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
+            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
+            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery).Select(ent => ent).ToList();
+
+            IList<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
+            IList<MeetingNotificationItemEntity> updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            return updatedNotificationEntities;
+        }
+
+        /// <inheritdoc/>
+        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId)
+        {
+            if (notificationId is null)
+            {
+                throw new System.ArgumentNullException(nameof(notificationId));
+            }
+
+            string filterExpression = TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, notificationId);
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.");
+            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
+            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
+            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.");
+            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery).Select(ent => ent).ToList();
+            List<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
+            if (meetingNotificationItemEntities.Count == 1)
+            {
+                this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
+                return Task.FromResult(notificationEntities.FirstOrDefault());
+            }
+            else if (meetingNotificationItemEntities.Count > 1)
+            {
+                throw new ArgumentException("More than one entity found for the input notification id: ", notificationId);
+            }
+            else
+            {
+                throw new ArgumentException("No entity found for the input notification id: ", notificationId);
+            }
+        }
+
+        /// <summary>
+        /// Creates the meeting notification item entities.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntities">The meeting notification item entities.</param>
+        /// <param name="applicationName"> application name as container name. </param>
+        /// <returns>A <see cref="Task"/>.</returns>
+        /// <exception cref="System.ArgumentNullException">meetingNotificationItemEntities.</exception>
+        public async Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName)
+        {
+            if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)
+            {
+                throw new System.ArgumentNullException(nameof(meetingNotificationItemEntities));
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.CreateMeetingNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            IList<MeetingNotificationItemEntity> updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadMeetingInvite(meetingNotificationItemEntities, NotificationType.Meet.ToString(), applicationName).ConfigureAwait(false);
+            TableBatchOperation batchOperation = new TableBatchOperation();
+            foreach (var item in updatedEmailNotificationItemEntities)
+            {
+                batchOperation.Insert(this.ConvertToMeetingNotificationItemTableEntity(item));
+            }
+
+            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            return;
+        }
+
+        /// <inheritdoc/>
+        public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities)
+        {
+            if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)
+            {
+                throw new System.ArgumentNullException(nameof(meetingNotificationItemEntities));
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
+            TableBatchOperation batchOperation = new TableBatchOperation();
+            foreach (var item in meetingNotificationItemEntities)
+            {
+                batchOperation.Merge(this.ConvertToMeetingNotificationItemTableEntity(item));
+            }
+
+            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
 
             this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
 
@@ -453,110 +562,6 @@ namespace NotificationService.Data.Repositories
             }
 
             return filterExpression;
-        }
-
-        /// <inheritdoc/>
-        public async Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName)
-        {
-            if (notificationIds is null || notificationIds.Count == 0)
-            {
-                throw new System.ArgumentNullException(nameof(notificationIds));
-            }
-
-            string filterExpression = null;
-            foreach (var item in notificationIds)
-            {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : filterExpression + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
-            }
-
-            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
-            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery).Select(ent => ent).ToList();
-
-            IList<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
-            IList<MeetingNotificationItemEntity> updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
-            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            return updatedNotificationEntities;
-        }
-
-        /// <inheritdoc/>
-        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId)
-        {
-            if (notificationId is null)
-            {
-                throw new System.ArgumentNullException(nameof(notificationId));
-            }
-
-            string filterExpression = TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, notificationId);
-            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.");
-            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
-            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.");
-            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery).Select(ent => ent).ToList();
-            List<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
-            if (meetingNotificationItemEntities.Count == 1)
-            {
-                this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
-                return Task.FromResult(notificationEntities.FirstOrDefault());
-            }
-            else if (meetingNotificationItemEntities.Count > 1)
-            {
-                throw new ArgumentException("More than one entity found for the input notification id: ", notificationId);
-            }
-            else
-            {
-                throw new ArgumentException("No entity found for the input notification id: ", notificationId);
-            }
-        }
-
-        /// <summary>
-        /// Creates the meeting notification item entities.
-        /// </summary>
-        /// <param name="meetingNotificationItemEntities">The meeting notification item entities.</param>
-        /// <param name="applicationName"> application name as container name. </param>
-        /// <returns>A <see cref="Task"/>.</returns>
-        /// <exception cref="System.ArgumentNullException">meetingNotificationItemEntities.</exception>
-        public async Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName)
-        {
-            if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)
-            {
-                throw new System.ArgumentNullException(nameof(meetingNotificationItemEntities));
-            }
-
-            this.logger.TraceInformation($"Started {nameof(this.CreateMeetingNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            IList<MeetingNotificationItemEntity> updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadMeetingInvite(meetingNotificationItemEntities, NotificationType.Meet.ToString(), applicationName).ConfigureAwait(false);
-            TableBatchOperation batchOperation = new TableBatchOperation();
-            foreach (var item in updatedEmailNotificationItemEntities)
-            {
-                batchOperation.Insert(this.ConvertToMeetingNotificationItemTableEntity(item));
-            }
-
-            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
-            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            return;
-        }
-
-        /// <inheritdoc/>
-        public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities)
-        {
-            if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)
-            {
-                throw new System.ArgumentNullException(nameof(meetingNotificationItemEntities));
-            }
-
-            this.logger.TraceInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            TableBatchOperation batchOperation = new TableBatchOperation();
-            foreach (var item in meetingNotificationItemEntities)
-            {
-                batchOperation.Merge(this.ConvertToMeetingNotificationItemTableEntity(item));
-            }
-
-            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
-
-            this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-
-            return Task.FromResult(true);
         }
     }
 }

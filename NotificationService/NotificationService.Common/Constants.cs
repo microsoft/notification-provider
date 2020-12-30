@@ -192,5 +192,15 @@ namespace NotificationService.Common
         /// The meetingnotificationsqueue.
         /// </summary>
         public const string Notificationsqueue = "notifications-queue";
+
+        /// <summary>
+        /// EmailNotificationsFolderName.
+        /// </summary>
+        public const string EmailNotificationsFolderName = "EmailNotifications";
+
+        /// <summary>
+        /// MeetingNotificationsFolderName.
+        /// </summary>
+        public const string MeetingNotificationsFolderName = "MeetingNotifications";
     }
 }

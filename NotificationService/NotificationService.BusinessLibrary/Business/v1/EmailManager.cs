@@ -77,7 +77,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out repo) ? repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.logger = logger;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;

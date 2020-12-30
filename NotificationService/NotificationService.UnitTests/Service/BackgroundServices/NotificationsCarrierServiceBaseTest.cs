@@ -21,17 +21,17 @@ namespace NotificationService.UnitTests.Service.BackgroundServices
         /// <summary>
         /// The notifications channel mock.
         /// </summary>
-        protected Mock<INotificationsChannel> notificationsChannelMock;
+        private Mock<INotificationsChannel> notificationsChannelMock;
 
         /// <summary>
         /// The notifications carrier mock.
         /// </summary>
-        protected Mock<IWebNotificationsCarrier> notificationsCarrierMock;
+        private Mock<IWebNotificationsCarrier> notificationsCarrierMock;
 
         /// <summary>
         /// The service provider mock.
         /// </summary>
-        protected Mock<IServiceProvider> serviceProviderMock;
+        private Mock<IServiceProvider> serviceProviderMock;
 
         /// <summary>
         /// The notifications carrier service.
