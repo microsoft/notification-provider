@@ -34,7 +34,7 @@ namespace NotificationService.UnitTests.Service.Hubs_Tests
         [TestCase(null)]
         [TestCase("")]
         [TestCase(" ")]
-        public async Task SendNotificationsAsync_WithInvalidUserIdentifier(string userIdentifier)
+        public void SendNotificationsAsync_WithInvalidUserIdentifier(string userIdentifier)
         {
             var ex = Assert.ThrowsAsync<ArgumentException>(async () => await this.notificationsHub.SendNotificationsAsync(userIdentifier, new List<WebNotification>()));
             Assert.IsTrue(ex.Message.StartsWith("Invalid user identifier.", StringComparison.OrdinalIgnoreCase));

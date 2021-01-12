@@ -174,6 +174,14 @@ namespace NotificationService.BusinessLibrary.Providers
         }
 
         /// <summary>
+        /// ProcessMeetingNotificationEntities.
+        /// </summary>
+        /// <param name="applicationName">applicationName.</param>
+        /// <param name="notificationEntities">notificationEntities.</param>
+        /// <returns>A <see cref="Task"/>.</returns>
+        public Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities) => throw new NotImplementedException();
+
+        /// <summary>
         /// Processes the notification items as individual tasks.
         /// </summary>
         /// <param name="applicationName">The application Name.</param>
@@ -234,7 +242,7 @@ namespace NotificationService.BusinessLibrary.Providers
             var traceProps = new Dictionary<string, string>();
             traceProps[Constants.Application] = applicationName;
             traceProps["EmailAccountUsed"] = selectedAccount.Item2.AccountName.Base64Encode();
-            traceProps[Constants.EmailNotificationCount] = notificationEntities.Count.ToString();
+            traceProps[Constants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (notificationEntities is null || notificationEntities.Count == 0)
@@ -278,7 +286,9 @@ namespace NotificationService.BusinessLibrary.Providers
                         Method = Constants.POSTHttpVerb,
                     });
                 }
+#pragma warning disable CA1031 // Do not catch general exception types
                 catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                 {
                     this.logger.TraceInformation($"Caught exception while creating the graph Message {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
                     batchItemResponses.Add(new NotificationBatchItemResponse { Error = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message, NotificationId = item.NotificationId, Status = HttpStatusCode.PreconditionFailed });
@@ -336,7 +346,5 @@ namespace NotificationService.BusinessLibrary.Providers
 
             this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.");
         }
-
-        public Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities) => throw new NotImplementedException();
     }
 }

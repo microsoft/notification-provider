@@ -116,7 +116,6 @@ namespace NotificationService
                         this.Configuration,
                         s.GetService<IRepositoryFactory>(),
                         s.GetService<ILogger>(),
-                        s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
                         s.GetService<IMailTemplateManager>(),
                         s.GetService<ITemplateMerge>()))
                 .AddScoped<IEmailServiceManager, EmailServiceManager>(s =>

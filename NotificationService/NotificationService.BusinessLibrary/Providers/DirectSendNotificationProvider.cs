@@ -116,8 +116,12 @@ namespace NotificationService.BusinessLibrary.Providers
                     {
                         var toAddress = item.RequiredAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
-                        toAddress.AddRange(item.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
-                                 .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList());
+                        if (item.OptionalAttendees?.Length > 0)
+                        {
+                            toAddress.AddRange(item.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)?
+                                     .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList());
+                        }
+
                         message.ToAddresses = toAddress;
                     }
 

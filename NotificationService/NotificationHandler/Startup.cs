@@ -75,7 +75,6 @@ namespace NotificationHandler
                         this.Configuration,
                         s.GetService<IRepositoryFactory>(),
                         s.GetService<ILogger>(),
-                        s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
                         s.GetService<IMailTemplateManager>(),
                         s.GetService<ITemplateMerge>()))
                 .AddScoped<IEmailHandlerManager, EmailHandlerManager>(s =>
