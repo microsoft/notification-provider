@@ -291,6 +291,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.TrackingId = emailNotificationItemEntity.TrackingId;
             emailNotificationItemTableEntity.TryCount = emailNotificationItemEntity.TryCount;
             emailNotificationItemTableEntity.ETag = emailNotificationItemEntity.ETag;
+            emailNotificationItemTableEntity.SendOnUtcDate = emailNotificationItemEntity.SendOnUtcDate;
             return emailNotificationItemTableEntity;
         }
 
@@ -430,6 +431,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;
             emailNotificationItemEntity.TryCount = emailNotificationItemTableEntity.TryCount;
             emailNotificationItemEntity.ETag = emailNotificationItemTableEntity.ETag;
+            emailNotificationItemEntity.SendOnUtcDate = emailNotificationItemTableEntity.SendOnUtcDate;
             return emailNotificationItemEntity;
         }
 

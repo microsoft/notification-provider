@@ -59,5 +59,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "from", IsRequired = false)]
         public Recipient FromAccount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the "SingleValueExtendedProperties" of the message.
+        /// </summary>
+        [DataMember(Name = "SingleValueExtendedProperties", IsRequired = false)]
+        public List<SingleValueExtendedProperty> SingleValueExtendedProperties { get; set; }
     }
 }
