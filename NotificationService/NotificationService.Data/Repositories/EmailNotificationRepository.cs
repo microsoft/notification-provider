@@ -71,7 +71,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
+        public async Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
         {
             if (emailNotificationItemEntities is null)
             {
@@ -83,7 +83,7 @@ namespace NotificationService.Data
             IList<EmailNotificationItemEntity> updatedEmailNotificationItemEntities = emailNotificationItemEntities;
             if (applicationName != null)
             {
-                updatedEmailNotificationItemEntities = this.mailAttachmentRepository.UploadAttachment(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).Result;
+                updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadEmail(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).ConfigureAwait(false);
             }
 
             List<Task> createTasks = new List<Task>();
@@ -95,7 +95,7 @@ namespace NotificationService.Data
             Task.WaitAll(createTasks.ToArray());
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
 
-            return Task.FromResult(true);
+            return;
         }
 
         /// <inheritdoc/>
@@ -145,7 +145,7 @@ namespace NotificationService.Data
             IList<EmailNotificationItemEntity> updatedNotificationEntities = emailNotificationItemEntities;
             if (applicationName != null)
             {
-                updatedNotificationEntities = this.mailAttachmentRepository.DownloadAttachment(emailNotificationItemEntities, applicationName).Result;
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(emailNotificationItemEntities, applicationName).ConfigureAwait(false);
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");

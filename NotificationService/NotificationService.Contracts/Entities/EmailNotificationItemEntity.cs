@@ -133,5 +133,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "TemplateData")]
         public string TemplateData { get; set; }
+
+        /// <summary>
+        /// Gets or sets the TemplateData.
+        /// </summary>
+        [DataMember(Name = "EmailBodyBlobPath")]
+        public string EmailBodyBlobPath { get; set; }
     }
 }

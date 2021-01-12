@@ -25,7 +25,7 @@ namespace NotificationService.UnitTests.Controllers.V1.MeetingInviteController
         private readonly string applicationName = "TestApp";
         private readonly MeetingNotificationItem[] meetingInvitesItem = new MeetingNotificationItem[]
         {
-            new MeetingNotificationItem() { From = "user@contoso.com" , RequiredAttendees = "test@contoso.com" },
+            new MeetingNotificationItem() { From = "user@contoso.com", RequiredAttendees = "test@contoso.com" },
         };
 
         private Mock<IEmailServiceManager> emailServiceManager;

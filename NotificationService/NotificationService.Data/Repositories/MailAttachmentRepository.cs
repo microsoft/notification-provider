@@ -7,6 +7,8 @@ namespace NotificationService.Data.Repositories
     using System.Linq;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
+    using NotificationService.Common;
+    using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -27,163 +29,130 @@ namespace NotificationService.Data.Repositories
         private readonly ICloudStorageClient cloudStorageClient;
 
         /// <summary>
+        /// Instance of <see cref="IEncryptionService"/>.
+        /// </summary>
+        private readonly IEncryptionService encryptionService;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MailAttachmentRepository"/> class.
         /// </summary>
         /// <param name="logger">The Logger instance.</param>
         /// <param name="cloudStorageClient">The Cloud Storage Client instance.</param>
-        public MailAttachmentRepository(ILogger logger, ICloudStorageClient cloudStorageClient)
+        /// <param name="encryptionService">The IEncryptionService instance.</param>
+        public MailAttachmentRepository(ILogger logger, ICloudStorageClient cloudStorageClient, IEncryptionService encryptionService)
         {
             this.logger = logger;
             this.cloudStorageClient = cloudStorageClient;
+            this.encryptionService = encryptionService;
         }
 
         /// <inheritdoc/>
-        public async Task<IList<EmailNotificationItemEntity>> UploadAttachment(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName)
+        public async Task<IList<EmailNotificationItemEntity>> UploadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.UploadAttachment)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
+            if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
+            {
+                foreach (var item in emailNotificationItemEntities)
+                {
+                    var notificationEntity = item;
+                    var blobEmailData = new BlobEmailData
+                    {
+                        NotificationId = item.NotificationId,
+                        Body = item.Body,
+                        Attachments = item.Attachments,
+                        TemplateData = item.TemplateData,
+                    };
+                    var blobpath = this.GetBlobPath(applicationName, item.NotificationId, Constants.EmailNotificationsFolderName);
+                    var uloadedblobpath = await this.cloudStorageClient.UploadBlobAsync(blobpath, this.encryptionService.Encrypt(JsonConvert.SerializeObject(blobEmailData))).ConfigureAwait(false);
+                    notificationEntities.Add(notificationEntity);
+                }
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            return notificationEntities;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string notificationType, string applicationName)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.UploadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
+            IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
+            if (!(meetingNotificationItemEntities is null) && meetingNotificationItemEntities.Count > 0)
+            {
+                foreach (var item in meetingNotificationItemEntities)
+                {
+                    var notificationEntity = item;
+                    var blobEmailData = new BlobEmailData
+                    {
+                        NotificationId = item.NotificationId,
+                        Body = item.Body,
+                        Attachments = item.Attachments,
+                        TemplateData = item.TemplateData,
+                    };
+                    var blobpath = this.GetBlobPath(applicationName, item.NotificationId, Constants.MeetingNotificationsFolderName);
+                    var uloadedblobpath = await this.cloudStorageClient.UploadBlobAsync(blobpath, this.encryptionService.Encrypt(JsonConvert.SerializeObject(blobEmailData))).ConfigureAwait(false);
+                    notificationEntities.Add(item);
+                }
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            return notificationEntities;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> DownloadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.");
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
             if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
             {
                 foreach (var item in emailNotificationItemEntities)
                 {
                     EmailNotificationItemEntity notificationEntity = item;
-                    if (item.Attachments.Any())
-                    {
-                        List<NotificationAttachmentReference> attachmentReferences = new List<NotificationAttachmentReference>();
-                        string blobReference = string.Empty;
-                        foreach (var attachment in item.Attachments)
-                        {
-                            string blobPath = string.Concat(notificationType, "/", item.NotificationId, "/", attachment.FileName);
-                            blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, blobPath, attachment.FileBase64).ConfigureAwait(false);
-                            attachmentReferences.Add(new NotificationAttachmentReference
-                            {
-                                FileName = attachment.FileName,
-                                FileReference = blobReference,
-                                IsInline = attachment.IsInline,
-                            });
-                        }
-
-                        notificationEntity.AttachmentReference = JsonConvert.SerializeObject(attachmentReferences);
-                    }
-
+                    var blobPath = this.GetBlobPath(applicationName, item.NotificationId, Constants.EmailNotificationsFolderName);
+                    var encryptedData = await this.cloudStorageClient.DownloadBlobAsync(blobPath).ConfigureAwait(false);
+                    var decryptedData = this.encryptionService.Decrypt(encryptedData);
+                    var blobEmailData = JsonConvert.DeserializeObject<BlobEmailData>(decryptedData);
+                    notificationEntity.Attachments = blobEmailData.Attachments;
+                    notificationEntity.Body = blobEmailData.Body;
+                    notificationEntity.TemplateData = notificationEntity.TemplateData;
                     notificationEntities.Add(notificationEntity);
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.UploadAttachment)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.");
             return notificationEntities;
         }
 
         /// <inheritdoc/>
-        public async Task<IList<MeetingNotificationItemEntity>> UploadMeetingAttachments(IList<MeetingNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName)
+        public async Task<IList<MeetingNotificationItemEntity>> DownloadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.UploadMeetingAttachments)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
             IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
-            if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
+            if (!(meetingNotificationItemEntities is null) && meetingNotificationItemEntities.Count > 0)
             {
-                foreach (var item in emailNotificationItemEntities)
+                foreach (var item in meetingNotificationItemEntities)
                 {
                     MeetingNotificationItemEntity notificationEntity = item;
-                    if (item.Attachments.Any())
-                    {
-                        List<NotificationAttachmentReference> attachmentReferences = new List<NotificationAttachmentReference>();
-                        string blobReference = string.Empty;
-                        foreach (var attachment in item.Attachments)
-                        {
-                            string blobPath = string.Concat(notificationType, "/", item.NotificationId, "/", attachment.FileName);
-                            blobReference = await this.cloudStorageClient.UploadAttachmentToBlobAsync(applicationName, blobPath, attachment.FileBase64).ConfigureAwait(false);
-                            attachmentReferences.Add(new NotificationAttachmentReference
-                            {
-                                FileName = attachment.FileName,
-                                FileReference = blobReference,
-                                IsInline = attachment.IsInline,
-                            });
-                        }
-
-                        notificationEntity.AttachmentReference = JsonConvert.SerializeObject(attachmentReferences);
-                    }
-
+                    var blobPath = this.GetBlobPath(applicationName, item.NotificationId, Constants.MeetingNotificationsFolderName);
+                    var encryptedData = await this.cloudStorageClient.DownloadBlobAsync(blobPath).ConfigureAwait(false);
+                    var decryptedData = this.encryptionService.Decrypt(encryptedData);
+                    var blobEmailData = JsonConvert.DeserializeObject<BlobEmailData>(decryptedData);
+                    notificationEntity.Attachments = blobEmailData.Attachments;
+                    notificationEntity.Body = blobEmailData.Body;
+                    notificationEntity.TemplateData = notificationEntity.TemplateData;
                     notificationEntities.Add(notificationEntity);
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.UploadMeetingAttachments)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
             return notificationEntities;
         }
 
-
-        /// <inheritdoc/>
-        public async Task<IList<EmailNotificationItemEntity>> DownloadAttachment(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName)
+        private string GetBlobPath(string applicationName, string notificationId, string folderName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.DownloadAttachment)} method of {nameof(MailAttachmentRepository)}.");
-            IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
-            if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
-            {
-                foreach (var item in emailNotificationItemEntities)
-                {
-                    EmailNotificationItemEntity notificationEntity = item;
-                    if (!string.IsNullOrEmpty(item.AttachmentReference))
-                    {
-                        List<NotificationAttachmentReference> attachmentReferences = JsonConvert.DeserializeObject<List<NotificationAttachmentReference>>(item.AttachmentReference);
-                        IList<NotificationAttachmentEntity> attachments = new List<NotificationAttachmentEntity>();
-                        foreach (var reference in attachmentReferences)
-                        {
-                            string content = await this.cloudStorageClient.DownloadAttachmentFromBlobAsync(applicationName, reference.FileReference).ConfigureAwait(false);
-                            NotificationAttachmentEntity attachment = new NotificationAttachmentEntity()
-                            {
-                                FileBase64 = content,
-                                FileName = reference.FileName,
-                                IsInline = reference.IsInline,
-                            };
-                            attachments.Add(attachment);
-                        }
-
-                        notificationEntity.Attachments = attachments;
-                    }
-
-                    notificationEntities.Add(notificationEntity);
-                }
-            }
-
-            this.logger.TraceInformation($"Finished {nameof(this.DownloadAttachment)} method of {nameof(MailAttachmentRepository)}.");
-            return notificationEntities;
-        }
-
-        /// <inheritdoc/>
-        public async Task<IList<MeetingNotificationItemEntity>> DownloadMeetingAttachment(IList<MeetingNotificationItemEntity> emailNotificationItemEntities, string applicationName)
-        {
-            this.logger.TraceInformation($"Started {nameof(this.DownloadMeetingAttachment)} method of {nameof(MailAttachmentRepository)}.");
-            IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
-            if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
-            {
-                foreach (var item in emailNotificationItemEntities)
-                {
-                    MeetingNotificationItemEntity notificationEntity = item;
-                    if (!string.IsNullOrEmpty(item.AttachmentReference))
-                    {
-                        List<NotificationAttachmentReference> attachmentReferences = JsonConvert.DeserializeObject<List<NotificationAttachmentReference>>(item.AttachmentReference);
-                        IList<NotificationAttachmentEntity> attachments = new List<NotificationAttachmentEntity>();
-                        foreach (var reference in attachmentReferences)
-                        {
-                            string content = await this.cloudStorageClient.DownloadAttachmentFromBlobAsync(applicationName, reference.FileReference).ConfigureAwait(false);
-                            NotificationAttachmentEntity attachment = new NotificationAttachmentEntity()
-                            {
-                                FileBase64 = content,
-                                FileName = reference.FileName,
-                                IsInline = reference.IsInline,
-                            };
-                            attachments.Add(attachment);
-                        }
-
-                        notificationEntity.Attachments = attachments;
-                    }
-
-                    notificationEntities.Add(notificationEntity);
-                }
-            }
-
-            this.logger.TraceInformation($"Finished {nameof(this.DownloadMeetingAttachment)} method of {nameof(MailAttachmentRepository)}.");
-            return notificationEntities;
+            return $"{applicationName}/{folderName}/{notificationId}";
         }
     }
 }

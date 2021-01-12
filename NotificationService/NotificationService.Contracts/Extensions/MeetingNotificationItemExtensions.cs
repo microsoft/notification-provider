@@ -23,7 +23,7 @@ namespace NotificationService.Contracts.Extensions
         /// <param name="applicationName">Name of the application.</param>
         /// <param name="encryptionService">encryptionService.</param>
         /// <returns>A <see cref="MeetingNotificationItemEntity"/>.</returns>
-        public static MeetingNotificationItemEntity ToEntity(this MeetingNotificationItem meetingNotificationItem, string applicationName, IEncryptionService encryptionService)
+        public static MeetingNotificationItemEntity ToEntity(this MeetingNotificationItem meetingNotificationItem, string applicationName)
         {
             if (meetingNotificationItem != null)
             {
@@ -33,7 +33,7 @@ namespace NotificationService.Contracts.Extensions
                     ICalUid = meetingNotificationItem.ICalUid,
                     OptionalAttendees = meetingNotificationItem.OptionalAttendees,
                     RequiredAttendees = meetingNotificationItem.RequiredAttendees,
-                    Body = meetingNotificationItem?.Body != null ? encryptionService.Encrypt(meetingNotificationItem?.Body) : null,
+                    Body = meetingNotificationItem?.Body,
                     NotificationId = meetingNotificationItem.NotificationId,
                     DayofMonth = meetingNotificationItem.RecurrenceDayofMonth,
                     DayOfWeekByMonth = meetingNotificationItem.RecurrenceDayOfWeekByMonth,
