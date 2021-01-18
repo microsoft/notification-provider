@@ -104,7 +104,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.CreateMeetingNotificationItemEntities(entities, this.applicationName);
-            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>()), Times.Once);
+            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.Is<TableBatchOperation>(x => x.Any(y => y.OperationType == TableOperationType.Insert))), Times.Once);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.UpdateMeetingNotificationItemEntities(entities);
-            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>()), Times.Once);
+            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.Is<TableBatchOperation>(x => x.Any(y => y.OperationType == TableOperationType.Merge))), Times.Once);
         }
     }
 }
