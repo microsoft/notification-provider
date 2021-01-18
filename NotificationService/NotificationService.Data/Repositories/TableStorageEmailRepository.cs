@@ -344,6 +344,8 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemTableEntity.Interval = meetingNotificationItemEntity.Interval;
             meetingNotificationItemTableEntity.ICalUid = meetingNotificationItemEntity.ICalUid;
             meetingNotificationItemTableEntity.AttachmentReference = meetingNotificationItemEntity.AttachmentReference;
+            meetingNotificationItemTableEntity.EmailAccountUsed = meetingNotificationItemEntity.EmailAccountUsed;
+            meetingNotificationItemTableEntity.EventId = meetingNotificationItemEntity.EventId;
             return meetingNotificationItemTableEntity;
         }
 
@@ -396,6 +398,9 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemEntity.Interval = meetingNotificationItemTableEntity.Interval;
             meetingNotificationItemEntity.ICalUid = meetingNotificationItemTableEntity.ICalUid;
             meetingNotificationItemEntity.AttachmentReference = meetingNotificationItemTableEntity.AttachmentReference;
+            meetingNotificationItemEntity.EventId = meetingNotificationItemTableEntity.EventId;
+            meetingNotificationItemEntity.EmailAccountUsed = meetingNotificationItemTableEntity.EmailAccountUsed;
+            meetingNotificationItemEntity.Action = meetingNotificationItemTableEntity.Action;
             return meetingNotificationItemEntity;
         }
 

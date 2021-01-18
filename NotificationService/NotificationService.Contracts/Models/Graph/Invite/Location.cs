@@ -21,7 +21,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// Gets or Sets Locationtype.
         /// </summary>
         [DataMember(Name = "locationType")]
-        public LocationType LocationType { get; set; } = LocationType.Default;
+        public LocationType LocationType { get; set; }
 
         /// <summary>
         /// Gets or Sets Address.

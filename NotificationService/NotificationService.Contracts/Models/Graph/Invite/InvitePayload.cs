@@ -17,7 +17,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// <summary>
         /// Gets Or Sets Subject.
         /// </summary>
-        [DataMember(Name = "Subject", IsRequired = true)]
+        [DataMember(Name = "subject", IsRequired = true)]
         public string Subject { get; set; }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// <summary>
         /// Gets or Sets Recurrence of Meeting invite.
         /// </summary>
-        [DataMember(Name = "recurrence ", IsRequired = false)]
+        [DataMember(Name = "recurrence", IsRequired = false)]
         public Recurrence Recurrence { get; set; }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// Gets or Sets ReminderMinutesBeforeStart.
         /// </summary>
         [DataMember(Name = "reminderMinutesBeforeStart")]
-        public int ReminderMinutesBeforeStart { get; set; }
+        public int? ReminderMinutesBeforeStart { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether gets or Sets as value indicating whether the meeting invite is for all day.
@@ -145,5 +145,11 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// </summary>
         [DataMember(Name = "hasAttachments")]
         public bool HasAttachments { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ICallUid.
+        /// </summary>
+        [DataMember(Name = "iCalUId")]
+        public string ICallUid { get; set; }
     }
 }

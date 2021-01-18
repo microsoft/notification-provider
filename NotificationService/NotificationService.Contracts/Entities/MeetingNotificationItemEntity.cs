@@ -199,5 +199,15 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets Mailbox Account used to deliver the email.
         /// </summary>
         public string EmailAccountUsed { get; set; }
+
+        /// <summary>
+        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event. 
+        /// </summary>
+        public string EventId { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Action (Create, Update, Delete).
+        /// </summary>
+        public string Action { get; set; }
     }
 }

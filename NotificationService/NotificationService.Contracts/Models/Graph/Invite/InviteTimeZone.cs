@@ -26,7 +26,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// <summary>
         /// InviteTimeZone UTC.
         /// </summary>
-        [EnumMember(Value = "Universal Time Coordinated")]
+        [EnumMember(Value = "UTC")]
         UTC,
     }
 }

@@ -23,7 +23,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// Gets or Sets Inverval.
         /// </summary>
         [DataMember(Name = "interval", IsRequired = true)]
-        public int Interval { get; set; }
+        public int? Interval { get; set; }
 
         /// <summary>
         /// Gets or Sets DaysOfWeek.
@@ -54,7 +54,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// same like index => define month of the year.
         /// </summary>
         [DataMember(Name = "month")]
-        public int Month { get; set; }
+        public int? Month { get; set; }
 
         /// <summary>
         /// Gets or Sets FirstDayOfWeek.

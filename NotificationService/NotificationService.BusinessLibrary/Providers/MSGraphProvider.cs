@@ -5,6 +5,7 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -13,6 +14,7 @@ namespace NotificationService.BusinessLibrary
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using NotificationService.BusinessLibrary.Models;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -163,42 +165,148 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task<bool> SendMeetingInvite(AuthenticationHeaderValue authenticationHeaderValue, InvitePayload payLoad, string notificationId)
+        public async Task<ResponseData<string>> SendMeetingInvite(AuthenticationHeaderValue authenticationHeaderValue, InvitePayload payLoad, string notificationId)
         {
             this.logger.TraceInformation($"Started {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
             this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
             var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
             HttpResponseMessage response = null;
-            bool isSuccess = false;
             response = await this.httpClient.PostAsync(
                     $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}",
                     new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
 
-            this.logger.TraceInformation($"Method {nameof(this.SendMeetingInvite)}: Completed Graph Send Email Call.");
-            var responseHeaders = response.Headers.ToString();
+            this.logger.TraceInformation($"Method {nameof(this.SendMeetingInvite)}: Completed Graph Send Meeting Invite Call for notificationId {notificationId}");
 
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                isSuccess = true;
-            }
-            else if (response.StatusCode == HttpStatusCode.TooManyRequests || response.StatusCode == HttpStatusCode.RequestTimeout)
-            {
-                isSuccess = false;
-            }
-            else
-            {
-                string content = string.Empty;
-                if (response != null)
-                {
-                    content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                }
+            var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {content}");
+            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            {
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
-            return isSuccess;
+            return responseData;
+        }
+
+        /// <inheritdoc/>
+        public async Task<ResponseData<string>> UpdateMeetingInvite(AuthenticationHeaderValue authenticationHeaderValue, InvitePayload payLoad, string notificationId, string eventId)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.UpdateMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
+            HttpResponseMessage response = null;
+            response = await this.httpClient.PatchAsync(
+                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}",
+                    new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+            this.logger.TraceInformation($"Method {nameof(this.UpdateMeetingInvite)}: Completed Graph Update Meeting Invite Call for notificationId {notificationId}");
+
+            var responseData = await GetResponseData(response).ConfigureAwait(false);
+
+            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            {
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.UpdateMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            return responseData;
+        }
+
+        /// <inheritdoc/>
+        public async Task<ResponseData<string>> DeleteMeetingInvite(AuthenticationHeaderValue authenticationHeaderValue, string notificationId, string eventId)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.DeleteMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            HttpResponseMessage response = null;
+            response = await this.httpClient.DeleteAsync(
+                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}").ConfigureAwait(false);
+            this.logger.TraceInformation($"Method {nameof(this.DeleteMeetingInvite)}: Completed Graph Delete Meeting Invite Call for NotificationId {notificationId}");
+
+            var responseData = await GetResponseData(response).ConfigureAwait(false);
+
+            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            {
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.DeleteMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            return responseData;
+        }
+
+        /// <inheritdoc/>
+        public IDictionary<string, ResponseData<string>> SendMeetingInviteAttachments(AuthenticationHeaderValue authenticationHeaderValue, List<FileAttachment> attachments, string eventId, string notificationId)
+        {
+            var maxRetryCount = 3;
+            var result = new Dictionary<string, ResponseData<string>>();
+            var executionResult = Parallel.ForEach(attachments, async attachment =>
+            {
+                int count = 0;
+                ResponseData<string> response = null;
+                do
+                {
+                    try
+                    {
+                        response = await this.SendMeetingInviteAttachment(attachment, authenticationHeaderValue, eventId, notificationId).ConfigureAwait(false);
+                        if (result.ContainsKey(attachment.Name)) 
+                        {
+                            _ = result.Remove(attachment.Name);
+                        }
+
+                        result.Add(attachment.Name, response);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
+                    }
+                }
+                while (!response.Status && count < maxRetryCount);
+            });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Sends attachment to the event alread sent.
+        /// </summary>
+        /// <param name="attachment">List of Attachment object to be sent. </param>
+        /// <param name="authenticationHeaderValue">Authentication header corresponding to the sender of the email.</param>
+        /// <param name="eventId">EventId as reference to already sent event.</param>
+        /// <param name="notificationId"> Internal identifier of the email message to be sent. </param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        private async Task<ResponseData<string>> SendMeetingInviteAttachment(FileAttachment attachment, AuthenticationHeaderValue authenticationHeaderValue, string eventId, string notificationId)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.SendMeetingInviteAttachment)} method of {nameof(MSGraphProvider)}.");
+            this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            var requestPayLoad = JsonConvert.SerializeObject(attachment, this.jsonSerializerSettings);
+
+            HttpResponseMessage response = null;
+            response = await this.httpClient.PostAsync(
+               $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}/attachments",
+               new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+
+            this.logger.TraceInformation($"Method {nameof(this.DeleteMeetingInvite)}: Completed Graph Send Attachment to invite/Event for notificationId {notificationId}");
+            var responseData = await GetResponseData(response).ConfigureAwait(false);
+
+            this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInviteAttachment)} method of {nameof(MSGraphProvider)}.");
+            return responseData;
+        }
+
+        /// <summary>
+        /// Gets ResponseData from httpResponse.
+        /// </summary>
+        /// <param name="response"> HttpResponse Object. </param>
+        /// <returns> ResponseData </returns>
+        private static async Task<ResponseData<string>> GetResponseData(HttpResponseMessage response)
+        {
+            if (response == null)
+            {
+                return null;
+            }
+
+            var result = new ResponseData<string>();
+            result.Status = response.IsSuccessStatusCode;
+            result.StatusCode = response.StatusCode;
+            result.Result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return result;
         }
     }
 }

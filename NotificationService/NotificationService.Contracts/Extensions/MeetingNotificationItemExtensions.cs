@@ -60,6 +60,7 @@ namespace NotificationService.Contracts.Extensions
                     TemplateName = meetingNotificationItem.TemplateName,
                     TemplateData = meetingNotificationItem.TemplateData,
                     Application = applicationName,
+                    Action = meetingNotificationItem.Action,
                 };
             }
             else
