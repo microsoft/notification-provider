@@ -516,27 +516,30 @@ namespace NotificationService.BusinessLibrary.Providers
                 },
             };
 
-            var recurrencePattern = new RecurrencePattern()
+            if ( meetingNotificationEntity.RecurrencePattern != MeetingRecurrencePattern.None )
             {
-                Type = (RecurrencePatternType)Enum.Parse(typeof(RecurrencePatternType), meetingNotificationEntity.RecurrencePattern.ToString()),
-                Interval = meetingNotificationEntity.Interval,
-                DaysOfWeek = meetingNotificationEntity.DaysOfWeek.GetListFromString<Contracts.Models.Graph.Invite.DayOfTheWeek>(','),
-                DayOfMonth = meetingNotificationEntity.DayofMonth,
-                Month = meetingNotificationEntity.MonthOfYear,
-            };
-            var recurrenceRangeType = meetingNotificationEntity.EndDate.HasValue ? RecurrenceRangeType.EndDate : meetingNotificationEntity.Ocurrences.HasValue ? RecurrenceRangeType.Numbered : RecurrenceRangeType.NoEnd;
-            var recurrenceRange = new RecurrenceRange()
-            {
-                NumberOfOccurences = meetingNotificationEntity.Ocurrences,
-                EndDate = meetingNotificationEntity.EndDate.HasValue ? meetingNotificationEntity.EndDate?.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter) : null,
-                StartDate = meetingNotificationEntity.Start.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter),
-                Type = recurrenceRangeType,
-            };
-            payload.Recurrence = new Recurrence()
-            {
-                Pattern = recurrencePattern,
-                Range = recurrenceRange,
-            };
+                var recurrencePattern = new RecurrencePattern()
+                {
+                    Type = (RecurrencePatternType)Enum.Parse(typeof(RecurrencePatternType), meetingNotificationEntity.RecurrencePattern.ToString()),
+                    Interval = meetingNotificationEntity.Interval,
+                    DaysOfWeek = meetingNotificationEntity.DaysOfWeek.GetListFromString<Contracts.Models.Graph.Invite.DayOfTheWeek>(','),
+                    DayOfMonth = meetingNotificationEntity.DayofMonth,
+                    Month = meetingNotificationEntity.MonthOfYear,
+                };
+                var recurrenceRangeType = meetingNotificationEntity.EndDate.HasValue ? RecurrenceRangeType.EndDate : meetingNotificationEntity.Ocurrences.HasValue ? RecurrenceRangeType.Numbered : RecurrenceRangeType.NoEnd;
+                var recurrenceRange = new RecurrenceRange()
+                {
+                    NumberOfOccurences = meetingNotificationEntity.Ocurrences,
+                    EndDate = meetingNotificationEntity.EndDate.HasValue ? meetingNotificationEntity.EndDate?.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter) : null,
+                    StartDate = meetingNotificationEntity.Start.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter),
+                    Type = recurrenceRangeType,
+                };
+                payload.Recurrence = new Recurrence()
+                {
+                    Pattern = recurrencePattern,
+                    Range = recurrenceRange,
+                };
+            }
 
             payload.ReminderMinutesBeforeStart = Convert.ToInt32(meetingNotificationEntity.ReminderMinutesBeforeStart);
             payload.Start = new InviteDateTime()
