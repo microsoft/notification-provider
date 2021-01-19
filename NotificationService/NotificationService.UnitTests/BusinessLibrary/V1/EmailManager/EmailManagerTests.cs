@@ -26,6 +26,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     /// </summary>
     public class EmailManagerTests
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmailManagerTests"/> class.
+        /// </summary>
         public EmailManagerTests()
         {
             this.Logger = new Mock<ILogger>().Object;
@@ -92,7 +95,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public async Task CreateMeetingNotificationEntitiesTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem>
             {
                 new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
@@ -109,7 +112,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public void NotificationEntitiesToResponseTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.EncryptionService.Object, this.TemplateManager.Object, this.TemplateMerge.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object);
             var meetingNotificationItems = new List<MeetingNotificationItemEntity>
             {
                 new MeetingNotificationItemEntity

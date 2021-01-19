@@ -26,7 +26,7 @@ namespace NotificationService.UnitTests.Service.BackgroundServices
         /// <summary>
         /// The notifications carrier mock.
         /// </summary>
-        protected Mock<IWebNotificationsCarrier> notificationsCarrierMock;
+        private Mock<IWebNotificationsCarrier> notificationsCarrierMock;
 
         /// <summary>
         /// The service provider mock.

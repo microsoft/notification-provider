@@ -96,10 +96,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out repo) ? repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.cloudStorageClient = cloudStorageClient;
             this.logger = logger;
-            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[Constants.NotificationProviderType], out provider) ? provider : throw new Exception());
+            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[Constants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
             if (this.configuration?["MailSettings"] != null)
             {
                 this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);

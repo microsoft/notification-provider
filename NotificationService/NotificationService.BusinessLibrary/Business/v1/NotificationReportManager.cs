@@ -71,7 +71,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.logger = logger;
             this.configuration = configuration;
-            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.Constants.StorageType], out repo) ? repo : throw new Exception("Unknown Database Type"));
+            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.Constants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
             this.emailManager = emailManager;
             this.mailTemplateRepository = mailTemplateRepository ?? throw new System.ArgumentNullException(nameof(mailTemplateRepository));
         }

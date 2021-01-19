@@ -30,15 +30,15 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
         private ILogger Logger { get; set; }
 
-        private IConfiguration configuration { get; set; }
+        private IConfiguration Configuration { get; set; }
 
         private NotificationReportManager NotificationReportManager { get; set; }
 
-        private Mock<IEmailNotificationRepository> emailNotificationRepository { get; set; }
+        private Mock<IEmailNotificationRepository> EmailNotificationRepository { get; set; }
 
-        private Mock<IEmailManager> emailManager { get; set; }
+        private Mock<IEmailManager> EmailManager { get; set; }
 
-        private Mock<IMailTemplateRepository> mailTemplateRepository { get; set; }
+        private Mock<IMailTemplateRepository> MailTemplateRepository { get; set; }
 
         /// <summary>
         /// Initialization for the tests.
@@ -48,9 +48,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
         {
             this.EmailNotificationRepositoryFactory = new Mock<IRepositoryFactory>();
             this.Logger = new Mock<ILogger>().Object;
-            this.emailNotificationRepository = new Mock<IEmailNotificationRepository>();
-            this.emailManager = new Mock<IEmailManager>();
-            this.mailTemplateRepository = new Mock<IMailTemplateRepository>();
+            this.EmailNotificationRepository = new Mock<IEmailNotificationRepository>();
+            this.EmailManager = new Mock<IEmailManager>();
+            this.MailTemplateRepository = new Mock<IMailTemplateRepository>();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
-            this.configuration = new ConfigurationBuilder()
+            this.Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
 
@@ -92,15 +92,15 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
             var tuple = Tuple.Create<IList<EmailNotificationItemEntity>, TableContinuationToken>(dbEntities, null);
 
-            _ = this.emailNotificationRepository
+            _ = this.EmailNotificationRepository
                 .Setup(repository => repository.GetEmailNotifications(request))
                 .ReturnsAsync(tuple);
 
             _ = this.EmailNotificationRepositoryFactory
                 .Setup(repository => repository.GetRepository(StorageType.StorageAccount))
-                .Returns(this.emailNotificationRepository.Object);
+                .Returns(this.EmailNotificationRepository.Object);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.configuration, this.emailManager.Object, this.mailTemplateRepository.Object);
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
 
             var managerResult = this.NotificationReportManager.GetReportNotifications(request);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
@@ -122,7 +122,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
-            this.configuration = new ConfigurationBuilder()
+            this.Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
 
@@ -140,17 +140,17 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
             string applicationName = "TestApp";
 
-            _ = this.mailTemplateRepository
+            _ = this.MailTemplateRepository
                 .Setup(repository => repository.GetAllTemplateEntities(applicationName))
                 .ReturnsAsync(mailTemplateEntities);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.configuration, this.emailManager.Object, this.mailTemplateRepository.Object);
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
 
             var managerResult = this.NotificationReportManager.GetAllTemplateEntities(applicationName);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
             CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateName), results.Select(x => x.TemplateName));
 
-            this.mailTemplateRepository.Verify(repo => repo.GetAllTemplateEntities(applicationName));
+            this.MailTemplateRepository.Verify(repo => repo.GetAllTemplateEntities(applicationName));
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
-            this.configuration = new ConfigurationBuilder()
+            this.Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
 
@@ -187,26 +187,26 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             string applicationName = "TestApp";
             string notificationId = Guid.NewGuid().ToString();
 
-            _ = this.emailNotificationRepository
+            _ = this.EmailNotificationRepository
                 .Setup(repository => repository.GetEmailNotificationItemEntity(notificationId))
                 .ReturnsAsync(notificationItemEntity);
 
             _ = this.EmailNotificationRepositoryFactory
                 .Setup(repository => repository.GetRepository(StorageType.StorageAccount))
-                .Returns(this.emailNotificationRepository.Object);
+                .Returns(this.EmailNotificationRepository.Object);
 
-            _ = this.emailManager
+            _ = this.EmailManager
                .Setup(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity))
                .ReturnsAsync(body);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.configuration, this.emailManager.Object, this.mailTemplateRepository.Object);
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
 
             var managerResult = this.NotificationReportManager.GetNotificationMessage(applicationName, notificationId);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
             Assert.AreEqual(managerResult.Result.Body, body);
 
             this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId));
-            this.emailManager.Verify(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity));
+            this.EmailManager.Verify(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity));
         }
     }
 }
