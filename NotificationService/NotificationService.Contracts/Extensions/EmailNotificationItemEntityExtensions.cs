@@ -6,6 +6,7 @@ namespace NotificationService.Contracts
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.Linq;
     using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Common.Configurations;
@@ -40,6 +41,7 @@ namespace NotificationService.Contracts
                 Attachments = emailNotificationItemEntity.Attachments?.Select(attachment => new FileAttachment
                 { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
                 FromAccount = !string.IsNullOrWhiteSpace(emailNotificationItemEntity.From) ? new Recipient() { EmailAddress = new EmailAddress() { Address = emailNotificationItemEntity.From } } : null,
+                SingleValueExtendedProperties = new List<SingleValueExtendedProperty> { new SingleValueExtendedProperty { Id = "SystemTime 0x3FEF", Value = emailNotificationItemEntity.SendOnUtcDate.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) } },
             };
         }
 
