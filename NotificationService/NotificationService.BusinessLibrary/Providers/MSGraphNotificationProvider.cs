@@ -341,12 +341,13 @@ namespace NotificationService.BusinessLibrary.Providers
 
             this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.");
         }
-        ///<inheritdoc/>
+
+        /// <inheritdoc/>
         public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> meetingInviteEntities)
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[Constants.Application] = applicationName;
-            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (meetingInviteEntities is null || meetingInviteEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null.");
@@ -374,7 +375,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 await this.ProcessMeetingEntitiesIndividually(applicationName, meetingInviteEntities, selectedAccount).ConfigureAwait(false);
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
         }
 
         /// <summary>
@@ -389,7 +390,7 @@ namespace NotificationService.BusinessLibrary.Providers
             var traceProps = new Dictionary<string, string>();
             traceProps[Constants.Application] = applicationName;
             traceProps[Constants.NotificationType] = NotificationType.Meet.ToString();
-            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -413,7 +414,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     var payload = await this.CreateInvitePayload(item, applicationName).ConfigureAwait(false);
                     if (!sendForReal)
                     {
-                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessEntitiesIndividually)} method of {nameof(EmailManager)}.", traceProps);
+                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(EmailManager)}.", traceProps);
                         payload.Attendees = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Attendee { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         payload.Organizer = null;
                     }
@@ -440,6 +441,7 @@ namespace NotificationService.BusinessLibrary.Providers
                             var res = this.msGraphProvider.SendMeetingInviteAttachments(selectedAccount.Item1, attachments, item.EventId, item.NotificationId);
                             if (!IsAllAttachmentsSent(res, item))
                             {
+                                // If all attachments sent is failed. delete the event and mark it for retrial in next run.
                                 _ = this.msGraphProvider.DeleteMeetingInvite(selectedAccount.Item1, item.NotificationId, item.EventId);
                                 item.Status = item.TryCount <= this.maxTryCount ? NotificationItemStatus.Retrying : NotificationItemStatus.Failed;
                             }
@@ -489,7 +491,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 {
                     Address = e,
                 },
-                Type = AttendeeType.Required,
+                Type = AttendeeType.Optional,
             });
 
             payload.Attendees = (optionalAttendees != null ? requiredAttendees.Union(optionalAttendees) : requiredAttendees).ToList();
@@ -497,7 +499,6 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.End = new InviteDateTime()
             {
                 DateTime = meetingNotificationEntity.End.FormatDate(Constants.GraphMeetingInviteDateTimeFormatter),
-                TimeZone = InviteTimeZone.UTC, // need to check for timzone.
             };
             payload.Importance = (ImportanceType)Enum.Parse(typeof(ImportanceType), meetingNotificationEntity.Priority.ToString());
             payload.IsCancelled = meetingNotificationEntity.IsCancel;
@@ -505,7 +506,7 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.IsAllDay = meetingNotificationEntity.IsAllDayEvent;
             payload.Location = new Location()
             {
-                DisplayName = meetingNotificationEntity.Location,  // check if it is other value of display name.
+                DisplayName = meetingNotificationEntity.Location,
             };
             payload.Organizer = new Organizer()
             {
@@ -541,7 +542,6 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.Start = new InviteDateTime()
             {
                 DateTime = meetingNotificationEntity.Start.FormatDate(Constants.GraphMeetingInviteDateTimeFormatter),
-                TimeZone = InviteTimeZone.UTC, //need to check on datetime zone.
             };
 
             payload.Subject = meetingNotificationEntity.Subject;

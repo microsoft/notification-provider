@@ -179,7 +179,7 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
             {
                 throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
             }
@@ -202,7 +202,7 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
             {
                 throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
             }
@@ -223,7 +223,7 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
             {
                 throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
             }
@@ -235,9 +235,9 @@ namespace NotificationService.BusinessLibrary
         /// <inheritdoc/>
         public IDictionary<string, ResponseData<string>> SendMeetingInviteAttachments(AuthenticationHeaderValue authenticationHeaderValue, List<FileAttachment> attachments, string eventId, string notificationId)
         {
-            var maxRetryCount = 3;
+            var maxRetryCount = this.pollyRetrySetting.MaxRetries;
             var result = new Dictionary<string, ResponseData<string>>();
-            var executionResult = Parallel.ForEach(attachments, async attachment =>
+            var executionResult = Parallel.ForEach(attachments, attachment =>
             {
                 int count = 0;
                 ResponseData<string> response = null;
@@ -245,15 +245,18 @@ namespace NotificationService.BusinessLibrary
                 {
                     try
                     {
-                        response = await this.SendMeetingInviteAttachment(attachment, authenticationHeaderValue, eventId, notificationId).ConfigureAwait(false);
-                        if (result.ContainsKey(attachment.Name)) 
+                        count++;
+                        response = this.SendMeetingInviteAttachment(attachment, authenticationHeaderValue, eventId, notificationId).GetAwaiter().GetResult();
+                        if (result.ContainsKey(attachment.Name))
                         {
                             _ = result.Remove(attachment.Name);
                         }
 
                         result.Add(attachment.Name, response);
                     }
+#pragma warning disable CA1031 // Do not catch general exception types
                     catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
                     }

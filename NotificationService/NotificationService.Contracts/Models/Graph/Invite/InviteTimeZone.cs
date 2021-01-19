@@ -12,6 +12,12 @@ namespace NotificationService.Contracts.Models.Graph.Invite
     public enum InviteTimeZone
     {
         /// <summary>
+        /// InviteTimeZone UTC.
+        /// </summary>
+        [EnumMember(Value = "UTC")]
+        UTC,
+
+        /// <summary>
         /// InviteTimeZone PST.
         /// </summary>
         [EnumMember(Value = "Pacific Standard Time")]
@@ -22,11 +28,5 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// </summary>
         [EnumMember(Value = "India Standard Time")]
         IST,
-
-        /// <summary>
-        /// InviteTimeZone UTC.
-        /// </summary>
-        [EnumMember(Value = "UTC")]
-        UTC,
     }
 }
