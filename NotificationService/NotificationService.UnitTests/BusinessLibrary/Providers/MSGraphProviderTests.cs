@@ -1,31 +1,41 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/*
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Moq;
-using Moq.Protected;
-using NotificationService.BusinessLibrary;
-using NotificationService.Common;
-using NotificationService.Contracts;
-using Newtonsoft.Json;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace NotificationService.UnitTests.BusinessLibrary.Providers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Options;
+    using Moq;
+    using Moq.Protected;
+    using Newtonsoft.Json;
+    using NotificationService.BusinessLibrary;
+    using NotificationService.Common;
+    using NotificationService.Contracts;
+    using NotificationService.Contracts.Models.Graph.Invite;
+    using NUnit.Framework;
+
     /// <summary>
     /// MSGraphProviderTests.
     /// </summary>
     public class MSGraphProviderTests : MSGraphProvideTestBase
     {
+        /// <summary>
+        /// RetrySetting Object.
+        /// </summary>
+        private readonly RetrySetting retrySetting = new RetrySetting
+        {
+            MaxRetries = 10,
+            TransientRetryCount = 3,
+        };
+
         /// <summary>
         /// Gets Test User Token value.
         /// </summary>
@@ -34,7 +44,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// <summary>
         /// Gets Test User Token value.
         /// </summary>
-        public AuthenticationHeaderValue TestTokenHeader => new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this.TestToken);
+        public AuthenticationHeaderValue TestTokenHeader => new AuthenticationHeaderValue("Bearer", this.TestToken);
 
         /// <summary>
         /// Initialization for the tests.
@@ -47,70 +57,22 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task ProcessEmailRequestBatch_NoActiveAccounts()
+        public async Task ProcessEmailRequestBatch_Response_Null()
         {
-            var applicationAccounts = new List<ApplicationAccounts>()
+            var graphRequests = this.GetGraphRequest();
+
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, this.MockedHttpClient.Object);
+            try
             {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = false, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
-
-            var retrySetting = new RetrySetting
+                var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
+            }
+            catch (Exception e)
             {
-                MaxRetries = 10,
-                TransientRetryCount = 3,
-            };
+                ex = e;
+            }
 
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "3" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            _ = this.TokenHelper
-                .Setup(th => th.GetAccessTokenForSelectedAccount(It.IsAny<AccountCredential>()))
-                .Returns(Task.FromResult(this.TestToken));
-
-            _ = this.TokenHelper
-                .Setup(th => th.GetAuthenticationHeaderFromToken(It.IsAny<string>()))
-                .Returns(Task.FromResult(this.TestTokenHeader));
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Body = "Test Body",
-                    },
-                },
-            };
-            //var authenticationHeader = await this.TokenHelper.Object.GetAuthenticationHeaderValueForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test"))).ConfigureAwait(false);
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, this.MockedHttpClient.Object);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.PreconditionFailed).Count());
-            Assert.IsTrue(result.Any(x => x.Error.Contains("No active/valid email account exists for the application")));
+            Assert.IsTrue(ex?.Message?.Contains("An error occurred while processing notification batch", StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -118,155 +80,11 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task ProcessEmailRequestBatch_ErrorGettingToken_ForallAccounts()
+        public async Task ProcessEmailRequestBatch_CannotBeRetried()
         {
-            var applicationAccounts = new List<ApplicationAccounts>()
-            {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
+            var graphRequests = this.GetGraphRequest();
 
-            var retrySetting = new RetrySetting
-            {
-                MaxRetries = 10,
-                TransientRetryCount = 3,
-            };
-
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "3" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Body = "Test Body",
-                    },
-                },
-            };
-            //var authenticationHeader = await this.TokenHelper.Object.GetAuthenticationHeaderValueForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test"))).ConfigureAwait(false);
-
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, this.MockedHttpClient.Object);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.PreconditionFailed).Count());
-            Assert.IsTrue(result.Any(x => x.Error.Contains("No active/valid email account exists for the application")));
-        }
-
-        /// <summary>
-        /// Processes the email request batch no active accounts.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task ProcessEmailRequestBatch_ErrorGettingToken_CannotBeRetried()
-        {
-            var applicationAccounts = new List<ApplicationAccounts>()
-            {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test2", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
-
-            var retrySetting = new RetrySetting
-            {
-                MaxRetries = 10,
-                TransientRetryCount = 3,
-            };
-
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "3" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            var notificationId1 = Guid.NewGuid().ToString();
-            var notificationId2 = Guid.NewGuid().ToString();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                },
-            };
-            string res = null;
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test")))).ReturnsAsync(res);
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
-
-            var httpresponsemessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
-                {
-                    Responses = new List<GraphResponse>
-                    {
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSubmissionQuotaExceeded", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId1,
-                        },
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSubmissionQuotaExceeded", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId2,
-                        },
-                    },
-                })),
-            };
+            var httpresponsemessage = this.GetEmailResponseMessage(graphRequests, "ErrorSubmissionQuotaExceeded", "Quota Exceeded", HttpStatusCode.TooManyRequests);
 
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
@@ -278,13 +96,18 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
                .ReturnsAsync(httpresponsemessage);
 
             var httpClient = new HttpClient(handlerMock.Object);
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            try
+            {
+                var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
 
-            //_ = this.MockedHttpClient.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(httpresponsemessage);
-            //var authenticationHeader = await this.TokenHelper.Object.GetAuthenticationHeaderValueForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test"))).ConfigureAwait(false);
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.TooManyRequests).Count());
-            Assert.IsTrue(result.Any(x => x.Error.Contains("Quota Exceeded")));
+            Assert.IsTrue(ex?.Message?.Contains("An error occurred while processing notification batch", StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -294,90 +117,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         [Test]
         public async Task ProcessEmailRequestBatch_ErrorGettingToken_CannotBeRetried_2()
         {
-            var applicationAccounts = new List<ApplicationAccounts>()
-            {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test2", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
+            var graphRequests = this.GetGraphRequest();
 
-            var retrySetting = new RetrySetting
-            {
-                MaxRetries = 10,
-                TransientRetryCount = 3,
-            };
-
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "3" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            var notificationId1 = Guid.NewGuid().ToString();
-            var notificationId2 = Guid.NewGuid().ToString();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                },
-            };
-            string res = null;
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
-
-
-            var httpresponsemessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
-                {
-                    Responses = new List<GraphResponse>
-                    {
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId1,
-                        },
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId2,
-                        },
-                    },
-                })),
-            };
-
+            var httpresponsemessage = this.GetEmailResponseMessage(graphRequests, "ErrorSendAsDenied", string.Empty, HttpStatusCode.TooManyRequests);
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
                .Protected()
@@ -388,128 +130,18 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
                .ReturnsAsync(httpresponsemessage);
 
             var httpClient = new HttpClient(handlerMock.Object);
-
-            //_ = this.MockedHttpClient.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(httpresponsemessage);
-            var authenticationHeader = await this.TokenHelper.Object.GetAuthenticationHeaderValueForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test"))).ConfigureAwait(false);
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.TooManyRequests).Count());
-            Assert.IsTrue(result.Any(x => x.Error.Contains("Quota Exceeded")));
-        }
-
-        /// <summary>
-        /// Processes the email request batch no active accounts.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task ProcessEmailRequestBatch_ErrorGettingToken_ExceededRetries()
-        {
-            var applicationAccounts = new List<ApplicationAccounts>()
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            try
             {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test2", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                         new AccountCredential()
-                        {
-                            AccountName = "Test3", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
-
-            var retrySetting = new RetrySetting
+                var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
+            }
+            catch (Exception e)
             {
-                MaxRetries = 10,
-                TransientRetryCount = 2,
-            };
+                ex = e;
+            }
 
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "2" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            var notificationId1 = Guid.NewGuid().ToString();
-            var notificationId2 = Guid.NewGuid().ToString();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                },
-            };
-            string res = null;
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test3")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
-
-
-            var httpresponsemessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
-                {
-                    Responses = new List<GraphResponse>
-                    {
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId1,
-                        },
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.TooManyRequests,
-                                            Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-                                            Id = notificationId2,
-                        },
-                    },
-                })),
-            };
-
-            var handlerMock = new Mock<HttpMessageHandler>();
-            _ = handlerMock
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                  "SendAsync",
-                  ItExpr.IsAny<HttpRequestMessage>(),
-                  ItExpr.IsAny<CancellationToken>())
-               .ReturnsAsync(httpresponsemessage);
-
-            var httpClient = new HttpClient(handlerMock.Object);
-
-            //_ = this.MockedHttpClient.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(httpresponsemessage);
-            var authenticationHeader = await this.TokenHelper.Object.GetAuthenticationHeaderValueForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test"))).ConfigureAwait(false);
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.TooManyRequests).Count());
-            Assert.IsTrue(result.Any(x => x.Error.Contains("Quota Exceeded")));
+            Assert.IsTrue(ex?.Message?.Contains("An error occurred while processing notification batch", StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -519,94 +151,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         [Test]
         public async Task ProcessEmailRequestBatch_Success()
         {
-            var applicationAccounts = new List<ApplicationAccounts>()
-            {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test2", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                         new AccountCredential()
-                        {
-                            AccountName = "Test3", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
+            var graphRequests = this.GetGraphRequest();
 
-            var retrySetting = new RetrySetting
-            {
-                MaxRetries = 10,
-                TransientRetryCount = 2,
-            };
-
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "2" },
-            };
-
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            var notificationId1 = Guid.NewGuid().ToString();
-            var notificationId2 = Guid.NewGuid().ToString();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                },
-            };
-            string res = null;
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test3")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
-
-
-            var httpresponsemessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
-                {
-                    Responses = new List<GraphResponse>
-                    {
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.Accepted,
-                                            Body = null,
-                                            Id = notificationId1,
-                        },
-                        new GraphResponse
-                        {
-                                            Status = System.Net.HttpStatusCode.Accepted,
-                                            Body = null,
-                                            Id = notificationId2,
-                        },
-                    },
-                })),
-            };
+            var httpresponsemessage = this.GetEmailResponseMessage(graphRequests, null, null, HttpStatusCode.Accepted);
 
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
@@ -619,107 +166,41 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
 
             var httpClient = new HttpClient(handlerMock.Object);
 
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient, this.TokenHelper.Object, this.Configuration);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.ApplicationName, applicationAccounts, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(2, result.Where(x => x.Status == System.Net.HttpStatusCode.Accepted).Count());
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.TestTokenHeader, graphRequests).ConfigureAwait(false);
+            Assert.AreEqual(2, result.Where(x => x.Status == HttpStatusCode.Accepted).Count());
         }
 
         /// <summary>
-        /// Processes the email request batch no active accounts.
+        /// Test send invite requests which return null http response.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task ProcessEmailRequestBatch_Respone_Null()
+        public async Task ProcessSendInvite_Response_Null()
         {
-            var applicationAccounts = new List<ApplicationAccounts>()
+            var notificationId = Guid.NewGuid().ToString();
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, this.MockedHttpClient.Object);
+            try
             {
-                new ApplicationAccounts()
-                {
-                    ApplicationName = this.ApplicationName,
-                    ValidAppIds = Guid.NewGuid().ToString(),
-                    FromOverride = "TestFrom",
-                    Accounts = new List<AccountCredential>()
-                    {
-                        new AccountCredential()
-                        {
-                            AccountName = "Test", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test2", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                        new AccountCredential()
-                        {
-                            AccountName = "Test3", IsEnabled = true, PrimaryPassword = "Test",
-                        },
-                    },
-                },
-            };
-
-            var retrySetting = new RetrySetting
+                var result = await msGrpahProvider.SendMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId).ConfigureAwait(false);
+            }
+            catch (Exception e)
             {
-                MaxRetries = 10,
-                TransientRetryCount = 2,
-            };
+                ex = e;
+            }
 
-            Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
-            {
-                { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
-                { "RetrySetting:MaxRetries", "10" },
-                { "RetrySetting:TransientRetryCount", "2" },
-            };
+            Assert.IsTrue(ex?.Message?.Contains($"An error occurred while sending notification id: {notificationId}"));
+        }
 
-            this.Configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfigValues)
-                .Build();
-            var notificationId1 = Guid.NewGuid().ToString();
-            var notificationId2 = Guid.NewGuid().ToString();
-
-            var graphRequests = new GraphBatchRequest
-            {
-                Requests = new List<GraphRequest>
-                {
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                    new GraphRequest
-                    {
-                        Id = notificationId1,
-                        Body = "Test Body",
-                    },
-                },
-            };
-            string res = null;
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test2")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAccessTokenForSelectedAccount(It.Is<AccountCredential>(a => a.AccountName.Equals("Test3")))).ReturnsAsync("token");
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderFromToken(It.IsAny<string>())).ReturnsAsync(new System.Net.Http.Headers.AuthenticationHeaderValue("test"));
-
-
-            //var httpresponsemessage = new HttpResponseMessage
-            //{
-            //    Content = new StringContent(JsonConvert.SerializeObject(new GraphBatchResponse
-            //    {
-            //        Responses = new List<GraphResponse>
-            //        {
-            //            new GraphResponse
-            //            {
-            //                                Status = System.Net.HttpStatusCode.TooManyRequests,
-            //                                Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-            //                                Id = notificationId1,
-            //            },
-            //            new GraphResponse
-            //            {
-            //                                Status = System.Net.HttpStatusCode.TooManyRequests,
-            //                                Body = new GraphResponseBody { Error = new GraphResponseError { Code = "ErrorSendAsDenied", Messsage = "Quota Exceeded" } },
-            //                                Id = notificationId2,
-            //            },
-            //        },
-            //    })),
-            //};
-
+        /// <summary>
+        /// Test send invites which returns BadRequest.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessSendInvite_Response_BadRequest()
+        {
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.BadRequest, null);
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
                .Protected()
@@ -727,35 +208,429 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
                   "SendAsync",
                   ItExpr.IsAny<HttpRequestMessage>(),
                   ItExpr.IsAny<CancellationToken>())
-               .ReturnsAsync(new HttpResponseMessage());
-
+               .ReturnsAsync(resp);
             var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            try
+            {
+                var result = await msGrpahProvider.SendMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
 
-            //_ = this.MockedHttpClient.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(httpresponsemessage);
+            Assert.IsTrue(ex?.Message?.Contains($"An error occurred while sending notification id: {notificationId}"));
+        }
 
-            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient, this.TokenHelper.Object, this.Configuration);
-            var result = await msGrpahProvider.ProcessEmailRequestBatch(this.ApplicationName, applicationAccounts, graphRequests).ConfigureAwait(false);
-            Assert.AreEqual(0, result.Count());
-
-            var ms = new HttpResponseMessage(statusCode: System.Net.HttpStatusCode.BadRequest);
-            ms.Content = new StringContent("BadRequest");
-
+        /// <summary>
+        /// Test send invites which returns BadRequest.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessSendInvite_Response_TooManyRequest()
+        {
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
-              .Protected()
-              .Setup<Task<HttpResponseMessage>>(
-                 "SendAsync",
-                 ItExpr.IsAny<HttpRequestMessage>(),
-                 ItExpr.IsAny<CancellationToken>())
-              .ReturnsAsync(ms);
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.SendMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.TooManyRequests);
+        }
 
-            httpClient = new HttpClient(handlerMock.Object);
+        /// <summary>
+        /// Test send invites which returns RequestTimeout.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessSendInvite_RequestTimeout()
+        {
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.RequestTimeout, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.SendMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.RequestTimeout);
+        }
 
-            //_ = this.MockedHttpClient.Setup(x => x.PostAsync(It.IsAny<string>(), It.IsAny<HttpContent>())).ReturnsAsync(httpresponsemessage);
+        /// <summary>
+        /// Test Send invites which returns RequestTimeout.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessSendInvite_Success()
+        {
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.Accepted, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.SendMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.Accepted);
+            var res = JsonConvert.DeserializeObject<InviteResponse>(result.Result);
+            Assert.AreEqual(res.EventId, id);
+        }
 
-            msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(retrySetting), this.Logger, httpClient, this.TokenHelper.Object, this.Configuration);
-            var ex = Assert.ThrowsAsync<Exception>(() => msGrpahProvider.ProcessEmailRequestBatch(this.ApplicationName, applicationAccounts, graphRequests));
-            Assert.IsTrue(ex.Message.Contains("BadRequest"));
+        /// <summary>
+        /// Test Update invite requests which return null http response.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessUpdateInvite_Response_Null()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var notificationId = Guid.NewGuid().ToString();
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, this.MockedHttpClient.Object);
+            try
+            {
+                var result = await msGrpahProvider.UpdateMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId, eventId).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+
+            Assert.IsTrue(ex?.Message?.Contains($"An error occurred while sending notification id: {notificationId}"));
+        }
+
+        /// <summary>
+        /// Test update invites which returns BadRequest.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessUpdateInvite_Response_BadRequest()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.BadRequest, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            Exception ex = null;
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            try
+            {
+                var result = await msGrpahProvider.UpdateMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId, eventId).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+
+            Assert.IsTrue(ex?.Message?.Contains($"An error occurred while sending notification id: {notificationId}"));
+        }
+
+        /// <summary>
+        /// Test update invites which returns BadRequest.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessUpdateInvite_Response_TooManyRequest()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.UpdateMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.TooManyRequests);
+        }
+
+        /// <summary>
+        /// Test update invites which returns RequestTimeout.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessUpdateInvite_RequestTimeout()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.RequestTimeout, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.UpdateMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.RequestTimeout);
+        }
+
+        /// <summary>
+        /// Test update invites with success.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessUpdateInvite_Success()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.Accepted, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.UpdateMeetingInvite(this.TestTokenHeader, this.GetInvitePayload(), notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.Accepted);
+            var res = JsonConvert.DeserializeObject<InviteResponse>(result.Result);
+            Assert.AreEqual(res.EventId, id);
+        }
+
+        /// <summary>
+        /// Test Delete invites with success.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessDeleteInvite_Success()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.NoContent, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.DeleteMeetingInvite(this.TestTokenHeader, notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Test delete invites which returns RequestTimeout.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessDeleteInvite_RequestTimeout()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.RequestTimeout, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.DeleteMeetingInvite(this.TestTokenHeader, notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.RequestTimeout);
+        }
+
+        /// <summary>
+        /// Test delete invites which returns BadRequest.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessDeleteInvite_BadRequest()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.BadRequest, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            Exception ex = null;
+            try
+            {
+                var result = await msGrpahProvider.DeleteMeetingInvite(this.TestTokenHeader, notificationId, eventId).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+
+            Assert.IsTrue(ex?.Message?.Contains($"An error occurred while sending notification id: {notificationId}"));
+        }
+
+        /// <summary>
+        /// Test delete invites which returns TooManyRequests.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ProcessDeleteInvite_TooManyRequest()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, id);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = await msGrpahProvider.DeleteMeetingInvite(this.TestTokenHeader, notificationId, eventId).ConfigureAwait(false);
+            Assert.AreEqual(result.StatusCode, HttpStatusCode.TooManyRequests);
+        }
+
+        /// <summary>
+        /// Test delete invites which returns TooManyRequests.
+        /// </summary>
+        [Test]
+        public void ProcessSendInviteAttachments_Success()
+        {
+            var eventId = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, null);
+            var handlerMock = new Mock<HttpMessageHandler>();
+            _ = handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>())
+               .ReturnsAsync(resp);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var notificationId = Guid.NewGuid().ToString();
+            var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
+            var result = msGrpahProvider.SendMeetingInviteAttachments(this.TestTokenHeader, this.GetAttachments(), notificationId, eventId);
+            Assert.AreEqual(result.Count, 2);
+        }
+
+        private List<FileAttachment> GetAttachments()
+        {
+            return new List<FileAttachment>()
+            {
+                new FileAttachment()
+                {
+                    ContentBytes = "base64bWFjIGFuZCBjaGVlc2UgdG9kYXk=",
+                    Name = "menu.txt",
+                    IsInline = false,
+                },
+                new FileAttachment()
+                {
+                    ContentBytes = "VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==",
+                    Name = "Test.txt",
+                    IsInline = false,
+                },
+            };
+        }
+
+        private InvitePayload GetInvitePayload()
+        {
+            return new InvitePayload();
+        }
+
+        private HttpResponseMessage GetHttpResponseMessage(HttpStatusCode httpStatusCode, string eventId)
+        {
+            return new HttpResponseMessage(httpStatusCode)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(string.IsNullOrEmpty(eventId) ? null : new InviteResponse { EventId = eventId })),
+            };
+        }
+
+        private GraphBatchRequest GetGraphRequest()
+        {
+            return new GraphBatchRequest
+            {
+                Requests = new List<GraphRequest>
+                {
+                    new GraphRequest
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Body = "Test Body",
+                    },
+                    new GraphRequest
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Body = "Test Body",
+                    },
+                },
+            };
+        }
+
+        private HttpResponseMessage GetEmailResponseMessage(GraphBatchRequest request, string errorCode, string message, HttpStatusCode statusCode)
+        {
+            var graphResponses = request.Requests.Select(e => new GraphResponse
+            {
+                Status = statusCode,
+                Body = new GraphResponseBody { Error = new GraphResponseError { Code = errorCode, Messsage = message } },
+                Id = e.Id,
+            });
+
+            var graphBatchResponse = new GraphBatchResponse
+            {
+                Responses = graphResponses.ToList(),
+            };
+
+            return new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(graphBatchResponse)),
+            };
         }
     }
 }
-*/

@@ -21,11 +21,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         public string ApplicationName => "TestApp";
 
         /// <summary>
-        /// Gets or sets Token Helper Mock.
-        /// </summary>
-        public Mock<ITokenHelper> TokenHelper { get; set; }
-
-        /// <summary>
         /// Gets or sets MSGraphSetting Configuration Mock.
         /// </summary>
         public IOptions<MSGraphSetting> MsGraphSetting { get; set; }
@@ -47,7 +42,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
 
         protected void SetupTestBase()
         {
-            this.TokenHelper = new Mock<ITokenHelper>();
             this.MsGraphSetting = Options.Create(new MSGraphSetting() { EnableBatching = false, SendMailUrl = this.sendEmailUrl, BatchRequestLimit = 4 });
             this.Logger = new Mock<ILogger>().Object;
             this.MockedHttpClient = new Mock<HttpClient>();

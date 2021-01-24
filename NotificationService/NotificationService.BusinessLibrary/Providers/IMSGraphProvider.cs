@@ -57,7 +57,6 @@ namespace NotificationService.BusinessLibrary
         ///  Deletes an invite.
         /// </summary>
         /// <param name="authenticationHeaderValue"> Authentication header corresponding to the sender of the email. </param>
-        /// <param name="payLoad"> Meeting invite Paylod to be sent. </param>
         /// <param name="notificationId"> Internal identifier of the email message to be sent. </param>
         /// <param name="eventId"> EventId as reference to already sent event. </param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>

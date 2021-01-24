@@ -179,9 +179,9 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (responseData == null || (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout)))
             {
-                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData?.Result}");
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
@@ -202,9 +202,9 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (responseData == null || (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout)))
             {
-                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData?.Result}");
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.UpdateMeetingInvite)} method of {nameof(MSGraphProvider)}.");
@@ -223,9 +223,9 @@ namespace NotificationService.BusinessLibrary
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-            if (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout))
+            if (responseData == null || (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout)))
             {
-                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData.Result}");
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData?.Result}");
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.DeleteMeetingInvite)} method of {nameof(MSGraphProvider)}.");
@@ -254,9 +254,7 @@ namespace NotificationService.BusinessLibrary
 
                         result.Add(attachment.Name, response);
                     }
-#pragma warning disable CA1031 // Do not catch general exception types
                     catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
                     }

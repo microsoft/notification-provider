@@ -350,7 +350,7 @@ namespace NotificationService.BusinessLibrary.Providers
             this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (meetingInviteEntities is null || meetingInviteEntities.Count == 0)
             {
-                throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null.");
+                throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null/empty.");
             }
 
             traceProps[Constants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
@@ -414,7 +414,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     var payload = await this.CreateInvitePayload(item, applicationName).ConfigureAwait(false);
                     if (!sendForReal)
                     {
-                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(EmailManager)}.", traceProps);
+                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}. notificationId {item.NotificationId}", traceProps);
                         payload.Attendees = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Attendee { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         payload.Organizer = null;
                     }
@@ -444,12 +444,15 @@ namespace NotificationService.BusinessLibrary.Providers
                                 // If all attachments sent is failed. delete the event and mark it for retrial in next run.
                                 _ = this.msGraphProvider.DeleteMeetingInvite(selectedAccount.Item1, item.NotificationId, item.EventId);
                                 item.Status = item.TryCount <= this.maxTryCount ? NotificationItemStatus.Retrying : NotificationItemStatus.Failed;
+                                item.ErrorMessage = "All attachments were not send successfully.";
                             }
                         }
                     }
                     else
                     {
                         item.Status = item.TryCount <= this.maxTryCount ? NotificationItemStatus.Retrying : NotificationItemStatus.Failed;
+                        item.ErrorMessage = result.Result;
+                        this.logger.TraceInformation($"{nameof(this.ProcessMeetingEntitiesIndividually)} of class {nameof(MSGraphNotificationProvider)} : Putting the invite back for next retry. Current request statusCode: {result.StatusCode} for notificationId {item.NotificationId}", traceProps);
                     }
                 }
                 catch (AggregateException ex)
@@ -485,7 +488,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 },
                 Type = AttendeeType.Required,
             });
-            var optionalAttendees = meetingNotificationEntity.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
+            var optionalAttendees = meetingNotificationEntity.OptionalAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
             {
                 EmailAddress = new EmailAddress()
                 {
