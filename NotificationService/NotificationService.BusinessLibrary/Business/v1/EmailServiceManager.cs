@@ -317,7 +317,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
 
             var notificationEntitiesToBeSkipped = new List<MeetingNotificationItemEntity>();
-            if (notificationEntities.Count == 0)
+            if (notificationEntities?.Count == 0)
             {
                 throw new ArgumentException("No records found for the input notification ids.", nameof(queueNotificationItem));
             }
@@ -328,7 +328,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 notificationEntities = notificationEntities.Where(x => x.Status != NotificationItemStatus.Sent).ToList();
             }
 
-            if (notificationEntities.Count == 0)
+            if (notificationEntities?.Count == 0)
             {
                 return notificationEntitiesToBeSkipped;
             }

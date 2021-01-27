@@ -22,6 +22,9 @@ namespace NotificationService.BusinessLibrary
         /// </summary>
         private int selectedIndex = 0;
 
+        /// <summary>
+        /// increments the selectedindex.
+        /// </summary>
         public void IncrementIndex()
         {
             this.selectedIndex = this.selectedIndex + 1;
