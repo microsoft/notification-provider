@@ -10,6 +10,7 @@ namespace NotificationService.Data
     using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data.Interfaces;
 
     /// <summary>
@@ -83,5 +84,16 @@ namespace NotificationService.Data
         /// <param name="meetingNotificationItemEntity">List of <see cref="MeetingNotificationItemEntity"/>.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity);
+
+        /// <summary>
+        /// Get EMailNotification Entities for given data range.
+        /// Maximum range allowed is 10 hours. It will return data for 10 hours at a time.
+        /// </summary>
+        /// <param name="dateRange"> input param for dateRange.</param>
+        /// <param name="applicationName">application name.</param>
+        /// <param name="statusList">List of Status for which notificaiton items need to be fetched.</param>
+        /// <param name="loadBody"> by default it is false. if false it will not populate body, attachments etc. </param>
+        /// <returns>A <see cref="Task"/> represents the return of the asynchronous operation.</returns>
+        Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntitiesBetweenDates(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
     }
 }

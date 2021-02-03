@@ -8,7 +8,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
@@ -183,7 +182,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
 
                 foreach (var item in entitiesToQueue)
                 {
@@ -234,7 +233,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
 
             // Queue a single cloud message for all entities created to enable parallel processing.
-            var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
+            var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
             IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, false);
             await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
 
@@ -248,6 +247,22 @@ namespace NotificationService.BusinessLibrary.Business.v1
             });
             this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotifications)} method of {nameof(EmailHandlerManager)}.");
             return notificationResponses;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
+            var failedNtificationEntities = await this.emailManager.GetEmailNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
+            if (failedNtificationEntities == null || failedNtificationEntities.Count == 0)
+            {
+                return null;
+            }
+
+            var notificationIds = failedNtificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
+            var result = await this.ResendEmailNotifications(applicationName, notificationIds.ToArray()).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
+            return result;
         }
     }
 }

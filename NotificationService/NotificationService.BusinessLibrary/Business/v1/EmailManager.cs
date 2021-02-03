@@ -315,5 +315,12 @@ namespace NotificationService.BusinessLibrary
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
         }
+
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
+        {
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
+            return await this.emailNotificationRepository.GetEmailNotificationItemEntitiesBetweenDates(dateRange, applicationName, statusList).ConfigureAwait(false);
+        }
     }
 }

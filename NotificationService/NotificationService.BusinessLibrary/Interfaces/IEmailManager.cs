@@ -63,5 +63,13 @@ namespace NotificationService.BusinessLibrary
         /// <param name="notification">The notification.</param>
         /// <returns>A <see cref="MessageBody"/>.</returns>
         Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification);
+
+        /// <summary>
+        /// Get EmailNotificaiton object from storage/database.
+        /// </summary>
+        /// <param name="applicationName">applicatoin Name for the notification.</param>
+        /// <param name="dateRange">daterange for notification search.</param>
+        /// <returns>A <see cref="EmailNotificationItemTableEntity"/>.</returns>
+        Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange);
     }
 }

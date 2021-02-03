@@ -13,6 +13,7 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// Repository for TableStorage.
@@ -308,6 +309,52 @@ namespace NotificationService.Data.Repositories
             this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
 
             return Task.FromResult(true);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntitiesBetweenDates(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
+        {
+            if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
+            }
+
+            string filterExpression = TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, dateRange.StartDate)
+                    + " and "
+                    + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThan, dateRange.EndDate);
+
+            if (!string.IsNullOrEmpty(applicationName))
+            {
+                filterExpression = filterExpression
+                    + " and "
+                    + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, applicationName);
+            }
+
+            if (statusList != null && statusList.Count > 0)
+            {
+                string statusFilterExpression = null;
+                foreach (var status in statusList)
+                {
+                    string filter = TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status.ToString());
+                    statusFilterExpression = statusFilterExpression == null ? filter : " or " + filter;
+                }
+
+                filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntitiesBetweenDates)} method of {nameof(TableStorageEmailRepository)}.");
+            List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
+            var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
+            emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            IList<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => this.ConvertToEmailNotificationItemEntity(e)).ToList();
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
+            if (!string.IsNullOrEmpty(applicationName) && loadBody)
+            {
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(notificationEntities, applicationName).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntitiesBetweenDates)} method of {nameof(TableStorageEmailRepository)}.");
+            return updatedNotificationEntities;
         }
 
         private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
