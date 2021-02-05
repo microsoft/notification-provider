@@ -46,7 +46,7 @@ namespace NotificationService.SvCommon.Common
 
             var config = builder.Build();
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config["KeyVault:SecretUri"])
+                config["KeyVaultUrl"])
             {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
             };

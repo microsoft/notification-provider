@@ -11,8 +11,8 @@
     "location": {
       "value": "__location__"
     },
-    "KeyVaultSecretUri": {
-      "value": "__KeyVaultSecretUri__"
+    "KeyVaultUrl": {
+      "value": "__KeyVaultUrl__"
     },
     "keyValueNames": {
         "value": [

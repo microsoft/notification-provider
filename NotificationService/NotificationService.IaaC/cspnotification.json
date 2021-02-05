@@ -77,10 +77,10 @@
         "description": "Location for all resources."
       }
     },
-    "KeyVaultSecretUri": {
+    "KeyVaultUrl": {
       "type": "string",
       "metadata": {
-        "description": "KeyVaultSecretUri to get the secret."
+        "description": "KeyVaultUrl to get the secret."
       }
     },
     "KeyVaultConfigRefreshDurationSeconds": {
@@ -197,8 +197,8 @@
               "value": "false"
             },
             {
-              "name": "KeyVault:SecretUri",
-              "value": "[parameters('KeyVaultSecretUri')]"
+              "name": "KeyVaultUrl",
+              "value": "[parameters('KeyVaultUrl')]"
             },
             {
               "name": "KeyVaultConfigRefreshDurationSeconds",
@@ -232,8 +232,8 @@
               "value": "false"
             },
             {
-              "name": "KeyVault:SecretUri",
-              "value": "[parameters('KeyVaultSecretUri')]"
+              "name": "KeyVaultUrl",
+              "value": "[parameters('KeyVaultUrl')]"
             },
             {
               "name": "KeyVaultConfigRefreshDurationSeconds",
@@ -266,8 +266,8 @@
               "value": "false"
             },
             {
-              "name": "KeyVault:SecretUri",
-              "value": "[parameters('KeyVaultSecretUri')]"
+              "name": "KeyVaultUrl",
+              "value": "[parameters('KeyVaultUrl')]"
             },
             {
               "name": "KeyVaultConfigRefreshDurationSeconds",
