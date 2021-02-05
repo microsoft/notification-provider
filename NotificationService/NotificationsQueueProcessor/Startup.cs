@@ -77,7 +77,7 @@ namespace NotificationsQueueProcessor
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
                     _ = refreshOptions.Register(key: configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
-                }).UseFeatureFlags();
+                });
             });
 
             configuration = configBuilder.Build();

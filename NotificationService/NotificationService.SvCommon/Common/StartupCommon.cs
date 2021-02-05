@@ -62,7 +62,7 @@ namespace NotificationService.SvCommon.Common
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
                     _ = refreshOptions.Register(key: this.Configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
-                }).UseFeatureFlags();
+                });
             });
 
             this.Configuration = builder.Build();
