@@ -98,30 +98,27 @@ namespace NotificationHandler.Controllers
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
         [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
-        [Route("resend/{applicationName}/daterange")]
+        [Route("resend/{applicationName}/bydaterange")]
         public async Task<IActionResult> ResendEmailNotificationsByDateRange(string applicationName, [FromBody] DateTimeRange dateRange)
         {
             var traceProps = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(applicationName))
             {
-                this.logger.WriteException(new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName)));
-                throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+                this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
             }
 
             traceProps[Constants.Application] = applicationName;
             if (dateRange is null)
             {
-                this.logger.WriteException(new System.ArgumentNullException(nameof(dateRange)), traceProps);
-                throw new System.ArgumentNullException(nameof(dateRange));
+                this.LogAndThrowArgumentNullException("DateTimeRange can't be null.", nameof(dateRange), traceProps);
             }
 
-            /*
-            *  TODO:
-            * throw excpetion in case the daterange is more than the allowed values.
-            */
+            if ((dateRange.EndDate - dateRange.StartDate).TotalMinutes <= 0)
+            {
+                this.LogAndThrowArgumentNullException("StartDate value must be less than EndDate value.", nameof(dateRange), traceProps);
+            }
 
             traceProps[Constants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
-
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.ResendEmailNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);

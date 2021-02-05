@@ -12,7 +12,9 @@ namespace NotificationService.UnitTests.Data.Repositories
     using Moq;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
+    using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using NotificationService.Data.Repositories;
     using NUnit.Framework;
@@ -46,6 +48,15 @@ namespace NotificationService.UnitTests.Data.Repositories
         /// Instance of <see cref="meetingHistoryTable"/>.
         /// </summary>
         private Mock<CloudTable> meetingHistoryTable;
+
+        /// <summary>
+        /// DateRange object.
+        /// </summary>
+        private readonly DateTimeRange dateRange = new DateTimeRange
+        {
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddHours(2),
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageRepositoryTests"/> class.
@@ -122,6 +133,47 @@ namespace NotificationService.UnitTests.Data.Repositories
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.UpdateMeetingNotificationItemEntities(entities);
             this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.Is<TableBatchOperation>(x => x.Any(y => y.OperationType == TableOperationType.Merge))), Times.Once);
+        }
+
+        /// <summary>
+        /// Tests for GetEmailNotificationsByDateRangeTest method for valid inputs.
+        /// </summary>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous unit test.</placeholder></returns>
+        [Test]
+        public async Task GetEmailNotificationItemEntitiesBetweenDatesTests()
+        {
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed};
+            var emailNotificationItemEntity = new EmailNotificationItemTableEntity()
+            {
+                Application = this.applicationName,
+                NotificationId = Guid.NewGuid().ToString(),
+            };
+            var notificationList = new List<EmailNotificationItemTableEntity>() { emailNotificationItemEntity };
+            var emailHistoryTable = new Mock<CloudTable>(new Uri("http://unittests.localhost.com/FakeTable"), (TableClientConfiguration)null);
+            _ = this.cloudStorageClient.Setup(x => x.GetCloudTable("EmailHistory")).Returns(emailHistoryTable.Object);
+            _ = emailHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<EmailNotificationItemTableEntity>>(), It.IsAny<TableRequestOptions>(), It.IsAny<OperationContext>())).Returns(notificationList);
+            IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
+            var classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // dateRange is Null.
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(null, this.applicationName, statusList));
+
+            // applicationname is Null
+            var result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, null, statusList);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
+
+            // NotificationStatusList is null
+            result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, this.applicationName, null);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
+
+            // Fetched records are null
+            notificationList = null;
+            _ = emailHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<EmailNotificationItemTableEntity>>(), It.IsAny<TableRequestOptions>(), It.IsAny<OperationContext>())).Returns(notificationList);
+            classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+            result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, this.applicationName, null);
+            Assert.IsNull(result);
         }
     }
 }

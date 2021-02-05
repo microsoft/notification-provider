@@ -3,7 +3,6 @@
 
 namespace NotificationService.Contracts.Models
 {
-
     using System;
     using System.Runtime.Serialization;
 
@@ -15,13 +14,13 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or Sets Start DateTime.
         /// </summary>
-        [DataMember(Name ="startDate", IsRequired = true)]
+        [DataMember(Name ="startDate")]
         public DateTime StartDate { get; set; }
 
         /// <summary>
         /// Gets or Sets End DateTime.
         /// </summary>
-        [DataMember(Name="endDate", IsRequired = true)]
+        [DataMember(Name="endDate")]
         public DateTime EndDate { get; set; }
     }
 }

@@ -217,5 +217,10 @@ namespace NotificationService.Common
         /// A constant for ResendDateRange logging.
         /// </summary>
         public const string ResendDateRange = "ResendDateRange";
+
+        /// <summary>
+        /// A constant or resend allowed days.
+        /// </summary>
+        public const string AllowedMaxResendDays = "AllowedMaxResendDays";
     }
 }

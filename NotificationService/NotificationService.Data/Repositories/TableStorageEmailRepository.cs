@@ -346,6 +346,11 @@ namespace NotificationService.Data.Repositories
             List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
             var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
             emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            if (emailNotificationItemEntities == null || emailNotificationItemEntities.Count == 0)
+            {
+                return null;
+            }
+
             IList<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => this.ConvertToEmailNotificationItemEntity(e)).ToList();
             IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
             if (!string.IsNullOrEmpty(applicationName) && loadBody)

@@ -5,6 +5,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -253,6 +254,12 @@ namespace NotificationService.BusinessLibrary.Business.v1
         public async Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
         {
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
+            var maxAllowedDaysInRange = (double)this.configuration.GetValue(typeof(double), Constants.AllowedMaxResendDays);
+            if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= maxAllowedDaysInRange)
+            {
+                throw new DataException($"Date-range must not be less or equal to {maxAllowedDaysInRange}");
+            }
+
             var failedNtificationEntities = await this.emailManager.GetEmailNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
             if (failedNtificationEntities == null || failedNtificationEntities.Count == 0)
             {
