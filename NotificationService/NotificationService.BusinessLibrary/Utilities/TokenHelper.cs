@@ -95,7 +95,7 @@ namespace NotificationService.BusinessLibrary
             var token = string.Empty;
             using (HttpClient client = new HttpClient())
             {
-                var tokenEndpoint = $"{authority}/oauth2/token";
+                var tokenEndpoint = $"{authority}";
                 var accept = Constants.JsonMIMEType;
 
                 client.DefaultRequestHeaders.Add("Accept", accept);
