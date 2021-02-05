@@ -11,147 +11,98 @@
     "location": {
       "value": "__location__"
     },
-    "funcApp_Authority": {
-      "value": "__funcApp_Authority__"
-    },
-    "funcApp_ClientId": {
-      "value": "__funcApp_ClientId__"
-    },
-    "funcApp_ClientSecret": {
-      "value": "__funcApp_ClientSecret__"
-    },
-    "funcApp_NotificationServiceEndpoint": {
-      "value": "__funcApp_NotificationServiceEndpoint__"
-    },
-    "funcApp_HttpRequestTimeOut": {
-      "value": "__funcApp_HttpRequestTimeOut__"
-    },
-    "BearerTokenAuthenticationAuthority": {
-      "value": "__BearerTokenAuthenticationAuthority__"
-    },
-    "BearerTokenAuthenticationIssuer": {
-      "value": "__BearerTokenAuthenticationIssuer__"
-    },
-    "BearerTokenAuthenticationValidAudiences": {
-      "value": "__BearerTokenAuthenticationValidAudiences__"
-    },
-    "CosmosDBContainer": {
-      "value": "__CosmosDBContainer__"
-    },
-    "CosmosDBDatabase": {
-      "value": "__CosmosDBDatabase__"
-    },
-    "CosmosDBKey": {
-      "value": "__CosmosDBKey__"
-    },
-    "CosmosDBUri": {
-      "value": "__CosmosDBUri__"
-    },
-    "EnvironmentType": {
-      "value": "__EnvironmentType__"
-    },
-    "InstrumentationKey": {
-      "value": "__InstrumentationKey__"
-    },
-    "ComponentId": {
-      "value": "__ComponentId__"
-    },
-    "ComponentName": {
-      "value": "__ComponentName__"
-    },
-    "Service": {
-      "value": "__Service__"
-    },
-    "ServiceLine": {
-      "value": "__ServiceLine__"
-    },
-    "ServiceOffering": {
-      "value": "__ServiceOffering__"
-    },
-    "TraceLevel": {
-      "value": "__TraceLevel__"
-    },
-    "KeyVaultClientId": {
-      "value": "__KeyVaultClientId__"
-    },
-    "KeyVaultClientSecret": {
-      "value": "__KeyVaultClientSecret__"
-    },
     "KeyVaultSecretUri": {
       "value": "__KeyVaultSecretUri__"
     },
-    "MaxRetries": {
-      "value": "__MaxRetries__"
-    },
-    "TransientRetryCount": {
-      "value": "__TransientRetryCount__"
-    },
-    "MSGraphSettingAPIVersion": {
-      "value": "__MSGraphSettingAPIVersion__"
-    },
-    "MSGraphSettingAuthority": {
-      "value": "__MSGraphSettingAuthority__"
-    },
-    "MSGraphSettingBatchRequestLimit": {
-      "value": "__MSGraphSettingBatchRequestLimit__"
-    },
-    "MSGraphSettingBatchRequestUrl": {
-      "value": "__MSGraphSettingBatchRequestUrl__"
-    },
-    "MSGraphSettingClientId": {
-      "value": "__MSGraphSettingClientId__"
-    },
-    "MSGraphSettingClientCredential": {
-      "value": "__MSGraphSettingClientCredential__"
-    },
-    "MSGraphSettingEnableBatching": {
-      "value": "__MSGraphSettingEnableBatching__"
-    },
-    "MSGraphSettingGraphResourceId": {
-      "value": "__MSGraphSettingGraphResourceId__"
-    },
-    "MSGraphSettingSendMailUrl": {
-      "value": "__MSGraphSettingSendMailUrl__"
-    },
-    "MSGraphSettingTenantId": {
-      "value": "__MSGraphSettingTenantId__"
-    },
-    "MSGraphSettingUserAssertionType": {
-      "value": "__MSGraphSettingUserAssertionType__"
-    },
-    "UserTokenSettingAuthority": {
-      "value": "__UserTokenSettingAuthority__"
-    },
-    "UserTokenSettingClientId": {
-      "value": "__UserTokenSettingClientId__"
-    },
-    "StorageType": {
-      "value": "__StorageType__"
-    },
-    "MailSettings": {
-      "value": "__MailSettings__"
-    },
-    "StorageAccountBlobContainerName": {
-      "value": "__StorageAccount__BlobContainerName__"
-    },
-    "StorageAccountMailTemplateTableName": {
-      "value": "__StorageAccount__MailTemplateTableName__"
-    },
-    "NotificationProviderType": {
-      "value": "__NotificationProviderType__"
-    },
-    "DirectSendSettingFromAddressDisplayName": {
-      "value": "__DirectSendSettingFromAddressDisplayName__"
-    },
-    "DirectSendSettingFromAddress": {
-      "value": "__DirectSendSettingFromAddress__"
-    },
-    "DirectSendSettingSmtpPort": {
-      "value": "__DirectSendSettingSmtpPort__"
-    },
-    "DirectSendSettingSmtpServer": {
-      "value": "__DirectSendSettingSmtpServer__"
+    "keyValueNames": {
+        "value": [
+          "Authority$QueueProcessor",
+          "ClientId$QueueProcessor",
+          "NotificationServiceEndpoint$QueueProcessor",
+          "HttpTimeOutInSeconds$QueueProcessor",
+          "ApplicationInsights:InstrumentationKey$Common",
+          "ApplicationInsights:ComponentId$Common",
+          "ApplicationInsights:ComponentName$Common",
+          "ApplicationInsights:Service$Common",
+          "ApplicationInsights:ServiceLine$Common",
+          "ApplicationInsights:ServiceOffering$Common",
+          "ApplicationInsights:TraceLevel$Common",
+          "EnvironmentSetting:EnvironmentType$Common",
+          "KeyVault:RSAKeyUri$Common",
+          "CosmosDB:Database$Common",
+          "CosmosDB:Container$Common",
+          "StorageAccount:BlobContainerName$Common",
+          "StorageAccount:MailTemplateTableName$Common",
+          "StorageType$Common",
+          "BearerTokenAuthentication:Issuer$Common",
+          "BearerTokenAuthentication:ValidAudiences$Common",
+          "UserTokenSetting:Authority$Common",
+          "UserTokenSetting:ClientId$Common",
+          "RetrySetting:MaxRetries$Common",
+          "RetrySetting:TransientRetryCount$Common",
+          "NotificationProviderType$Common",
+          "MailSettings$Service",
+          "DirectSendSetting:DisplayName$Service",
+          "DirectSendSetting:SmtpPort$Service",
+          "DirectSendSetting:SmtpServer$Service",
+          "DirectSendSetting:FromAddress$Service",
+          "DirectSendSetting:FromAddressDisplayName$Service",
+          "MSGraphSetting:Authority$Common",
+          "MSGraphSetting:ClientId$Common",
+          "MSGraphSetting:GraphResourceId$Common",
+          "MSGraphSetting:GraphAPIVersion$Common",
+          "MSGraphSetting:SendMailUrl$Common",
+          "MSGraphSetting:TenantId$Common",
+          "MSGraphSetting:UserAssertionType$Common",
+          "MSGraphSetting:EnableBatching$Common",
+          "MSGraphSetting:BatchRequestUrl$Common",
+          "MSGraphSetting:BatchRequestLimit$Common"
+        ]
+      },
+      "keyValueValues": {
+        "value": [
+          "__Authority__",
+          "__ClientId__",
+          "__NotificationServiceEndpoint__",
+          "__HttpTimeOutInSeconds__",
+          "__InstrumentationKey__",
+          "__ComponentId__",
+          "__ComponentName__",
+          "__Service__",
+          "__ServiceLine__",
+          "__ServiceOffering__",
+          "__TraceLevel__",
+          "__EnvironmentType__",
+          "__KeyVaultRSAKeyUri__",
+          "__CosmosDBDatabase__",
+          "__CosmosDBContainer__",
+          "__StorageAccount__BlobContainerName__",
+          "__StorageAccount__MailTemplateTableName__",
+          "__StorageType__",
+          "__BearerTokenAuthenticationIssuer__",
+          "__BearerTokenAuthenticationValidAudiences__",
+          "__UserTokenSettingAuthority__",
+          "__UserTokenSettingClientId__",
+          "__MaxRetries__",
+          "__TransientRetryCount__",
+          "__NotificationProviderType__",
+          "__MailSettings__",
+          "__DirectSendSettingDisplayName__",
+          "__DirectSendSettingSmtpPort__",
+          "__DirectSendSettingSmtpServer__",
+          "__DirectSendSettingFromAddress__",
+          "__DirectSendSettingFromAddressDisplayName__",
+          "__MSGraphSettingAuthority__",
+          "__MSGraphSettingClientId__",
+          "__MSGraphSettingGraphResourceId__",
+          "__MSGraphSettingAPIVersion__",
+          "__MSGraphSettingSendMailUrl__",
+          "__MSGraphSettingTenantId__",
+          "__MSGraphSettingUserAssertionType__",
+          "__MSGraphSettingEnableBatching__",
+          "__MSGraphSettingBatchRequestUrl__",
+          "__MSGraphSettingBatchRequestLimit__"
+        ]
+      }
     }
-
-  }
 }

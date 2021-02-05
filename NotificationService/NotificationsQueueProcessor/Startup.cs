@@ -15,6 +15,7 @@ namespace NotificationsQueueProcessor
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.AzureAppConfiguration;
     using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using NotificationService.Common;
@@ -64,12 +65,24 @@ namespace NotificationsQueueProcessor
             };
             itm[0] = envInitializer;
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-               configuration["KeyVault:SecretUri"])
+   configuration["KeyVault:SecretUri"])
             {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
             };
             _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
             configuration = configBuilder.Build();
+            _ = configBuilder.AddAzureAppConfiguration(options =>
+            {
+                var settings = options.Connect(configuration["AzureAppConfigConnectionstring"])
+                 .Select(KeyFilter.Any, "Common").Select(KeyFilter.Any, "QueueProcessor");
+                _ = settings.ConfigureRefresh(refreshOptions =>
+                {
+                    _ = refreshOptions.Register(key: configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
+                }).UseFeatureFlags();
+            });
+
+            configuration = configBuilder.Build();
+
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration
             {
                 IsTraceEnabled = true,

@@ -1,24 +1,9 @@
 ﻿{
-  "ApplicationInsights": {
-    "InstrumentationKey": "__InstrumentationKey__",
-    "ComponentId": "__ComponentId__",
-    "ComponentName": "__ComponentName__",
-    "Service": "__Service__",
-    "ServiceLine": "__ServiceLine__",
-    "ServiceOffering": "__ServiceOffering__",
-    "TraceLevel": "Information"
+  "KeyVaultConfigRefreshDurationSeconds": "120",
+  "KeyVault": {
+    "SecretUri": "__KeyVaultSecretUri__"
   },
-  "EnvironmentSetting": {
-    "EnvironmentType": "__EnvironmentType__"
-  },
-  "CosmosDB": {
-    "Uri": "__CosmosDBUri__",
-    "Key": "__CosmosDBKey__",
-    "Database": "__CosmosDBDatabase__",
-    "Container": "__CosmosDBContainer__"
-  },
-  "StorageAccount": {
-    "ConnectionString": "__StorageAccountConnectionString__"
-  },
-  "StorageType": "__StorageType__"
+  "AppConfig": {
+    "ForceRefresh": ".appconfig.featureflag/ForceRefresh"
+  }
 }
