@@ -356,6 +356,6 @@ namespace NotificationService.Data
         public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntitiesBetweenDates(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
+        public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
     }
 }

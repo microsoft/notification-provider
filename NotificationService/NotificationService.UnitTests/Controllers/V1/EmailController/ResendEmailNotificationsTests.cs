@@ -54,12 +54,12 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             IList<NotificationResponse> responses = new List<NotificationResponse>();
 
             _ = this.emailHandlerManager
-                .Setup(emailHandlerManager => emailHandlerManager.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>()))
+                .Setup(emailHandlerManager => emailHandlerManager.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<bool>()))
                 .Returns(Task.FromResult(responses));
 
             var result = emailController.ResendEmailNotifications(this.applicationName, this.notificationIds);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.emailHandlerManager.Verify(mgr => mgr.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>()), Times.Once);
+            this.emailHandlerManager.Verify(mgr => mgr.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<bool>()), Times.Once);
             Assert.Pass();
         }
 

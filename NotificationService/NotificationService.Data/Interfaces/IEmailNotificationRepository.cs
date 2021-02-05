@@ -94,6 +94,6 @@ namespace NotificationService.Data
         /// <param name="statusList">List of Status for which notificaiton items need to be fetched.</param>
         /// <param name="loadBody"> by default it is false. if false it will not populate body, attachments etc. </param>
         /// <returns>A <see cref="Task"/> represents the return of the asynchronous operation.</returns>
-        Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntitiesBetweenDates(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
+        Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
     }
 }

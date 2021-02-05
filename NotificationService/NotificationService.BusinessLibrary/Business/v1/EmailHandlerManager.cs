@@ -218,7 +218,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         }
 
         /// <inheritdoc/>
-        public async Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds)
+        public async Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds, bool ignoreAlreadySent = false)
         {
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailHandlerManager)}.");
             if (string.IsNullOrWhiteSpace(applicationName))
@@ -235,7 +235,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
 
             // Queue a single cloud message for all entities created to enable parallel processing.
             var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
-            IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, false);
+            IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, ignoreAlreadySent);
             await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
 
             notificationIds.ToList().ForEach(id =>
@@ -254,20 +254,21 @@ namespace NotificationService.BusinessLibrary.Business.v1
         public async Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
         {
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
-            var maxAllowedDaysInRange = (double)this.configuration.GetValue(typeof(double), Constants.AllowedMaxResendDays);
-            if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= maxAllowedDaysInRange)
+            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), Constants.AllowedMaxResendDurationInDays);
+            if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= allowedMaxResendDurationInDays)
             {
-                throw new DataException($"Date-range must not be less or equal to {maxAllowedDaysInRange}");
+                throw new DataException($"Date-range must not be less or equal to {allowedMaxResendDurationInDays}");
             }
 
-            var failedNtificationEntities = await this.emailManager.GetEmailNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
-            if (failedNtificationEntities == null || failedNtificationEntities.Count == 0)
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
+            var failedNotificationEntities = await this.emailManager.GetEmailNotificationsByDateRangeAndStatus(applicationName, dateRange, statusList).ConfigureAwait(false);
+            if (failedNotificationEntities == null || failedNotificationEntities.Count == 0)
             {
                 return null;
             }
 
-            var notificationIds = failedNtificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
-            var result = await this.ResendEmailNotifications(applicationName, notificationIds.ToArray()).ConfigureAwait(false);
+            var notificationIds = failedNotificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
+            var result = await this.ResendEmailNotifications(applicationName, notificationIds.ToArray(), true).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
             return result;
         }

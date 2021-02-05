@@ -65,7 +65,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             this.msGraphSettingOptions = new Mock<IOptions<MSGraphSetting>>();
             var config = new Dictionary<string, string>()
             {
-                { Constants.AllowedMaxResendDays, "1"},
+                { Constants.AllowedMaxResendDurationInDays, "1"},
             };
 
             this.configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();
@@ -85,12 +85,12 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             IList<NotificationResponse> responses = new List<NotificationResponse>();
 
             _ = this.emailHandlerManager
-                .Setup(emailHandlerManager => emailHandlerManager.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>()))
+                .Setup(emailHandlerManager => emailHandlerManager.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<bool>()))
                 .Returns(Task.FromResult(responses));
 
             var result = emailController.ResendEmailNotifications(this.applicationName, this.notificationIds);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.emailHandlerManager.Verify(mgr => mgr.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>()), Times.Once);
+            this.emailHandlerManager.Verify(mgr => mgr.ResendEmailNotifications(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<bool>()), Times.Once);
             Assert.Pass();
         }
 
@@ -114,7 +114,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public async Task ResendEmailNotificatoinByDateRangeTest_ValidInput()
         {
             var notificationItems = this.GetEmailNotificationItemEntities();
-            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>())).ReturnsAsync(notificationItems);
+            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRangeAndStatus(It.IsAny<string>(), It.IsAny<DateTimeRange>(), It.IsAny<List<NotificationItemStatus>>())).ReturnsAsync(notificationItems);
             var classUnderTest = new EmailHandlerManager(this.configuration, this.msGraphSettingOptions.Object, this.cloudStorageClient.Object, this.logger.Object, this.emailManager.Object);
             var result = await classUnderTest.ResendEmailNotificationsByDateRange(this.applicationName, this.dateRange);
             Assert.IsNotNull(result);
@@ -131,13 +131,13 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public async Task ResendEmailNotificatoinByDateRangeTest_ValidInput_NoRecordFound()
         {
             IList<EmailNotificationItemEntity> notificationItems = null;
-            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>())).ReturnsAsync(notificationItems);
+            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRangeAndStatus(It.IsAny<string>(), It.IsAny<DateTimeRange>(), It.IsAny<List<NotificationItemStatus>>())).ReturnsAsync(notificationItems);
             var classUnderTest = new EmailHandlerManager(this.configuration, this.msGraphSettingOptions.Object, this.cloudStorageClient.Object, this.logger.Object, this.emailManager.Object);
             var result = await classUnderTest.ResendEmailNotificationsByDateRange(this.applicationName, this.dateRange);
             Assert.IsNull(result);
 
             notificationItems = new List<EmailNotificationItemEntity>();
-            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>())).ReturnsAsync(notificationItems);
+            _ = this.emailManager.Setup(x => x.GetEmailNotificationsByDateRangeAndStatus(It.IsAny<string>(), It.IsAny<DateTimeRange>(), It.IsAny<List<NotificationItemStatus>>())).ReturnsAsync(notificationItems);
             classUnderTest = new EmailHandlerManager(this.configuration, this.msGraphSettingOptions.Object, this.cloudStorageClient.Object, this.logger.Object, this.emailManager.Object);
             result = await classUnderTest.ResendEmailNotificationsByDateRange(this.applicationName, this.dateRange);
             Assert.IsNull(result);

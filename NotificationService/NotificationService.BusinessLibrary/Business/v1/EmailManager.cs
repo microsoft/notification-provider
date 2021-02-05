@@ -317,10 +317,9 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList)
         {
-            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
-            return await this.emailNotificationRepository.GetEmailNotificationItemEntitiesBetweenDates(dateRange, applicationName, statusList).ConfigureAwait(false);
+            return await this.emailNotificationRepository.GetPendingOrFailedEmailNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
         }
     }
 }

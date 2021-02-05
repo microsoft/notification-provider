@@ -221,6 +221,6 @@ namespace NotificationService.Common
         /// <summary>
         /// A constant or resend allowed days.
         /// </summary>
-        public const string AllowedMaxResendDays = "AllowedMaxResendDays";
+        public const string AllowedMaxResendDurationInDays = "AllowedMaxResendDurationInDays";
     }
 }

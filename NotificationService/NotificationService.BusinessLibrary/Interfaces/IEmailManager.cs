@@ -69,7 +69,8 @@ namespace NotificationService.BusinessLibrary
         /// </summary>
         /// <param name="applicationName">applicatoin Name for the notification.</param>
         /// <param name="dateRange">daterange for notification search.</param>
+        /// <param name="statusList">Status List of Notification items.</param>
         /// <returns>A <see cref="EmailNotificationItemTableEntity"/>.</returns>
-        Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange);
+        Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList);
     }
 }

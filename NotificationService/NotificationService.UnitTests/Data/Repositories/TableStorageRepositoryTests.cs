@@ -156,15 +156,15 @@ namespace NotificationService.UnitTests.Data.Repositories
             var classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
 
             // dateRange is Null.
-            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(null, this.applicationName, statusList));
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(null, this.applicationName, statusList));
 
             // applicationname is Null
-            var result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, null, statusList);
+            var result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, null, statusList);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
 
             // NotificationStatusList is null
-            result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, this.applicationName, null);
+            result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, this.applicationName, null);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
 
@@ -172,7 +172,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             notificationList = null;
             _ = emailHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<EmailNotificationItemTableEntity>>(), It.IsAny<TableRequestOptions>(), It.IsAny<OperationContext>())).Returns(notificationList);
             classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
-            result = await classUnderTest.GetEmailNotificationItemEntitiesBetweenDates(this.dateRange, this.applicationName, null);
+            result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, this.applicationName, null);
             Assert.IsNull(result);
         }
     }

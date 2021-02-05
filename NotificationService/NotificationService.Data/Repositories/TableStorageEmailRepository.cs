@@ -312,7 +312,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationItemEntitiesBetweenDates(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
+        public async Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
         {
             if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
             {
@@ -342,7 +342,7 @@ namespace NotificationService.Data.Repositories
                 filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
             }
 
-            this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntitiesBetweenDates)} method of {nameof(TableStorageEmailRepository)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedEmailNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.");
             List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
             var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
             emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
@@ -358,7 +358,7 @@ namespace NotificationService.Data.Repositories
                 updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(notificationEntities, applicationName).ConfigureAwait(false);
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntitiesBetweenDates)} method of {nameof(TableStorageEmailRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetPendingOrFailedEmailNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.");
             return updatedNotificationEntities;
         }
 
