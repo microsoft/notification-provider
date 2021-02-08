@@ -90,20 +90,6 @@
         "description": "KeyVaultConfigRefreshDurationSeconds"
       }
     },
-    "keyValueNames": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "Specifies the names of the key-value resources. The name is a combination of key and label with $ as delimiter. The label is optional."
-      }
-    },
-    "keyValueValues": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "Specifies the values of the key-value resources. It's optional"
-      }
-    },
     "contentType": {
       "type": "string",
       "defaultValue": "the-content-type",
@@ -286,22 +272,6 @@
       "location": "[parameters('location')]",
       "sku": {
         "name": "standard"
-      }
-    },
-    {
-      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
-      "apiVersion": "2020-07-01-preview",
-      "name": "[concat(parameters('configStoreName'), '/', parameters('keyValueNames')[copyIndex()])]",
-      "copy": {
-        "name": "keyValueCopy",
-        "count": "[length(parameters('keyValueNames'))]"
-      },
-      "dependsOn": [
-        "[parameters('configStoreName')]"
-      ],
-      "properties": {
-        "value": "[parameters('keyValueValues')[copyIndex()]]",
-        "contentType": "[parameters('contentType')]"
       }
     }
   ]
