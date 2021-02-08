@@ -336,7 +336,7 @@ namespace NotificationService.Data
                 ReplyTo = n.ReplyTo,
                 Subject = n.Subject,
                 TemplateData = n.TemplateData,
-                TemplateName = n.TemplateName,
+                TemplateId = n.TemplateId,
                 TrackingId = n.TrackingId,
             };
             return selectExpression;

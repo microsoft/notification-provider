@@ -390,7 +390,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.Sensitivity = emailNotificationItemEntity.Sensitivity;
             emailNotificationItemTableEntity.Status = emailNotificationItemEntity.Status.ToString();
             emailNotificationItemTableEntity.Subject = emailNotificationItemEntity.Subject;
-            emailNotificationItemTableEntity.TemplateName = emailNotificationItemEntity.TemplateName;
+            emailNotificationItemTableEntity.TemplateId = emailNotificationItemEntity.TemplateId;
             emailNotificationItemTableEntity.Timestamp = emailNotificationItemEntity.Timestamp;
             emailNotificationItemTableEntity.To = emailNotificationItemEntity.To;
             emailNotificationItemTableEntity.TrackingId = emailNotificationItemEntity.TrackingId;
@@ -434,9 +434,9 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemTableEntity.Ocurrences = meetingNotificationItemEntity.Ocurrences ?? default;
             meetingNotificationItemTableEntity.RecurrencePattern = meetingNotificationItemEntity.RecurrencePattern.ToString();
             meetingNotificationItemTableEntity.ReminderMinutesBeforeStart = meetingNotificationItemEntity.ReminderMinutesBeforeStart;
-            meetingNotificationItemTableEntity.TemplateName = meetingNotificationItemEntity.TemplateName;
-            meetingNotificationItemTableEntity.MeetingEnd = meetingNotificationItemEntity.End;
-            meetingNotificationItemTableEntity.MeetingStart = meetingNotificationItemEntity.Start;
+            meetingNotificationItemTableEntity.TemplateId = meetingNotificationItemEntity.TemplateId;
+            meetingNotificationItemTableEntity.End = meetingNotificationItemEntity.End;
+            meetingNotificationItemTableEntity.Start = meetingNotificationItemEntity.Start;
             meetingNotificationItemTableEntity.SequenceNumber = meetingNotificationItemEntity.SequenceNumber ?? default;
             meetingNotificationItemTableEntity.SendOnUtcDate = meetingNotificationItemEntity.SendOnUtcDate;
             meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
@@ -484,9 +484,9 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemEntity.Ocurrences = meetingNotificationItemTableEntity.Ocurrences;
             meetingNotificationItemEntity.RecurrencePattern = meetingNotificationItemTableEntity.RecurrencePattern == null ? MeetingRecurrencePattern.None : (MeetingRecurrencePattern)Enum.Parse(typeof(MeetingRecurrencePattern), meetingNotificationItemTableEntity.RecurrencePattern);
             meetingNotificationItemEntity.ReminderMinutesBeforeStart = meetingNotificationItemTableEntity.ReminderMinutesBeforeStart;
-            meetingNotificationItemEntity.TemplateName = meetingNotificationItemTableEntity.TemplateName;
-            meetingNotificationItemEntity.End = meetingNotificationItemTableEntity.MeetingEnd;
-            meetingNotificationItemEntity.Start = meetingNotificationItemTableEntity.MeetingStart;
+            meetingNotificationItemEntity.TemplateId = meetingNotificationItemTableEntity.TemplateId;
+            meetingNotificationItemEntity.End = meetingNotificationItemTableEntity.End;
+            meetingNotificationItemEntity.Start = meetingNotificationItemTableEntity.Start;
             meetingNotificationItemEntity.EndDate = meetingNotificationItemTableEntity.EndDate;
             meetingNotificationItemEntity.SequenceNumber = meetingNotificationItemTableEntity.SequenceNumber;
             meetingNotificationItemEntity.SendOnUtcDate = meetingNotificationItemTableEntity.SendOnUtcDate;
@@ -525,7 +525,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.ReplyTo = emailNotificationItemTableEntity.ReplyTo;
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
             emailNotificationItemEntity.Subject = emailNotificationItemTableEntity.Subject;
-            emailNotificationItemEntity.TemplateName = emailNotificationItemTableEntity.TemplateName;
+            emailNotificationItemEntity.TemplateId = emailNotificationItemTableEntity.TemplateId;
             emailNotificationItemEntity.Timestamp = emailNotificationItemTableEntity.Timestamp;
             emailNotificationItemEntity.To = emailNotificationItemTableEntity.To;
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;

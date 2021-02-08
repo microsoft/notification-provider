@@ -96,21 +96,21 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the Start.
         /// </summary>
-        [DataMember(Name = "MeetingStartTime")]
-        [Required(ErrorMessage = "'MeetingStartTime' is mandatory for meeting notifications.")]
-        public DateTime MeetingStartTime { get; set; }
+        [DataMember(Name = "Start")]
+        [Required(ErrorMessage = "'Start' is mandatory for meeting notifications.")]
+        public DateTime Start { get; set; }
 
         /// <summary>
         /// Gets or sets the End.
         /// </summary>
-        [DataMember(Name = "MeetingEndTime")]
-        [Required(ErrorMessage = "'MeetingEndTime' is mandatory for meeting notifications.")]
-        public DateTime MeetingEndTime { get; set; }
+        [DataMember(Name = "End")]
+        [Required(ErrorMessage = "'End' is mandatory for meeting notifications.")]
+        public DateTime End { get; set; }
 
         /// <summary>
         /// Gets or sets the End date.
         /// </summary>
-        public DateTime? RecrurrenceEndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         // Recurrence Properties
 
@@ -127,32 +127,32 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the Interval.
         /// </summary>
-        public int RecurrenceInterval { get; set; }
+        public int Interval { get; set; }
 
         /// <summary>
         /// Gets or sets the DaysOfWeek.
         /// </summary>
-        public string RecurrenceDaysOfWeek { get; set; }
+        public string DaysOfWeek { get; set; }
 
         /// <summary>
         /// Gets or sets the DayofMonth.
         /// </summary>
-        public int? RecurrenceDayofMonth { get; set; }
+        public int? DayofMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the Day of the week index for a Monthly recurring pattern.
         /// </summary>
-        public string RecurrenceDayOfWeekByMonth { get; set; }
+        public string DayOfWeekByMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the MonthOfYear.
         /// </summary>
-        public int RecurrenceMonthOfYear { get; set; }
+        public int MonthOfYear { get; set; }
 
         /// <summary>
         /// Gets or sets the ocurrence.
         /// </summary>
-        public int? NoOfMeetingOcurrences { get; set; }
+        public int? Ocurrences { get; set; }
 
         // other properties
 
