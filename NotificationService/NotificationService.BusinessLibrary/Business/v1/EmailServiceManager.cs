@@ -419,10 +419,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
-                this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString()}", traceProps);
+                this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count}", traceProps);
                 IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
                 await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count.ToString()}", traceProps);
+                this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count}", traceProps);
             }
 
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
@@ -503,7 +503,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             if (retryItemsToBeQueued?.Count > 0)
             {
                 this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);
