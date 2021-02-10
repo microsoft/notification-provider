@@ -39,7 +39,7 @@ namespace NotificationService.Contracts.Extensions
                     Subject = emailNotificationItem?.Subject,
                     To = emailNotificationItem?.To,
                     TemplateData = emailNotificationItem?.TemplateData,
-                    TemplateName = emailNotificationItem?.TemplateName,
+                    TemplateId = emailNotificationItem?.TemplateId,
                     TrackingId = emailNotificationItem?.TrackingId,
                 };
             }

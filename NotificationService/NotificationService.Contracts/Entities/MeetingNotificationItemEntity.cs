@@ -178,7 +178,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the Template Content Arguments.
         /// </summary>
-        public string TemplateName { get; set; }
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the OccurrenceId.

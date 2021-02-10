@@ -98,8 +98,8 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem>
             {
-                new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
-                new MeetingNotificationItem { RecrurrenceEndDate = DateTime.UtcNow.AddHours(1), MeetingStartTime = DateTime.UtcNow.AddHours(1), MeetingEndTime = DateTime.UtcNow },
+                new MeetingNotificationItem { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
+                new MeetingNotificationItem { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
             };
             var meetingEntities = await emailManager.CreateMeetingNotificationEntities("TestApp", meetingNotificationItems.ToArray(), NotificationService.Contracts.NotificationItemStatus.Queued);
             Assert.IsTrue(meetingEntities.Count == 2);
