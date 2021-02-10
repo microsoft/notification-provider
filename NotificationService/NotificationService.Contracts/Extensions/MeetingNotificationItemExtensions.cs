@@ -35,29 +35,29 @@ namespace NotificationService.Contracts.Extensions
                     RequiredAttendees = meetingNotificationItem.RequiredAttendees,
                     Body = meetingNotificationItem?.Body,
                     NotificationId = meetingNotificationItem.NotificationId,
-                    DayofMonth = meetingNotificationItem.RecurrenceDayofMonth,
-                    DayOfWeekByMonth = meetingNotificationItem.RecurrenceDayOfWeekByMonth,
-                    DaysOfWeek = meetingNotificationItem.RecurrenceDaysOfWeek,
+                    DayofMonth = meetingNotificationItem.DayofMonth,
+                    DayOfWeekByMonth = meetingNotificationItem.DayOfWeekByMonth,
+                    DaysOfWeek = meetingNotificationItem.DaysOfWeek,
                     From = meetingNotificationItem.From,
-                    EndDate = meetingNotificationItem.RecrurrenceEndDate,
-                    End = meetingNotificationItem.MeetingEndTime,
-                    Interval = meetingNotificationItem.RecurrenceInterval,
+                    EndDate = meetingNotificationItem.EndDate,
+                    End = meetingNotificationItem.End,
+                    Interval = meetingNotificationItem.Interval,
                     IsOnlineMeeting = meetingNotificationItem.IsOnlineMeeting,
                     IsResponseRequested = meetingNotificationItem.IsResponseRequested,
                     IsPrivate = meetingNotificationItem.IsPrivate,
                     OccurrenceId = meetingNotificationItem.OccurrenceId,
                     SequenceNumber = meetingNotificationItem.SequenceNumber,
-                    Start = meetingNotificationItem.MeetingStartTime,
+                    Start = meetingNotificationItem.Start,
                     Subject = meetingNotificationItem.Subject,
                     ReminderMinutesBeforeStart = meetingNotificationItem.ReminderMinutesBeforeStart,
                     IsAllDayEvent = meetingNotificationItem.IsAllDayEvent,
                     IsCancel = meetingNotificationItem.IsCancel,
                     Location = meetingNotificationItem.Location,
-                    MonthOfYear = meetingNotificationItem.RecurrenceMonthOfYear,
-                    Ocurrences = meetingNotificationItem.NoOfMeetingOcurrences,
+                    MonthOfYear = meetingNotificationItem.MonthOfYear,
+                    Ocurrences = meetingNotificationItem.Ocurrences,
                     Priority = meetingNotificationItem.Priority,
                     RecurrencePattern = meetingNotificationItem.RecurrencePattern,
-                    TemplateName = meetingNotificationItem.TemplateName,
+                    TemplateId = meetingNotificationItem.TemplateName,
                     TemplateData = meetingNotificationItem.TemplateData,
                     Application = applicationName,
                     Action = meetingNotificationItem.Action,
@@ -102,25 +102,25 @@ namespace NotificationService.Contracts.Extensions
             {
                 res.Result = true;
             }
-            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Weekly && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek))
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Weekly && string.IsNullOrEmpty(meetingNotificationItem.DaysOfWeek))
             {
                 res.Result = false;
-                res.Message = $"RecurrenceDaysOfWeek cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Weekly}";
+                res.Message = $"DaysOfWeek cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Weekly}";
             }
-            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Monthly && !string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDayOfWeekByMonth))
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Monthly && !string.IsNullOrEmpty(meetingNotificationItem.DaysOfWeek) && string.IsNullOrEmpty(meetingNotificationItem.DayOfWeekByMonth))
             {
                 res.Result = false;
-                res.Message = $"RecurrenceDayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Monthly} and RecurrenceDaysOfWeek is mentioned";
+                res.Message = $"DayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Monthly} and DaysOfWeek is mentioned";
             }
-            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && meetingNotificationItem.RecurrenceMonthOfYear == 0)
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && string.IsNullOrEmpty(meetingNotificationItem.DaysOfWeek) && meetingNotificationItem.MonthOfYear == 0)
             {
                 res.Result = false;
-                res.Message = $"RecurrenceMonthOfYear cannot be 0, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and RecurrenceDaysOfWeek is not mentioned";
+                res.Message = $"MonthOfYear cannot be 0, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and DaysOfWeek is not mentioned";
             }
-            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && !string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDaysOfWeek) && (string.IsNullOrEmpty(meetingNotificationItem.RecurrenceDayOfWeekByMonth) || meetingNotificationItem.RecurrenceMonthOfYear == 0))
+            else if (meetingNotificationItem.RecurrencePattern == MeetingRecurrencePattern.Yearly && !string.IsNullOrEmpty(meetingNotificationItem.DaysOfWeek) && (string.IsNullOrEmpty(meetingNotificationItem.DayOfWeekByMonth) || meetingNotificationItem.MonthOfYear == 0))
             {
                 res.Result = false;
-                res.Message = $"RecurrenceMonthOfYear and RecurrenceDayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and RecurrenceDaysOfWeek is mentioned";
+                res.Message = $"MonthOfYear and DayOfWeekByMonth cannot be null or empty, if RecurrencePattern is {MeetingRecurrencePattern.Yearly} and DaysOfWeek is mentioned";
             }
             else
             {

@@ -76,12 +76,12 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the Start.
         /// </summary>
-        public DateTime MeetingStart { get; set; }
+        public DateTime Start { get; set; }
 
         /// <summary>
         /// Gets or sets the End.
         /// </summary>
-        public DateTime MeetingEnd { get; set; }
+        public DateTime End { get; set; }
 
         /// <summary>
         /// Gets or sets the End date.
@@ -160,7 +160,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        public string TemplateName { get; set; }
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the OccurrenceId.
