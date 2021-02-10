@@ -191,7 +191,7 @@ namespace NotificationService.Common
         /// <summary>
         /// The meetingnotificationsqueue.
         /// </summary>
-        public const string Notificationsqueue = "notifications-queue";
+        public const string NotificationsQueue = "notifications-queue";
 
         /// <summary>
         /// EmailNotificationsFolderName.
@@ -202,7 +202,7 @@ namespace NotificationService.Common
         /// MeetingNotificationsFolderName.
         /// </summary>
         public const string MeetingNotificationsFolderName = "MeetingNotifications";
-        
+
          /// <summary>
         /// A formatter for Meeting invite Start and End Dates for Graph api base meeting invite.
         /// </summary>
@@ -213,5 +213,14 @@ namespace NotificationService.Common
         /// </summary>
         public const string GraphMeetingInviteRecurrenceRangeDateFormatter = "yyyy-MM-dd";
 
+        /// <summary>
+        /// A constant for ResendDateRange logging.
+        /// </summary>
+        public const string ResendDateRange = "ResendDateRange";
+
+        /// <summary>
+        /// A constant or resend allowed days.
+        /// </summary>
+        public const string AllowedMaxResendDurationInDays = "AllowedMaxResendDurationInDays";
     }
 }
