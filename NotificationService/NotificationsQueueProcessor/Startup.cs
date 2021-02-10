@@ -52,18 +52,7 @@ namespace NotificationsQueueProcessor
 
             var configuration = configBuilder.Build();
             MaxDequeueCount = configuration.GetSection("AzureFunctionsJobHost:extensions:queues:maxDequeueCount");
-            ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
-            var envInitializer = new EnvironmentInitializer
-            {
-                Service = configuration[NotificationService.Common.Constants.ServiceConfigName],
-                ServiceLine = configuration[NotificationService.Common.Constants.ServiceLineConfigName],
-                ServiceOffering = configuration[NotificationService.Common.Constants.ServiceOfferingConfigName],
-                ComponentId = configuration[NotificationService.Common.Constants.ComponentIdConfigName],
-                ComponentName = configuration[NotificationService.Common.Constants.ComponentNameConfigName],
-                EnvironmentName = configuration[NotificationService.Common.Constants.EnvironmentName],
-                IctoId = "IctoId",
-            };
-            itm[0] = envInitializer;
+
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration["KeyVaultUrl"])
             {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
@@ -82,6 +71,18 @@ namespace NotificationsQueueProcessor
 
             configuration = configBuilder.Build();
 
+            ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
+            var envInitializer = new EnvironmentInitializer
+            {
+                Service = configuration[NotificationService.Common.Constants.ServiceConfigName],
+                ServiceLine = configuration[NotificationService.Common.Constants.ServiceLineConfigName],
+                ServiceOffering = configuration[NotificationService.Common.Constants.ServiceOfferingConfigName],
+                ComponentId = configuration[NotificationService.Common.Constants.ComponentIdConfigName],
+                ComponentName = configuration[NotificationService.Common.Constants.ComponentNameConfigName],
+                EnvironmentName = configuration[NotificationService.Common.Constants.EnvironmentName],
+                IctoId = "IctoId",
+            };
+            itm[0] = envInitializer;
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration
             {
                 IsTraceEnabled = true,
