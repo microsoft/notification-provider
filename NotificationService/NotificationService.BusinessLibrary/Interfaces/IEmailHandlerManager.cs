@@ -18,8 +18,9 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="applicationName">Application sourcing the email notification.</param>
         /// <param name="notificationIds">Array of notification Ids to be resent.</param>
+        /// <param name="ignoreAlreadySent"> ignore alredysent items.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds);
+        Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds, bool ignoreAlreadySent = false);
 
         /// <summary>
         /// Queue email notification items.
@@ -36,5 +37,13 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// <param name="meetingNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task<IList<NotificationResponse>> QueueMeetingNotifications(string applicationName, MeetingNotificationItem[] meetingNotificationItems);
+
+        /// <summary>
+        /// Requeue email notification items to be resent.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="dateRange"> daterange object containing start and end dates.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange);
     }
 }
