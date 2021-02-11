@@ -6,6 +6,7 @@ namespace NotificationsQueueProcessor
     using System;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
     /// <summary>
@@ -16,14 +17,19 @@ namespace NotificationsQueueProcessor
     {
         private readonly HttpClient httpClient;
 
+        // Instance of Application Configuration.
+        private readonly IConfiguration configuration;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientHelper"/> class.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
-        public HttpClientHelper(HttpClient httpClient)
+        public HttpClientHelper(HttpClient httpClient,
+            IConfiguration configuration)
         {
             this.httpClient = httpClient;
-            string httpTimeOut = $"{Environment.GetEnvironmentVariable(Constants.EnvVariableHttpTimeOutInSec)}";
+            this.configuration = configuration;
+            string httpTimeOut = this.configuration?[Constants.HttpTimeOutInSec];
             if (int.TryParse(httpTimeOut, out int timeOut))
             {
                 this.httpClient.Timeout = TimeSpan.FromSeconds(timeOut);
@@ -38,7 +44,7 @@ namespace NotificationsQueueProcessor
         /// <returns>A <see cref="Task"/>.</returns>
         public async Task<HttpResponseMessage> PostAsync(string url, HttpContent content)
         {
-            string bearerToken = await this.HttpAuthenticationAsync(Environment.GetEnvironmentVariable(Constants.EnvVariableAuthority), Environment.GetEnvironmentVariable(Constants.EnvVariableClientId));
+            string bearerToken = await this.HttpAuthenticationAsync(this.configuration?[Constants.Authority], this.configuration?[Constants.ClientId]);
             if (bearerToken != null)
             {
                 this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
@@ -46,14 +52,14 @@ namespace NotificationsQueueProcessor
             }
             else
             {
-                throw new Exception($"Unable to generate token for {Environment.GetEnvironmentVariable(Constants.EnvVariableClientId)} in ProcessNotificationQueueItem");
+                throw new Exception($"Unable to generate token for {this.configuration?[Constants.ClientId]} in ProcessNotificationQueueItem");
             }
         }
 
         private async Task<string> HttpAuthenticationAsync(string authority, string clientId)
         {
             var authContext = new AuthenticationContext(authority);
-            var authResult = await authContext.AcquireTokenAsync(clientId, new ClientCredential(clientId, Environment.GetEnvironmentVariable(Constants.EnvVariableClientSecret)));
+            var authResult = await authContext.AcquireTokenAsync(clientId, new ClientCredential(clientId, this.configuration?[Constants.ClientSecret]));
             return authResult.AccessToken;
         }
     }
