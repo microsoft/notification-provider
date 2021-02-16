@@ -138,7 +138,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         /// <summary>
         /// Tests for GetEmailNotificationsByDateRangeTest method for valid inputs.
         /// </summary>
-        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous unit test.</placeholder></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task GetEmailNotificationItemEntitiesBetweenDatesTests()
         {

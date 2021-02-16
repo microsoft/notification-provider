@@ -3,9 +3,7 @@
 
 namespace NotificationService.Contracts.Extensions
 {
-    using System;
     using System.Linq;
-    using NotificationService.Common.Encryption;
 
     /// <summary>
     /// Extensions of the <see cref="EmailNotificationItem"/> class.

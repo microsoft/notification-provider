@@ -6,7 +6,6 @@ namespace NotificationService
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.Net.Http;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
@@ -15,7 +14,6 @@ namespace NotificationService
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
     using DirectSend;
@@ -31,6 +29,7 @@ namespace NotificationService
     using NotificationService.Data.Interfaces;
     using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Common;
+    using NotificationService.Common.Configurations;
 
     /// <summary>
     /// Startup configuration for the service.
@@ -63,12 +62,12 @@ namespace NotificationService
             ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
             var envInitializer = new EnvironmentInitializer
             {
-                Service = this.Configuration[Constants.ServiceConfigName],
-                ServiceLine = this.Configuration[Constants.ServiceLineConfigName],
-                ServiceOffering = this.Configuration[Constants.ServiceOfferingConfigName],
-                ComponentId = this.Configuration[Constants.ComponentIdConfigName],
-                ComponentName = this.Configuration[Constants.ComponentNameConfigName],
-                EnvironmentName = this.Configuration[Constants.EnvironmentName],
+                Service = this.Configuration[AIConstants.ServiceConfigName],
+                ServiceLine = this.Configuration[AIConstants.ServiceLineConfigName],
+                ServiceOffering = this.Configuration[AIConstants.ServiceOfferingConfigName],
+                ComponentId = this.Configuration[AIConstants.ComponentIdConfigName],
+                ComponentName = this.Configuration[AIConstants.ComponentNameConfigName],
+                EnvironmentName = this.Configuration[AIConstants.EnvironmentName],
                 IctoId = "IctoId",
             };
             itm[0] = envInitializer;
@@ -76,12 +75,12 @@ namespace NotificationService
             NotificationProviders.Common.Logger.LoggingConfiguration loggingConfiguration = new NotificationProviders.Common.Logger.LoggingConfiguration
             {
                 IsTraceEnabled = true,
-                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), this.Configuration["ApplicationInsights:TraceLevel"]),
-                EnvironmentName = this.Configuration[Constants.EnvironmentName],
+                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), this.Configuration[ConfigConstants.AITraceLelelConfigKey]),
+                EnvironmentName = this.Configuration[AIConstants.EnvironmentName],
             };
 
             var tconfig = TelemetryConfiguration.CreateDefault();
-            tconfig.InstrumentationKey = this.Configuration["ApplicationInsights:InstrumentationKey"];
+            tconfig.InstrumentationKey = this.Configuration[ConfigConstants.AIInsrumentationConfigKey];
 
             DependencyTrackingTelemetryModule depModule = new DependencyTrackingTelemetryModule();
             depModule.Initialize(tconfig);
@@ -94,15 +93,15 @@ namespace NotificationService
 
             _ = services.AddSingleton<SendAccountConfiguration>(new SendAccountConfiguration()
             {
-                DisplayName = this.Configuration["DirectSendSetting:DisplayName"],
+                DisplayName = this.Configuration[ConfigConstants.DirectSendDisplayNameConfigKey],
             });
 
-            if (int.TryParse(this.Configuration["DirectSendSetting:SmtpPort"], out int port))
+            if (int.TryParse(this.Configuration[ConfigConstants.DirectSendSMTPPortConfigKey], out int port))
             {
                 _ = services.AddSingleton<ISmtpConfiguration>(new SmtpConfiguration()
                 {
                     SmtpPort = port,
-                    SmtpServer = this.Configuration["DirectSendSetting:SmtpServer"]
+                    SmtpServer = this.Configuration[ConfigConstants.DirectSendSMTPServerConfigKey]
                 });
         }
 
@@ -136,7 +135,7 @@ namespace NotificationService
                 .AddScoped<DirectSendNotificationProvider>(s => new DirectSendNotificationProvider(this.Configuration, s.GetService<IEmailService>(), s.GetService<ILogger>(), s.GetService<IEmailManager>()))
                 .AddScoped<INotificationProvider, DirectSendNotificationProvider>()
                 .AddScoped<MSGraphNotificationProvider>(s => new MSGraphNotificationProvider(this.Configuration, s.GetService<IEmailAccountManager>(), s.GetService<ILogger>(),
-                Options.Create(this.Configuration.GetSection("MSGraphSetting").Get<MSGraphSetting>()), Options.Create(this.Configuration.GetSection("PollyRetrySetting").Get<RetrySetting>()),
+                Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()), Options.Create(this.Configuration.GetSection("PollyRetrySetting").Get<RetrySetting>()),
                 s.GetService<ITokenHelper>(), s.GetService<IMSGraphProvider>(), s.GetService<IEmailManager>()))
                 .AddScoped<INotificationProvider, MSGraphNotificationProvider>();
 

@@ -61,8 +61,20 @@ namespace NotificationService.Data.Repositories
         {
             this.storageAccountSetting = storageAccountSetting?.Value ?? throw new System.ArgumentNullException(nameof(storageAccountSetting));
             this.cloudStorageClient = cloudStorageClient ?? throw new System.ArgumentNullException(nameof(cloudStorageClient));
-            this.emailHistoryTable = this.cloudStorageClient.GetCloudTable("EmailHistory");
-            this.meetingHistoryTable = this.cloudStorageClient.GetCloudTable("MeetingHistory");
+            var emailHistoryTableName = storageAccountSetting?.Value?.EmailHistoryTableName;
+            var meetingHistoryTableName = storageAccountSetting?.Value?.MeetingHistoryTableName;
+            if (string.IsNullOrEmpty(emailHistoryTableName))
+            {
+                throw new ArgumentNullException(nameof(storageAccountSetting), "EmailHistoryTableName property from StorageAccountSetting can't be null/empty. Please provide the value in appsettings.json file.");
+            }
+
+            if (string.IsNullOrEmpty(meetingHistoryTableName))
+            {
+                throw new ArgumentNullException(nameof(storageAccountSetting), "MeetingHistoryTableName property from StorageAccountSetting can't be null/empty. Please provide the value in appsettings.json file");
+            }
+
+            this.emailHistoryTable = this.cloudStorageClient.GetCloudTable(emailHistoryTableName);
+            this.meetingHistoryTable = this.cloudStorageClient.GetCloudTable(meetingHistoryTableName);
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
             this.mailAttachmentRepository = mailAttachmentRepository;
         }

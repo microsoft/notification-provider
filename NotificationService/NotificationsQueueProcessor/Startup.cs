@@ -19,6 +19,7 @@ namespace NotificationsQueueProcessor
     using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
@@ -51,7 +52,7 @@ namespace NotificationsQueueProcessor
             _ = configBuilder.AddEnvironmentVariables();
 
             var configuration = configBuilder.Build();
-            MaxDequeueCount = configuration.GetSection("AzureFunctionsJobHost:extensions:queues:maxDequeueCount");
+            MaxDequeueCount = configuration.GetSection(ConfigConstants.MaxDequeueCountConfigKey);
 
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration["KeyVaultUrl"])
             {
@@ -61,11 +62,11 @@ namespace NotificationsQueueProcessor
             configuration = configBuilder.Build();
             _ = configBuilder.AddAzureAppConfiguration(options =>
             {
-                var settings = options.Connect(configuration["AzureAppConfigConnectionstring"])
+                var settings = options.Connect(configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey])
                  .Select(KeyFilter.Any, "Common").Select(KeyFilter.Any, "QueueProcessor");
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
-                    _ = refreshOptions.Register(key: configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
+                    _ = refreshOptions.Register(key: configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
                 });
             });
 
@@ -74,24 +75,24 @@ namespace NotificationsQueueProcessor
             ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
             var envInitializer = new EnvironmentInitializer
             {
-                Service = configuration[NotificationService.Common.Constants.ServiceConfigName],
-                ServiceLine = configuration[NotificationService.Common.Constants.ServiceLineConfigName],
-                ServiceOffering = configuration[NotificationService.Common.Constants.ServiceOfferingConfigName],
-                ComponentId = configuration[NotificationService.Common.Constants.ComponentIdConfigName],
-                ComponentName = configuration[NotificationService.Common.Constants.ComponentNameConfigName],
-                EnvironmentName = configuration[NotificationService.Common.Constants.EnvironmentName],
+                Service = configuration[AIConstants.ServiceConfigName],
+                ServiceLine = configuration[AIConstants.ServiceLineConfigName],
+                ServiceOffering = configuration[AIConstants.ServiceOfferingConfigName],
+                ComponentId = configuration[AIConstants.ComponentIdConfigName],
+                ComponentName = configuration[AIConstants.ComponentNameConfigName],
+                EnvironmentName = configuration[AIConstants.EnvironmentName],
                 IctoId = "IctoId",
             };
             itm[0] = envInitializer;
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration
             {
                 IsTraceEnabled = true,
-                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), configuration["ApplicationInsights:TraceLevel"]),
-                EnvironmentName = configuration[NotificationService.Common.Constants.EnvironmentName],
+                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), configuration[ConfigConstants.AITraceLelelConfigKey]),
+                EnvironmentName = configuration[AIConstants.EnvironmentName],
             };
 
             var tconfig = TelemetryConfiguration.CreateDefault();
-            tconfig.InstrumentationKey = configuration["ApplicationInsights:InstrumentationKey"];
+            tconfig.InstrumentationKey = configuration[ConfigConstants.AIInsrumentationConfigKey];
 
             DependencyTrackingTelemetryModule depModule = new DependencyTrackingTelemetryModule();
             depModule.Initialize(tconfig);
@@ -100,11 +101,11 @@ namespace NotificationsQueueProcessor
             requestTrackingTelemetryModule.Initialize(tconfig);
 
             _ = builder.Services.AddSingleton<ILogger>(_ => new AILogger(loggingConfiguration, tconfig, itm));
-            _ = builder.Services.Configure<CosmosDBSetting>(configuration.GetSection("CosmosDB"));
-            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Key = configuration["CosmosDBKey"]);
-            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Uri = configuration["CosmosDBURI"]);
-            _ = builder.Services.Configure<StorageAccountSetting>(configuration.GetSection("StorageAccount"));
-            _ = builder.Services.Configure<StorageAccountSetting>(s => s.ConnectionString = configuration["StorageAccountConnectionString"]);
+            _ = builder.Services.Configure<CosmosDBSetting>(configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
+            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Key = configuration[ConfigConstants.CosmosDBKeyConfigKey]);
+            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Uri = configuration[ConfigConstants.CosmosDBURIConfigKey]);
+            _ = builder.Services.Configure<StorageAccountSetting>(configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
+            _ = builder.Services.Configure<StorageAccountSetting>(s => s.ConnectionString = configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
             _ = builder.Services.AddSingleton<IConfiguration>(configuration);
             _ = builder.Services.AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>();
             _ = builder.Services.AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>();

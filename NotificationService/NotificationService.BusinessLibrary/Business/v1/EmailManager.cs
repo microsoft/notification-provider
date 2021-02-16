@@ -8,10 +8,8 @@ namespace NotificationService.BusinessLibrary
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
-    using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -77,7 +75,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ApplicationConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.logger = logger;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
@@ -112,7 +110,7 @@ namespace NotificationService.BusinessLibrary
         public async Task<IList<EmailNotificationItemEntity>> CreateNotificationEntities(string applicationName, EmailNotificationItem[] emailNotificationItems, NotificationItemStatus status)
         {
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
@@ -215,7 +213,7 @@ namespace NotificationService.BusinessLibrary
                 throw;
             }
 
-            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
+            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.ApplicationConstants.EmailBodyContentType };
             this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
             return messageBody;
         }
@@ -281,7 +279,7 @@ namespace NotificationService.BusinessLibrary
                 throw;
             }
 
-            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.Constants.EmailBodyContentType };
+            MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.ApplicationConstants.EmailBodyContentType };
             this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
             return messageBody;
         }
@@ -295,7 +293,7 @@ namespace NotificationService.BusinessLibrary
             }
 
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();

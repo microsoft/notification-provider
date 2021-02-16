@@ -355,7 +355,7 @@ namespace NotificationService.Common.Logger
                     properties = new Dictionary<string, string>();
                 }
 
-                properties[Constants.EventCodeKeyName] = eventCode;
+                properties[AIConstants.EventCodeKeyName] = eventCode;
             }
 
             return properties;

@@ -65,7 +65,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             this.msGraphSettingOptions = new Mock<IOptions<MSGraphSetting>>();
             var config = new Dictionary<string, string>()
             {
-                { Constants.AllowedMaxResendDurationInDays, "1"},
+                { ApplicationConstants.AllowedMaxResendDurationInDays, "1"},
             };
 
             this.configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();

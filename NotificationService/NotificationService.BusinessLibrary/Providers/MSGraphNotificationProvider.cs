@@ -5,7 +5,6 @@ namespace NotificationService.BusinessLibrary.Providers
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Net;
@@ -14,7 +13,6 @@ namespace NotificationService.BusinessLibrary.Providers
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
-    using NotificationService.BusinessLibrary.Business;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Models;
     using NotificationService.Common;
@@ -68,11 +66,6 @@ namespace NotificationService.BusinessLibrary.Providers
         private readonly RetrySetting pollyRetrySetting;
 
         /// <summary>
-        /// JSON serializer settings for http calls.
-        /// </summary>
-        private readonly JsonSerializerSettings jsonSerializerSettings;
-
-        /// <summary>
         /// Instance of <see cref="ITokenHelper"/>.
         /// </summary>
         private readonly ITokenHelper tokenHelper;
@@ -109,22 +102,17 @@ namespace NotificationService.BusinessLibrary.Providers
              IEmailManager emailManager)
         {
             this.configuration = configuration;
-            this.applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration?["ApplicationAccounts"]);
+            this.applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration?[ConfigConstants.ApplicationAccountsConfigSectionKey]);
             this.emailAccountManager = emailAccountManager;
             this.logger = logger;
-            _ = int.TryParse(this.configuration["RetrySetting:MaxRetries"], out this.maxTryCount);
-            if (this.configuration?["MailSettings"] != null)
+            _ = int.TryParse(this.configuration[$"{ConfigConstants.RetrySettingConfigSectionKey}:{ConfigConstants.RetrySettingMaxRetryCountConfigKey}"], out this.maxTryCount);
+            if (this.configuration?[ConfigConstants.MailSettingsConfigKey] != null)
             {
-                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);
+                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?[ConfigConstants.MailSettingsConfigKey]);
             }
 
             this.mSGraphSetting = mSGraphSetting?.Value;
             this.pollyRetrySetting = pollyRetrySetting?.Value;
-            this.jsonSerializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-            };
             this.tokenHelper = tokenHelper;
             this.msGraphProvider = msGraphProvider;
             this.emailManager = emailManager;
@@ -140,8 +128,8 @@ namespace NotificationService.BusinessLibrary.Providers
             }
 
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
-            traceProps[Constants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
 
             var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
@@ -187,7 +175,7 @@ namespace NotificationService.BusinessLibrary.Providers
         {
             this.logger.TraceInformation($"Started {nameof(this.ProcessEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.");
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             List<Task> emailNotificationSendTasks = new List<Task>();
             foreach (var item in notificationEntities)
             {
@@ -204,7 +192,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     if (!sendForReal)
                     {
                         this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessEntitiesIndividually)} method of {nameof(EmailManager)}.");
-                        message.ToRecipients = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Recipient { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
+                        message.ToRecipients = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Recipient { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         message.CCRecipients = null;
                         message.BCCRecipients = null;
                         message.ReplyToRecipients = null;
@@ -235,9 +223,9 @@ namespace NotificationService.BusinessLibrary.Providers
         private async Task ProcessEntitiesInBatch(string applicationName, IList<EmailNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount)
         {
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             traceProps["EmailAccountUsed"] = selectedAccount.Item2.AccountName.Base64Encode();
-            traceProps[Constants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
+            traceProps[AIConstants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (notificationEntities is null || notificationEntities.Count == 0)
@@ -265,7 +253,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     if (!sendForReal)
                     {
                         this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessEntitiesInBatch)} method of {nameof(EmailManager)}.", traceProps);
-                        message.ToRecipients = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        message.ToRecipients = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                         .Select(torecipient => new Recipient { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         message.CCRecipients = null;
                         message.BCCRecipients = null;
@@ -277,8 +265,8 @@ namespace NotificationService.BusinessLibrary.Providers
                         Id = nie.NotificationId,
                         Url = this.mSGraphSetting.SendMailUrl.StartsWith("/", StringComparison.OrdinalIgnoreCase) ? this.mSGraphSetting.SendMailUrl : $"/{this.mSGraphSetting.SendMailUrl}",
                         Body = new EmailMessagePayload(message) { SaveToSentItems = saveToSent },
-                        Headers = new GraphRequestHeaders() { ContentType = Constants.JsonMIMEType },
-                        Method = Constants.POSTHttpVerb,
+                        Headers = new GraphRequestHeaders() { ContentType = ApplicationConstants.JsonMIMEType },
+                        Method = ApplicationConstants.POSTHttpVerb,
                     });
                 }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -346,14 +334,14 @@ namespace NotificationService.BusinessLibrary.Providers
         public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> meetingInviteEntities)
         {
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (meetingInviteEntities is null || meetingInviteEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null/empty.");
             }
 
-            traceProps[Constants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
+            traceProps[AIConstants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
             var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
             AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
@@ -388,8 +376,8 @@ namespace NotificationService.BusinessLibrary.Providers
         private async Task ProcessMeetingEntitiesIndividually(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount) 
         {
             var traceProps = new Dictionary<string, string>();
-            traceProps[Constants.Application] = applicationName;
-            traceProps[Constants.NotificationType] = NotificationType.Meet.ToString();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.NotificationType] = NotificationType.Meet.ToString();
             this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
@@ -415,7 +403,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     if (!sendForReal)
                     {
                         this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessMeetingEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}. notificationId {item.NotificationId}", traceProps);
-                        payload.Attendees = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Attendee { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
+                        payload.Attendees = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Attendee { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         payload.Organizer = null;
                     }
 
@@ -480,7 +468,7 @@ namespace NotificationService.BusinessLibrary.Providers
 
             var payload = new InvitePayload();
 
-            var requiredAttendees = meetingNotificationEntity.RequiredAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
+            var requiredAttendees = meetingNotificationEntity.RequiredAttendees.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
             {
                 EmailAddress = new EmailAddress()
                 {
@@ -488,7 +476,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 },
                 Type = AttendeeType.Required,
             });
-            var optionalAttendees = meetingNotificationEntity.OptionalAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
+            var optionalAttendees = meetingNotificationEntity.OptionalAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(e => new Attendee()
             {
                 EmailAddress = new EmailAddress()
                 {
@@ -501,7 +489,7 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.Body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, meetingNotificationEntity).ConfigureAwait(false);
             payload.End = new InviteDateTime()
             {
-                DateTime = meetingNotificationEntity.End.FormatDate(Constants.GraphMeetingInviteDateTimeFormatter),
+                DateTime = meetingNotificationEntity.End.FormatDate(ApplicationConstants.GraphMeetingInviteDateTimeFormatter),
             };
             payload.Importance = (ImportanceType)Enum.Parse(typeof(ImportanceType), meetingNotificationEntity.Priority.ToString());
             payload.IsCancelled = meetingNotificationEntity.IsCancel;
@@ -533,8 +521,8 @@ namespace NotificationService.BusinessLibrary.Providers
                 var recurrenceRange = new RecurrenceRange()
                 {
                     NumberOfOccurences = meetingNotificationEntity.Ocurrences,
-                    EndDate = meetingNotificationEntity.EndDate.HasValue ? meetingNotificationEntity.EndDate?.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter) : null,
-                    StartDate = meetingNotificationEntity.Start.FormatDate(Constants.GraphMeetingInviteRecurrenceRangeDateFormatter),
+                    EndDate = meetingNotificationEntity.EndDate.HasValue ? meetingNotificationEntity.EndDate?.FormatDate(ApplicationConstants.GraphMeetingInviteRecurrenceRangeDateFormatter) : null,
+                    StartDate = meetingNotificationEntity.Start.FormatDate(ApplicationConstants.GraphMeetingInviteRecurrenceRangeDateFormatter),
                     Type = recurrenceRangeType,
                 };
                 payload.Recurrence = new Recurrence()
@@ -547,7 +535,7 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.ReminderMinutesBeforeStart = Convert.ToInt32(meetingNotificationEntity.ReminderMinutesBeforeStart);
             payload.Start = new InviteDateTime()
             {
-                DateTime = meetingNotificationEntity.Start.FormatDate(Constants.GraphMeetingInviteDateTimeFormatter),
+                DateTime = meetingNotificationEntity.Start.FormatDate(ApplicationConstants.GraphMeetingInviteDateTimeFormatter),
             };
 
             payload.Subject = meetingNotificationEntity.Subject;

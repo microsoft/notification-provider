@@ -63,7 +63,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -119,7 +119,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -163,7 +163,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()

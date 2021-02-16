@@ -3,11 +3,7 @@
 
 namespace NotificationService.BusinessLibrary.Interfaces
 {
-    using System;
     using System.Collections.Generic;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Threading.Tasks;
     using NotificationService.Contracts;
 
     /// <summary>
@@ -15,9 +11,18 @@ namespace NotificationService.BusinessLibrary.Interfaces
     /// </summary>
     public interface IEmailAccountManager
     {
+        /// <summary>
+        /// Method to fetch account from the acccounts provided.
+        /// </summary>
+        /// <param name="applicationName">Application Name to be used as filter.</param>
+        /// <param name="applicationAccounts">List of applicationAccounts.</param>
+        /// <returns><see cref="AccountCredential"/></returns>
         public AccountCredential FetchAccountToBeUsedForApplication(
             string applicationName, List<ApplicationAccounts> applicationAccounts);
 
+        /// <summary>
+        /// Increments index.
+        /// </summary>
         public void IncrementIndex();
     }
 }

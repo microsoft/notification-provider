@@ -225,9 +225,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { Constants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             string mergedTemplate = "Testing Html template";
@@ -250,7 +250,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             _ = this.TokenHelper
                 .Setup(th => th.GetAuthenticationHeaderFromToken(It.IsAny<string>()))
-                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this.TestToken)));
+                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, this.TestToken)));
 
             _ = this.MsGraphProvider
                 .Setup(gp => gp.ProcessEmailRequestBatch(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<GraphBatchRequest>()))

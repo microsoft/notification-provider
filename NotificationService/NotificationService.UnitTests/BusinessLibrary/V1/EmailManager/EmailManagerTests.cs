@@ -38,7 +38,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.Configuration = new Mock<IConfiguration>();
             this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
             this.RepositoryFactory = new Mock<IRepositoryFactory>();
-            _ = this.Configuration.Setup(x => x[Constants.StorageType]).Returns("StorageAccount");
+            _ = this.Configuration.Setup(x => x[ApplicationConstants.StorageType]).Returns("StorageAccount");
             _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
         }
 

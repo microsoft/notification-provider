@@ -5,16 +5,12 @@ namespace NotificationService.Data
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Options;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
-    using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Extensions;
-    using NotificationService.Data.Interfaces;
 
     /// <summary>
     /// Repository for mail templates.

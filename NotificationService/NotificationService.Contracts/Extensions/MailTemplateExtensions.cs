@@ -4,7 +4,6 @@
 namespace NotificationService.Contracts.Extensions
 {
     using System;
-    using System.Linq;
     using NotificationService.Common.Encryption;
     using NotificationService.Contracts.Entities;
 

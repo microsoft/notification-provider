@@ -85,7 +85,7 @@ namespace NotificationService.BusinessLibrary
                 throw new ArgumentNullException(nameof(selectedAccountCredential));
             }
 
-            traceProps[Constants.EmailAccount] = selectedAccountCredential.AccountName;
+            traceProps[AIConstants.EmailAccount] = selectedAccountCredential.AccountName;
 
             this.logger.TraceInformation($"Started {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.");
             string authority = this.userTokenSetting.Authority;
@@ -96,7 +96,7 @@ namespace NotificationService.BusinessLibrary
             using (HttpClient client = new HttpClient())
             {
                 var tokenEndpoint = $"{authority}";
-                var accept = Constants.JsonMIMEType;
+                var accept = ApplicationConstants.JsonMIMEType;
 
                 client.DefaultRequestHeaders.Add("Accept", accept);
                 string postBody = $"resource={clientId}&client_id={clientId}&grant_type=password&username={userEmail}&password={userPassword}&scope=openid";
@@ -132,13 +132,13 @@ namespace NotificationService.BusinessLibrary
             }
 
             this.logger.TraceInformation($"Started {nameof(this.GetAuthenticationHeaderFromToken)} method of {nameof(TokenHelper)}.");
-            if (userAccessToken.StartsWith("bearer ", System.StringComparison.InvariantCultureIgnoreCase))
+            if (userAccessToken.StartsWith($"{ApplicationConstants.BearerAuthenticationScheme.ToLower(CultureInfo.InvariantCulture)} ", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 userAccessToken = userAccessToken.Remove(0, 7);
             }
 
             var resourceToken = await this.GetResourceAccessTokenFromUserToken(userAccessToken).ConfigureAwait(false);
-            var authHeader = new AuthenticationHeaderValue("Bearer", resourceToken);
+            var authHeader = new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, resourceToken);
             this.logger.TraceInformation($"Finished {nameof(this.GetAuthenticationHeaderFromToken)} method of {nameof(TokenHelper)}.");
             return authHeader;
         }

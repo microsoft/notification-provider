@@ -8,6 +8,7 @@ namespace NotificationsQueueProcessor
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using NotificationService.Common;
 
     /// <summary>
     /// HttpClientHelper.
@@ -47,7 +48,7 @@ namespace NotificationsQueueProcessor
             string bearerToken = await this.HttpAuthenticationAsync(this.configuration?[Constants.Authority], this.configuration?[Constants.ClientId]);
             if (bearerToken != null)
             {
-                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
+                this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, bearerToken);
                 return await this.httpClient.PostAsync(url, content).ConfigureAwait(false);
             }
             else

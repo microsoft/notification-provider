@@ -11,8 +11,14 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     using NotificationService.Common;
     using NotificationService.Common.Logger;
 
-    public class MSGraphProvideTestBase
+    /// <summary>
+    /// MSGraphProvider Unit Test Class.
+    /// </summary>
+    public class MSGraphProviderTestBase
     {
+        /// <summary>
+        /// sendEmailUrl private field.
+        /// </summary>
         private readonly string sendEmailUrl = "v1/sendEmail";
 
         /// <summary>

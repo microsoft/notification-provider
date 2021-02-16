@@ -21,7 +21,7 @@ namespace NotificationService.Controllers
     /// Controller to handle email notifications.
     /// </summary>
     [Route("v1/email")]
-    [Authorize(Policy = Constants.AppNameAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class EmailController : WebAPICommonController
     {
@@ -53,7 +53,7 @@ namespace NotificationService.Controllers
         /// <param name="emailNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("send/{applicationName}")]
         public async Task<IList<NotificationResponse>> SendEmailNotifications(string applicationName, [FromBody] EmailNotificationItem[] emailNotificationItems)
         {
@@ -89,7 +89,7 @@ namespace NotificationService.Controllers
         /// <param name="queueNotificationItem">Queue Notification item.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(AuthenticationSchemes = Constants.BearerAuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Route("process/{applicationName}")]
         public async Task<IList<NotificationResponse>> ProcessQueuedEmailNotifications(string applicationName, [FromBody] QueueNotificationItem queueNotificationItem)
         {
@@ -109,9 +109,9 @@ namespace NotificationService.Controllers
                 throw new ArgumentException("Notification IDs list should not be empty.", nameof(queueNotificationItem));
             }
 
-            traceprops[Constants.Application] = applicationName;
-            traceprops[Constants.NotificationIds] = string.Join(',', queueNotificationItem.NotificationIds);
-            traceprops[Constants.EmailNotificationCount] = queueNotificationItem.NotificationIds.Length.ToString(CultureInfo.InvariantCulture);
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.NotificationIds] = string.Join(',', queueNotificationItem.NotificationIds);
+            traceprops[AIConstants.EmailNotificationCount] = queueNotificationItem.NotificationIds.Length.ToString(CultureInfo.InvariantCulture);
 
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ProcessQueuedEmailNotifications)} method of {nameof(EmailController)}.", traceprops);

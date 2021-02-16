@@ -21,7 +21,7 @@ namespace NotificationHandler.Controllers
     /// Controller to handle email notifications.
     /// </summary>
     [Route("v1/email")]
-    [Authorize(Policy = Constants.AppNameAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class EmailController : Controller
     {
@@ -57,7 +57,7 @@ namespace NotificationHandler.Controllers
         /// <param name="notificationIds">Array of email notification ids.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("resend/{applicationName}")]
         public async Task<IActionResult> ResendEmailNotifications(string applicationName, [FromBody] string[] notificationIds)
         {
@@ -68,7 +68,7 @@ namespace NotificationHandler.Controllers
                 throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
             }
 
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             if (notificationIds is null)
             {
                 this.logger.WriteException(new System.ArgumentNullException(nameof(notificationIds)), traceProps);
@@ -81,7 +81,7 @@ namespace NotificationHandler.Controllers
                 throw new System.ArgumentException("Notifications Ids list should not be empty", nameof(notificationIds));
             }
 
-            traceProps[Constants.NotificationIds] = string.Join(',', notificationIds);
+            traceProps[AIConstants.NotificationIds] = string.Join(',', notificationIds);
 
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
@@ -97,17 +97,17 @@ namespace NotificationHandler.Controllers
         /// <param name="dateRange">Date Range to resubmit the notifications.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("resend/{applicationName}/bydaterange")]
         public async Task<IActionResult> ResendEmailNotificationsByDateRange(string applicationName, [FromBody] DateTimeRange dateRange)
         {
             var traceProps = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(applicationName))
             {
-                this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
+                throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
             }
 
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             if (dateRange is null)
             {
                 this.LogAndThrowArgumentNullException("DateTimeRange can't be null.", nameof(dateRange), traceProps);
@@ -118,7 +118,7 @@ namespace NotificationHandler.Controllers
                 this.LogAndThrowArgumentNullException("StartDate value must be less than EndDate value.", nameof(dateRange), traceProps);
             }
 
-            traceProps[Constants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
+            traceProps[ApplicationConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.ResendEmailNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
@@ -133,7 +133,7 @@ namespace NotificationHandler.Controllers
         /// <param name="emailNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("queue/{applicationName}")]
         public async Task<IActionResult> QueueEmailNotifications(string applicationName, [FromBody] EmailNotificationItem[] emailNotificationItems)
         {
@@ -155,7 +155,7 @@ namespace NotificationHandler.Controllers
                 throw new System.ArgumentException("Email Notification Items list should not be empty", nameof(emailNotificationItems));
             }
 
-            traceProps[Constants.Application] = applicationName;
+            traceProps[AIConstants.Application] = applicationName;
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.QueueEmailNotifications(applicationName, emailNotificationItems).ConfigureAwait(false);
@@ -170,7 +170,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplate"><see cref="MailTemplate"/>.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("mailTemplate/{applicationName}")]
         public async Task<IActionResult> SaveMailTemplate(string applicationName, [FromBody] MailTemplate mailTemplate)
         {
@@ -213,7 +213,7 @@ namespace NotificationHandler.Controllers
                     this.LogAndThrowArgumentNullException("Template type should be 'Text' or 'XSLT'", nameof(mailTemplate), traceProps);
                 }
 
-                traceProps[Constants.Application] = applicationName;
+                traceProps[AIConstants.Application] = applicationName;
                 bool result;
                 this.logger.TraceInformation($"Started {nameof(this.SaveMailTemplate)} method of {nameof(EmailController)}.", traceProps);
                 result = await this.templateManager.SaveEmailTemplate(applicationName, mailTemplate).ConfigureAwait(false);
@@ -242,7 +242,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplateName">Template name.</param>
         /// <returns><see cref="MailTemplate"/>.</returns>
         [HttpGet]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("mailTemplate/{applicationName}/{mailTemplateName}")]
         public async Task<IActionResult> GetMailTemplate(string applicationName, string mailTemplateName)
         {
@@ -260,7 +260,7 @@ namespace NotificationHandler.Controllers
                     this.LogAndThrowArgumentNullException("Template name should not be empty", nameof(mailTemplateName), traceProps);
                 }
 
-                traceProps[Constants.Application] = applicationName;
+                traceProps[AIConstants.Application] = applicationName;
                 MailTemplate mailTemplate;
                 this.logger.TraceInformation($"Started {nameof(this.GetMailTemplate)} method of {nameof(EmailController)}.", traceProps);
                 mailTemplate = await this.templateManager.GetMailTemplate(applicationName, mailTemplateName).ConfigureAwait(false);
@@ -289,7 +289,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplateName">Template name.</param>
         /// <returns>status of delete operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("deleteTemplate/{applicationName}/{mailTemplateName}")]
         public async Task<IActionResult> DeleteMailTemplate(string applicationName, string mailTemplateName)
         {
@@ -307,7 +307,7 @@ namespace NotificationHandler.Controllers
                     this.LogAndThrowArgumentNullException("Template name should not be empty", nameof(mailTemplateName), traceProps);
                 }
 
-                traceProps[Constants.Application] = applicationName;
+                traceProps[AIConstants.Application] = applicationName;
                 this.logger.TraceInformation($"Started {nameof(this.DeleteMailTemplate)} method of {nameof(EmailController)}.", traceProps);
                 var status = await this.templateManager.DeleteMailTemplate(applicationName, mailTemplateName).ConfigureAwait(false);
                 this.logger.TraceInformation($"Finished {nameof(this.DeleteMailTemplate)} method of {nameof(EmailController)}.", traceProps);
@@ -336,7 +336,7 @@ namespace NotificationHandler.Controllers
         /// <param name="traceProps">custom properties, add more dimensions to this, so it will be easy to trace and query.</param>
         private void LogAndThrowArgumentNullException(string message, string inputName, Dictionary<string, string> traceProps)
         {
-            var argumentException = new System.ArgumentNullException(message, inputName);
+            var argumentException = new System.ArgumentNullException(inputName, message);
             this.logger.TraceInformation(argumentException.Message, traceProps);
             throw argumentException;
         }

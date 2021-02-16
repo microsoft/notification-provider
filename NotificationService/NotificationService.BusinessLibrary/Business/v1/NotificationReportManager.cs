@@ -5,15 +5,11 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Azure.Storage.Shared.Protocol;
     using Microsoft.Extensions.Configuration;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
-    using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
@@ -71,7 +67,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.logger = logger;
             this.configuration = configuration;
-            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.Constants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
+            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.ApplicationConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
             this.emailManager = emailManager;
             this.mailTemplateRepository = mailTemplateRepository ?? throw new System.ArgumentNullException(nameof(mailTemplateRepository));
         }

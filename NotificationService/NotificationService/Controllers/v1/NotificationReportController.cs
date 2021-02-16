@@ -21,7 +21,7 @@ namespace NotificationService.Controllers
     /// Controller to handle Reporting of notifications.
     /// </summary>
     [Route("v1/report")]
-    [Authorize(AuthenticationSchemes = Constants.BearerAuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class NotificationReportController : Controller
     {
@@ -95,7 +95,7 @@ namespace NotificationService.Controllers
                     this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
                 }
 
-                traceProps[Constants.Application] = applicationName;
+                traceProps[AIConstants.Application] = applicationName;
                 if (string.IsNullOrWhiteSpace(notificationId))
                 {
                     this.LogAndThrowArgumentNullException("notificationId should not be empty", nameof(notificationId), traceProps);
@@ -139,7 +139,7 @@ namespace NotificationService.Controllers
                     this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
                 }
 
-                traceProps[Constants.Application] = applicationName;
+                traceProps[AIConstants.Application] = applicationName;
 
                 this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method of {nameof(NotificationReportController)}.");
                 IList<MailTemplateInfo> mailTemplatesInfo = await this.notificationReportManager.GetAllTemplateEntities(applicationName).ConfigureAwait(false);
@@ -165,7 +165,7 @@ namespace NotificationService.Controllers
         /// <param name="traceProps">custom properties, add more dimensions to this, so it will be easy to trace and query.</param>
         private void LogAndThrowArgumentNullException(string message, string inputName, Dictionary<string, string> traceProps)
         {
-            var argumentException = new System.ArgumentNullException(message, inputName);
+            var argumentException = new System.ArgumentNullException(inputName, message);
             this.logger.TraceInformation(argumentException.Message, traceProps);
             throw argumentException;
         }

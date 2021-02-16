@@ -7,7 +7,6 @@ namespace DirectSend
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using DirectSend;
     using DirectSend.Models.Configurations;
     using MailKit;
     using MailKit.Net.Smtp;

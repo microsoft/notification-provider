@@ -24,7 +24,9 @@ namespace NotificationService.SvCommon.Common
     using Microsoft.Extensions.Hosting;
     using NotificationService.BusinessLibrary;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
+    using NotificationService.Common.Exceptions;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
     using NotificationService.SvCommon.Attributes;
@@ -46,9 +48,9 @@ namespace NotificationService.SvCommon.Common
 
             var config = builder.Build();
             AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config["KeyVaultUrl"])
+                config[ConfigConstants.KeyVaultUrlConfigKey])
             {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[Constants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
+                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[ConfigConstants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
             };
             _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
 
@@ -56,12 +58,12 @@ namespace NotificationService.SvCommon.Common
 
             _ = builder.AddAzureAppConfiguration(options =>
             {
-                var settings = options.Connect(this.Configuration["AzureAppConfigConnectionstring"]).Select(KeyFilter.Any, "Common")
+                var settings = options.Connect(this.Configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]).Select(KeyFilter.Any, "Common")
                 .Select(KeyFilter.Any, "Service")
                 .Select(KeyFilter.Any, "Handler");
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
-                    _ = refreshOptions.Register(key: this.Configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
+                    _ = refreshOptions.Register(key: this.Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
                 });
             });
 
@@ -85,6 +87,8 @@ namespace NotificationService.SvCommon.Common
                 _ = app.UseDeveloperExceptionPage();
             }
 
+            _ = app.UseMiddleware<ExceptionMiddleware>();
+
             _ = app.UseHttpsRedirection();
 
             _ = app.UseFileServer();
@@ -104,11 +108,11 @@ namespace NotificationService.SvCommon.Common
         {
             _ = services.AddAuthorization(configure =>
             {
-                configure.AddPolicy(Constants.AppNameAuthorizePolicy, policy =>
+                configure.AddPolicy(ApplicationConstants.AppNameAuthorizePolicy, policy =>
                 {
                     policy.Requirements.Add(new AppNameAuthorizeRequirement());
                 });
-                configure.AddPolicy(Constants.AppAudienceAuthorizePolicy, policy =>
+                configure.AddPolicy(ApplicationConstants.AppAudienceAuthorizePolicy, policy =>
                 {
                     policy.Requirements.Add(new AppAudienceAuthorizeRequirement());
                 });
@@ -122,20 +126,20 @@ namespace NotificationService.SvCommon.Common
             _ = services.AddScoped(typeof(ValidateModelAttribute));
 
             _ = services.AddOptions();
-            _ = services.Configure<MSGraphSetting>(this.Configuration.GetSection("MSGraphSetting"));
-            _ = services.Configure<MSGraphSetting>(s => s.ClientCredential = this.Configuration["MSGraphSettingClientCredential"]);
-            _ = services.Configure<MSGraphSetting>(s => s.ClientId = this.Configuration["MSGraphSettingClientId"]);
-            _ = services.Configure<CosmosDBSetting>(this.Configuration.GetSection("CosmosDB"));
-            _ = services.Configure<CosmosDBSetting>(s => s.Key = this.Configuration["CosmosDBKey"]);
-            _ = services.Configure<CosmosDBSetting>(s => s.Uri = this.Configuration["CosmosDBURI"]);
-            _ = services.Configure<StorageAccountSetting>(this.Configuration.GetSection("StorageAccount"));
-            _ = services.Configure<StorageAccountSetting>(s => s.ConnectionString = this.Configuration["StorageAccountConnectionString"]);
-            _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection("UserTokenSetting"));
-            _ = services.Configure<RetrySetting>(this.Configuration.GetSection("RetrySetting"));
+            _ = services.Configure<MSGraphSetting>(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey));
+            _ = services.Configure<MSGraphSetting>(s => s.ClientCredential = this.Configuration[ConfigConstants.MSGraphSettingClientCredentialConfigKey]);
+            _ = services.Configure<MSGraphSetting>(s => s.ClientId = this.Configuration[ConfigConstants.MSGraphSettingClientIdConfigKey]);
+            _ = services.Configure<CosmosDBSetting>(this.Configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
+            _ = services.Configure<CosmosDBSetting>(s => s.Key = this.Configuration[ConfigConstants.CosmosDBKeyConfigKey]);
+            _ = services.Configure<CosmosDBSetting>(s => s.Uri = this.Configuration[ConfigConstants.CosmosDBURIConfigKey]);
+            _ = services.Configure<StorageAccountSetting>(this.Configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
+            _ = services.Configure<StorageAccountSetting>(s => s.ConnectionString = this.Configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
+            _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection(ConfigConstants.UserTokenSettingConfigSectionKey));
+            _ = services.Configure<RetrySetting>(this.Configuration.GetSection(ConfigConstants.RetrySettingConfigSectionKey));
 
             _ = services.AddSingleton<IConfiguration>(this.Configuration);
             _ = services.AddSingleton<IEncryptionService, EncryptionService>();
-            _ = services.AddSingleton<IKeyEncryptionKey, CryptographyClient>(cc => new CryptographyClient(new Uri(this.Configuration["KeyVault:RSAKeyUri"]), new DefaultAzureCredential()));
+            _ = services.AddSingleton<IKeyEncryptionKey, CryptographyClient>(cc => new CryptographyClient(new Uri(this.Configuration[ConfigConstants.KeyVaultRSAUriConfigKey]), new DefaultAzureCredential()));
 
             _ = services.AddTransient<IHttpContextAccessor, HttpContextAccessor>()
                 .AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>()
@@ -146,26 +150,26 @@ namespace NotificationService.SvCommon.Common
 
             _ = services.AddHttpContextAccessor();
 
-            _ = services.AddAuthentication("Bearer").AddJwtBearer(options =>
+            _ = services.AddAuthentication(ApplicationConstants.BearerAuthenticationScheme).AddJwtBearer(options =>
             {
-                options.Authority = this.Configuration["Authority"];
-                options.ClaimsIssuer = this.Configuration["BearerTokenAuthentication:Issuer"];
+                options.Authority = this.Configuration[ConfigConstants.AuthorityConfigKey];
+                options.ClaimsIssuer = this.Configuration[ConfigConstants.BearerTokenIssuerConfigKey];
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                 {
                     ValidateIssuer = true,
-                    ValidAudiences = this.Configuration["BearerTokenAuthentication:ValidAudiences"].Split(Constants.SplitCharacter),
+                    ValidAudiences = this.Configuration[ConfigConstants.BearerTokenValidAudiencesConfigKey].Split(ApplicationConstants.SplitCharacter),
                 };
             });
 
             ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
             var envInitializer = new EnvironmentInitializer
             {
-                Service = this.Configuration[Constants.ServiceConfigName],
-                ServiceLine = this.Configuration[Constants.ServiceLineConfigName],
-                ServiceOffering = this.Configuration[Constants.ServiceOfferingConfigName],
-                ComponentId = this.Configuration[Constants.ComponentIdConfigName],
-                ComponentName = this.Configuration[Constants.ComponentNameConfigName],
-                EnvironmentName = this.Configuration[Constants.EnvironmentName],
+                Service = this.Configuration[AIConstants.ServiceConfigName],
+                ServiceLine = this.Configuration[AIConstants.ServiceLineConfigName],
+                ServiceOffering = this.Configuration[AIConstants.ServiceOfferingConfigName],
+                ComponentId = this.Configuration[AIConstants.ComponentIdConfigName],
+                ComponentName = this.Configuration[AIConstants.ComponentNameConfigName],
+                EnvironmentName = this.Configuration[AIConstants.EnvironmentName],
                 IctoId = "IctoId",
             };
             itm[0] = envInitializer;
@@ -173,12 +177,12 @@ namespace NotificationService.SvCommon.Common
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration
             {
                 IsTraceEnabled = true,
-                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), this.Configuration["ApplicationInsights:TraceLevel"]),
-                EnvironmentName = this.Configuration[Constants.EnvironmentName],
+                TraceLevel = (SeverityLevel)Enum.Parse(typeof(SeverityLevel), this.Configuration[ConfigConstants.AITraceLelelConfigKey]),
+                EnvironmentName = this.Configuration[AIConstants.EnvironmentName],
             };
 
             var tconfig = TelemetryConfiguration.CreateDefault();
-            tconfig.InstrumentationKey = this.Configuration["ApplicationInsights:InstrumentationKey"];
+            tconfig.InstrumentationKey = this.Configuration[ConfigConstants.AIInsrumentationConfigKey];
 
             DependencyTrackingTelemetryModule depModule = new DependencyTrackingTelemetryModule();
             depModule.Initialize(tconfig);

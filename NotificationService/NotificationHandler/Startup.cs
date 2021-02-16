@@ -15,6 +15,7 @@ namespace NotificationHandler
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Utilities;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
@@ -80,7 +81,7 @@ namespace NotificationHandler
                 .AddScoped<IEmailHandlerManager, EmailHandlerManager>(s =>
                     new EmailHandlerManager(
                         this.Configuration,
-                        Options.Create(this.Configuration.GetSection("MSGraphSetting").Get<MSGraphSetting>()),
+                        Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()),
                         s.GetService<ICloudStorageClient>(),
                         s.GetService<ILogger>(),
                         s.GetService<IEmailManager>()))
@@ -94,7 +95,6 @@ namespace NotificationHandler
                 .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
                 .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
                 .AddScoped<ITemplateMerge, TemplateMerge>()
-                .AddScoped<ITableStorageClient, TableStorageClient>()
                 .AddSingleton<IEmailAccountManager, EmailAccountManager>();
         }
     }

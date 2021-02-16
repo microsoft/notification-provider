@@ -11,7 +11,6 @@ namespace NotificationService.BusinessLibrary.Providers
     using System.Threading.Tasks;
     using DirectSend;
     using Microsoft.Extensions.Configuration;
-    using MimeKit;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Business;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -76,9 +75,10 @@ namespace NotificationService.BusinessLibrary.Providers
             this.configuration = configuration;
             this.mailService = mailService;
             this.logger = logger;
-            if (this.configuration?["MailSettings"] != null)
+            if (this.configuration?[ConfigConstants.MailSettingsConfigKey] != null)
             {
-                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);
+                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?[ConfigConstants
+                    .MailSettingsConfigKey]);
             }
 
             this.emailManager = emailManager;
@@ -108,17 +108,17 @@ namespace NotificationService.BusinessLibrary.Providers
                     message.FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = this.directSendSetting?.FromAddressDisplayName, Address = this.directSendSetting?.FromAddress } };
                     if (!sendForReal)
                     {
-                        message.ToAddresses = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        message.ToAddresses = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         message.CcAddresses = null;
                     }
                     else
                     {
-                        var toAddress = item.RequiredAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        var toAddress = item.RequiredAttendees.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         if (item.OptionalAttendees?.Length > 0)
                         {
-                            toAddress.AddRange(item.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)?
+                            toAddress.AddRange(item.OptionalAttendees.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)?
                                      .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList());
                         }
 
@@ -163,7 +163,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     DirectSend.Models.Mail.EmailMessage message = item.ToDirectSendEmailMessage(body, this.directSendSetting);
                     if (!sendForReal)
                     {
-                        message.ToAddresses = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        message.ToAddresses = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         message.CcAddresses = null;
                     }
@@ -266,14 +266,14 @@ namespace NotificationService.BusinessLibrary.Providers
                 str.AppendLine("CLASS:PRIVATE");
             }
 
-            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
             {
                 str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", to));
             }
 
             if (!string.IsNullOrEmpty(meetingNotificationItem.OptionalAttendees))
             {
-                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
                 {
                     str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", cc));
                 }

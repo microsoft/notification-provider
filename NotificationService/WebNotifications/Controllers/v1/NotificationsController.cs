@@ -16,15 +16,15 @@ namespace WebNotifications.Controllers.V1
     using NotificationService.SvCommon.APIConstants;
     using NotificationService.SvCommon.Attributes;
     using WebNotifications.Channels;
-    using Constants = NotificationService.Common.Constants;
+    using ApplicationConstants = NotificationService.Common.ApplicationConstants;
 
     /// <summary>
     /// The <see cref="NotificationsController"/> class provides API for web notifications management.
     /// </summary>
     /// <seealso cref="ControllerBase" />
     [Route("v1/notifications")]
-    [Authorize(Policy = Constants.AppNameAuthorizePolicy)]
-    [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class NotificationsController : ControllerBase
     {
