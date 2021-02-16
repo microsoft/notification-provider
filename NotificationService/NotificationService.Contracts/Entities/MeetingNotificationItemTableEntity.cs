@@ -64,11 +64,6 @@ namespace NotificationService.Contracts.Entities
         public string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the body.
-        /// </summary>
-        public string Body { get; set; }
-
-        /// <summary>
         /// Gets or sets the ReminderMinutesBeforeStart.
         /// </summary>
         public string ReminderMinutesBeforeStart { get; set; }
@@ -81,12 +76,12 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the Start.
         /// </summary>
-        public DateTime MeetingStart { get; set; }
+        public DateTime Start { get; set; }
 
         /// <summary>
         /// Gets or sets the End.
         /// </summary>
-        public DateTime MeetingEnd { get; set; }
+        public DateTime End { get; set; }
 
         /// <summary>
         /// Gets or sets the End date.
@@ -165,12 +160,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        public string TemplateName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Template Content Arguments.
-        /// </summary>
-        public string TemplateData { get; set; }
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the OccurrenceId.
@@ -222,5 +212,20 @@ namespace NotificationService.Contracts.Entities
         ///  Gets or sets attachment Reference to blob.
         /// </summary>
         public string AttachmentReference { get; set; }
+
+        /// <summary>
+        /// Gets or sets Mailbox Account used to deliver the email.
+        /// </summary>
+        public string EmailAccountUsed { get; set; }
+
+        /// <summary>
+        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event. 
+        /// </summary>
+        public string EventId { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Action.
+        /// </summary>
+        public string Action { get; set; }
     }
 }

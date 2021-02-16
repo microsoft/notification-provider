@@ -15,6 +15,7 @@ namespace NotificationsQueueProcessor
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.AzureAppConfiguration;
     using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using NotificationService.Common;
@@ -51,6 +52,25 @@ namespace NotificationsQueueProcessor
 
             var configuration = configBuilder.Build();
             MaxDequeueCount = configuration.GetSection("AzureFunctionsJobHost:extensions:queues:maxDequeueCount");
+
+            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration["KeyVaultUrl"])
+            {
+                ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
+            };
+            _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
+            configuration = configBuilder.Build();
+            _ = configBuilder.AddAzureAppConfiguration(options =>
+            {
+                var settings = options.Connect(configuration["AzureAppConfigConnectionstring"])
+                 .Select(KeyFilter.Any, "Common").Select(KeyFilter.Any, "QueueProcessor");
+                _ = settings.ConfigureRefresh(refreshOptions =>
+                {
+                    _ = refreshOptions.Register(key: configuration["AppConfig:ForceRefresh"], refreshAll: true, label: LabelFilter.Null);
+                });
+            });
+
+            configuration = configBuilder.Build();
+
             ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
             var envInitializer = new EnvironmentInitializer
             {
@@ -63,13 +83,6 @@ namespace NotificationsQueueProcessor
                 IctoId = "IctoId",
             };
             itm[0] = envInitializer;
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-               configuration["KeyVault:SecretUri"])
-            {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
-            };
-            _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
-            configuration = configBuilder.Build();
             LoggingConfiguration loggingConfiguration = new LoggingConfiguration
             {
                 IsTraceEnabled = true,

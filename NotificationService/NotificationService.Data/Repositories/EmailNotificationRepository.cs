@@ -16,6 +16,7 @@ namespace NotificationService.Data
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// Repository for Email Notifications.
@@ -71,7 +72,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
+        public async Task CreateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName = null)
         {
             if (emailNotificationItemEntities is null)
             {
@@ -83,7 +84,7 @@ namespace NotificationService.Data
             IList<EmailNotificationItemEntity> updatedEmailNotificationItemEntities = emailNotificationItemEntities;
             if (applicationName != null)
             {
-                updatedEmailNotificationItemEntities = this.mailAttachmentRepository.UploadAttachment(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).Result;
+                updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadEmail(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).ConfigureAwait(false);
             }
 
             List<Task> createTasks = new List<Task>();
@@ -95,7 +96,7 @@ namespace NotificationService.Data
             Task.WaitAll(createTasks.ToArray());
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
 
-            return Task.FromResult(true);
+            return;
         }
 
         /// <inheritdoc/>
@@ -145,7 +146,7 @@ namespace NotificationService.Data
             IList<EmailNotificationItemEntity> updatedNotificationEntities = emailNotificationItemEntities;
             if (applicationName != null)
             {
-                updatedNotificationEntities = this.mailAttachmentRepository.DownloadAttachment(emailNotificationItemEntities, applicationName).Result;
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(emailNotificationItemEntities, applicationName).ConfigureAwait(false);
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(EmailNotificationRepository)}.");
@@ -336,7 +337,7 @@ namespace NotificationService.Data
                 ReplyTo = n.ReplyTo,
                 Subject = n.Subject,
                 TemplateData = n.TemplateData,
-                TemplateName = n.TemplateName,
+                TemplateId = n.TemplateId,
                 TrackingId = n.TrackingId,
             };
             return selectExpression;
@@ -353,5 +354,8 @@ namespace NotificationService.Data
 
         /// <inheritdoc/>
         public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
     }
 }

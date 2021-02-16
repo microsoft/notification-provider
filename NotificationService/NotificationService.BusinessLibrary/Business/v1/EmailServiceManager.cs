@@ -96,10 +96,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out repo) ? repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.cloudStorageClient = cloudStorageClient;
             this.logger = logger;
-            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[Constants.NotificationProviderType], out provider) ? provider : throw new Exception());
+            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[Constants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
             if (this.configuration?["MailSettings"] != null)
             {
                 this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);
@@ -317,7 +317,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
 
             var notificationEntitiesToBeSkipped = new List<MeetingNotificationItemEntity>();
-            if (notificationEntities.Count == 0)
+            if (notificationEntities?.Count == 0)
             {
                 throw new ArgumentException("No records found for the input notification ids.", nameof(queueNotificationItem));
             }
@@ -328,7 +328,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 notificationEntities = notificationEntities.Where(x => x.Status != NotificationItemStatus.Sent).ToList();
             }
 
-            if (notificationEntities.Count == 0)
+            if (notificationEntities?.Count == 0)
             {
                 return notificationEntitiesToBeSkipped;
             }
@@ -419,10 +419,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
-                this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString()}", traceProps);
+                this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count}", traceProps);
                 IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
                 await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count.ToString()}", traceProps);
+                this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count}", traceProps);
             }
 
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
@@ -503,7 +503,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             if (retryItemsToBeQueued?.Count > 0)
             {
                 this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.Notificationsqueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);

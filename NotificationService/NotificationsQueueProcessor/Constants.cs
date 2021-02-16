@@ -24,29 +24,29 @@ namespace NotificationsQueueProcessor
         public const string MeetingNotificationType = "meetinginvite";
 
         /// <summary>
-        /// Authority Environment variable name.
+        /// Authority variable name.
         /// </summary>
-        public const string EnvVariableAuthority = "Authority";
+        public const string Authority = "Authority";
 
         /// <summary>
-        /// Client Id Environment variable name.
+        /// Client Id  variable name.
         /// </summary>
-        public const string EnvVariableClientId = "ClientId";
+        public const string ClientId = "ClientId";
 
         /// <summary>
-        /// Client Secret Environment variable name.
+        /// Client Secret variable name.
         /// </summary>
-        public const string EnvVariableClientSecret = "ClientSecret";
+        public const string ClientSecret = "ClientSecret";
 
         /// <summary>
-        /// Notification service endpoint Environment variable name.
+        /// Notification service endpoint variable name.
         /// </summary>
-        public const string EnvVariableNotificationServiceEndpoint = "NotificationServiceEndpoint";
+        public const string NotificationServiceEndpoint = "NotificationServiceEndpoint";
 
         /// <summary>
         /// TimeOut limit in seconds for HTTP request.
         /// </summary>
-        public const string EnvVariableHttpTimeOutInSec = "HttpTimeOutInSeconds";
+        public const string HttpTimeOutInSec = "HttpTimeOutInSeconds";
 
         /// <summary>
         /// StorageType.

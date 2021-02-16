@@ -35,7 +35,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 To = "user@contoso.com",
                 Subject = "TestEmailSubject",
                 TemplateData = "lt7T9B6LY0XcfudckC73CepDKv/i84fJUKO9QsJzBpI=",
-                TemplateName = "Test Template",
+                TemplateId = "Test Template",
                 Id = notificationId,
             };
             string mergedTemplate = "Testing Html template";
@@ -63,7 +63,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 To = "user@contoso.com",
                 Subject = "TestEmailSubject",
                 TemplateData = "lt7T9B6LY0XcfudckC73CepDKv/i84fJUKO9QsJzBpI=",
-                TemplateName = "Test Template",
+                TemplateId = "Test Template",
                 Id = notificationId,
             };
 

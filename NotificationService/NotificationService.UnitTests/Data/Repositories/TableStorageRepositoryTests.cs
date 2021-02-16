@@ -12,7 +12,9 @@ namespace NotificationService.UnitTests.Data.Repositories
     using Moq;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
+    using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
     using NotificationService.Data;
     using NotificationService.Data.Repositories;
     using NUnit.Framework;
@@ -48,6 +50,15 @@ namespace NotificationService.UnitTests.Data.Repositories
         private Mock<CloudTable> meetingHistoryTable;
 
         /// <summary>
+        /// DateRange object.
+        /// </summary>
+        private readonly DateTimeRange dateRange = new DateTimeRange
+        {
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddHours(2),
+        };
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageRepositoryTests"/> class.
         /// </summary>
         public TableStorageRepositoryTests()
@@ -68,11 +79,11 @@ namespace NotificationService.UnitTests.Data.Repositories
         {
             IEnumerable<MeetingNotificationItemTableEntity> entities = new List<MeetingNotificationItemTableEntity> { new MeetingNotificationItemTableEntity { NotificationId = "notificationId1" }, new MeetingNotificationItemTableEntity { NotificationId = "notificationId2" } };
             IList<MeetingNotificationItemEntity> itemEntities = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = "notificationId1" }, new MeetingNotificationItemEntity { NotificationId = "notificationId1" } };
-            _ = this.mailAttachmentRepository.Setup(x => x.DownloadMeetingAttachment(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>())).Returns(Task.FromResult(itemEntities));
+            _ = this.mailAttachmentRepository.Setup(x => x.DownloadMeetingInvite(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>())).Returns(Task.FromResult(itemEntities));
             _ = this.meetingHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<MeetingNotificationItemTableEntity>>(), null, null)).Returns(entities);
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
-            var items = await repo.GetMeetingNotificationItemEntities(new List<string> { "notificationId1", "notificationId2" }, applicationName);
+            var items = await repo.GetMeetingNotificationItemEntities(new List<string> { "notificationId1", "notificationId2" }, this.applicationName);
             Assert.IsTrue(items.Count == 2);
         }
 
@@ -99,12 +110,12 @@ namespace NotificationService.UnitTests.Data.Repositories
         public async Task CreateMeetingNotificationItemEntitiesTests()
         {
             IList<MeetingNotificationItemEntity> entities = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = "notificationId1", Application = "Application", RowKey = "notificationId1" }, new MeetingNotificationItemEntity { NotificationId = "notificationId2", Application = "Application", RowKey = "notificationId2" } };
-            _ = this.mailAttachmentRepository.Setup(e => e.UploadMeetingAttachments(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(entities));
+            _ = this.mailAttachmentRepository.Setup(e => e.UploadMeetingInvite(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(entities));
             this.meetingHistoryTable.Setup(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>(), null, null)).Verifiable();
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.CreateMeetingNotificationItemEntities(entities, this.applicationName);
-            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>()), Times.Once);
+            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.Is<TableBatchOperation>(x => x.Any(y => y.OperationType == TableOperationType.Insert))), Times.Once);
         }
 
         /// <summary>
@@ -121,7 +132,48 @@ namespace NotificationService.UnitTests.Data.Repositories
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.UpdateMeetingNotificationItemEntities(entities);
-            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>()), Times.Once);
+            this.meetingHistoryTable.Verify(x => x.ExecuteBatchAsync(It.Is<TableBatchOperation>(x => x.Any(y => y.OperationType == TableOperationType.Merge))), Times.Once);
+        }
+
+        /// <summary>
+        /// Tests for GetEmailNotificationsByDateRangeTest method for valid inputs.
+        /// </summary>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous unit test.</placeholder></returns>
+        [Test]
+        public async Task GetEmailNotificationItemEntitiesBetweenDatesTests()
+        {
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed};
+            var emailNotificationItemEntity = new EmailNotificationItemTableEntity()
+            {
+                Application = this.applicationName,
+                NotificationId = Guid.NewGuid().ToString(),
+            };
+            var notificationList = new List<EmailNotificationItemTableEntity>() { emailNotificationItemEntity };
+            var emailHistoryTable = new Mock<CloudTable>(new Uri("http://unittests.localhost.com/FakeTable"), (TableClientConfiguration)null);
+            _ = this.cloudStorageClient.Setup(x => x.GetCloudTable("EmailHistory")).Returns(emailHistoryTable.Object);
+            _ = emailHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<EmailNotificationItemTableEntity>>(), It.IsAny<TableRequestOptions>(), It.IsAny<OperationContext>())).Returns(notificationList);
+            IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate" });
+            var classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // dateRange is Null.
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(null, this.applicationName, statusList));
+
+            // applicationname is Null
+            var result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, null, statusList);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
+
+            // NotificationStatusList is null
+            result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, this.applicationName, null);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.FirstOrDefault().NotificationId, emailNotificationItemEntity.NotificationId);
+
+            // Fetched records are null
+            notificationList = null;
+            _ = emailHistoryTable.Setup(x => x.ExecuteQuery(It.IsAny<TableQuery<EmailNotificationItemTableEntity>>(), It.IsAny<TableRequestOptions>(), It.IsAny<OperationContext>())).Returns(notificationList);
+            classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+            result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, this.applicationName, null);
+            Assert.IsNull(result);
         }
     }
 }

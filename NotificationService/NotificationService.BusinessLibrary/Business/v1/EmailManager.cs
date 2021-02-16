@@ -46,11 +46,6 @@ namespace NotificationService.BusinessLibrary
         private readonly ILogger logger;
 
         /// <summary>
-        /// Instance of <see cref="IEncryptionService"/>.
-        /// </summary>
-        private readonly IEncryptionService encryptionService;
-
-        /// <summary>
         /// Enum to specify type of database.
         /// </summary>
         private readonly StorageType repo;
@@ -71,22 +66,19 @@ namespace NotificationService.BusinessLibrary
         /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
         /// <param name="repositoryFactory">An instance of <see cref="IRepositoryFactory"/>.</param>
         /// <param name="logger">Instance of Logger.</param>
-        /// <param name="encryptionService">Instance of Encryption Service.</param>
         /// <param name="templateManager">Instance of templateManager.</param>
         /// <param name="templateMerge">Instance of templateMerge.</param>
         public EmailManager(
             IConfiguration configuration,
             IRepositoryFactory repositoryFactory,
             ILogger logger,
-            IEncryptionService encryptionService,
             IMailTemplateManager templateManager,
             ITemplateMerge templateMerge)
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out repo) ? repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.logger = logger;
-            this.encryptionService = encryptionService;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
         }
@@ -127,7 +119,7 @@ namespace NotificationService.BusinessLibrary
 
             foreach (var item in emailNotificationItems)
             {
-                var notificationEntity = item.ToEntity(applicationName, this.encryptionService);
+                var notificationEntity = item.ToEntity(applicationName);
                 notificationEntity.NotificationId = !string.IsNullOrWhiteSpace(item.NotificationId) ? item.NotificationId : Guid.NewGuid().ToString();
                 notificationEntity.Id = Guid.NewGuid().ToString();
                 notificationEntity.CreatedDateTime = DateTime.UtcNow;
@@ -194,26 +186,26 @@ namespace NotificationService.BusinessLibrary
                     throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
                 }
 
-                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
                     if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
 
-                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
                         throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
                     }
 
-                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, this.encryptionService.Decrypt(notification.TemplateData));
+                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, notification.TemplateData);
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(notification.Body))
                     {
-                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                        notificationBody = notification.Body;
                     }
                 }
             }
@@ -260,26 +252,26 @@ namespace NotificationService.BusinessLibrary
                     throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
                 }
 
-                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
                     if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
 
-                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
                         throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
                     }
 
-                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, this.encryptionService.Decrypt(notification.TemplateData));
+                    notificationBody = this.templateMerge.CreateMailBodyUsingTemplate(template.TemplateType, template.Content, notification.TemplateData);
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(notification.Body))
                     {
-                        notificationBody = this.encryptionService.Decrypt(notification.Body);
+                        notificationBody = notification.Body;
                     }
                 }
             }
@@ -310,7 +302,7 @@ namespace NotificationService.BusinessLibrary
 
             foreach (var item in meetingNotificationItems)
             {
-                var notificationEntity = item.ToEntity(applicationName, this.encryptionService);
+                var notificationEntity = item.ToEntity(applicationName);
                 notificationEntity.NotificationId = !string.IsNullOrWhiteSpace(item.NotificationId) ? item.NotificationId : Guid.NewGuid().ToString();
                 notificationEntity.Id = Guid.NewGuid().ToString();
                 notificationEntity.CreatedDateTime = DateTime.UtcNow;
@@ -322,6 +314,12 @@ namespace NotificationService.BusinessLibrary
             await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList)
+        {
+            return await this.emailNotificationRepository.GetPendingOrFailedEmailNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
         }
     }
 }

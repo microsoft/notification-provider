@@ -72,8 +72,7 @@ namespace NotificationService.BusinessLibrary
         /// <returns>AuthenticationHeaderValue.</returns>
         public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderValueForSelectedAccount(AccountCredential selectedAccountCredential)
         {
-            AuthenticationHeaderValue authenticationHeaderValue = null;
-            authenticationHeaderValue = await this.GetAuthenticationHeaderFromToken(await this.GetAccessTokenForSelectedAccount(selectedAccountCredential).ConfigureAwait(false)).ConfigureAwait(false);
+            AuthenticationHeaderValue authenticationHeaderValue = await this.GetAuthenticationHeaderFromToken(await this.GetAccessTokenForSelectedAccount(selectedAccountCredential).ConfigureAwait(false)).ConfigureAwait(false);
             return authenticationHeaderValue;
         }
 
@@ -96,7 +95,7 @@ namespace NotificationService.BusinessLibrary
             var token = string.Empty;
             using (HttpClient client = new HttpClient())
             {
-                var tokenEndpoint = $"{authority}/oauth2/token";
+                var tokenEndpoint = $"{authority}";
                 var accept = Constants.JsonMIMEType;
 
                 client.DefaultRequestHeaders.Add("Accept", accept);

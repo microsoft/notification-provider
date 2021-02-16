@@ -65,5 +65,10 @@ namespace NotificationService.Common
         /// Gets or sets the number of requests that can be accomodated in single batch request.
         /// </summary>
         public int BatchRequestLimit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Graph url to send meeting invite.
+        /// </summary>
+        public string SendInviteUrl { get; set; }
     }
 }

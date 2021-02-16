@@ -105,11 +105,11 @@ namespace NotificationsQueueProcessor
                     var notifType = queueNotificationItem.NotificationType == NotificationType.Mail ? Constants.EmailNotificationType : Constants.MeetingNotificationType;
 
                     var stringContent = new StringContent(JsonConvert.SerializeObject(queueNotificationItem), Encoding.UTF8, Constants.JsonMIMEType);
-                    string notificationServiceEndpoint = $"{Environment.GetEnvironmentVariable(Constants.EnvVariableNotificationServiceEndpoint)}";
+                    string notificationServiceEndpoint = this.configuration?[Constants.NotificationServiceEndpoint];
                     this.logger.TraceVerbose($"ProcessNotificationQueueItem fetching token to call notification service endpoint...", traceProps);
 
                     this.logger.TraceInformation($"ProcessNotificationQueueItem calling notification service endpoint...", traceProps);
-                    var response = await this.httpClientHelper.PostAsync($"{notificationServiceEndpoint}v1/{notifType}/process/{queueNotificationItem.Application}", stringContent);
+                    var response = await this.httpClientHelper.PostAsync($"{notificationServiceEndpoint}/v1/{notifType}/process/{queueNotificationItem.Application}", stringContent);
                     this.logger.TraceInformation($"ProcessNotificationQueueItem received response from notification service endpoint.", traceProps);
                     if (!response.IsSuccessStatusCode)
                     {
@@ -182,13 +182,6 @@ namespace NotificationsQueueProcessor
             }
 
             this.logger.TraceInformation($"UpdateStatusOfNotificationItemsAsync finished.");
-        }
-
-        private async Task<string> HttpAuthenticationAsync(string authority, string clientId)
-        {
-            var authContext = new AuthenticationContext(authority);
-            var authResult = await authContext.AcquireTokenAsync(clientId, new ClientCredential(clientId, Environment.GetEnvironmentVariable(Constants.EnvVariableClientSecret)));
-            return authResult.AccessToken;
         }
     }
 }

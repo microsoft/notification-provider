@@ -97,11 +97,14 @@ namespace NotificationService
                 DisplayName = this.Configuration["DirectSendSetting:DisplayName"],
             });
 
-            _ = services.AddSingleton<ISmtpConfiguration>(new SmtpConfiguration()
+            if (int.TryParse(this.Configuration["DirectSendSetting:SmtpPort"], out int port))
             {
-                SmtpPort = int.Parse(this.Configuration["DirectSendSetting:SmtpPort"]),
-                SmtpServer = this.Configuration["DirectSendSetting:SmtpServer"]
-            });
+                _ = services.AddSingleton<ISmtpConfiguration>(new SmtpConfiguration()
+                {
+                    SmtpPort = port,
+                    SmtpServer = this.Configuration["DirectSendSetting:SmtpServer"]
+                });
+        }
 
             _ = services.AddSingleton<ISmtpClientFactory, DSSmtpClientFactory>()
                 .AddSingleton<ISmtpClientPool, SmtpClientPool>()
@@ -113,7 +116,6 @@ namespace NotificationService
                         this.Configuration,
                         s.GetService<IRepositoryFactory>(),
                         s.GetService<ILogger>(),
-                        s.GetService<NotificationService.Common.Encryption.IEncryptionService>(),
                         s.GetService<IMailTemplateManager>(),
                         s.GetService<ITemplateMerge>()))
                 .AddScoped<IEmailServiceManager, EmailServiceManager>(s =>
