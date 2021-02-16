@@ -15,6 +15,7 @@ namespace NotificationService.BusinessLibrary
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
 
@@ -186,11 +187,11 @@ namespace NotificationService.BusinessLibrary
 
                 if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
-                    if (string.IsNullOrEmpty(notification.TemplateData))
+                    /*if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
-
+                    */
                     MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
@@ -252,11 +253,11 @@ namespace NotificationService.BusinessLibrary
 
                 if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
-                    if (string.IsNullOrEmpty(notification.TemplateData))
+                    /*if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
-
+                    */
                     MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {

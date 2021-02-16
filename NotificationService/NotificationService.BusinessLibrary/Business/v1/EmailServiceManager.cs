@@ -506,7 +506,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             if (retryItemsToBeQueued?.Count > 0)
             {
                 this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(ApplicationConstants.NotificationsQueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);

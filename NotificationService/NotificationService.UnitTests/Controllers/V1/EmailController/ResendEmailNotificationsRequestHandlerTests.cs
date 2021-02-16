@@ -13,14 +13,16 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using Microsoft.Extensions.Options;
     using Microsoft.Rest.Azure;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationHandler.Controllers;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
     using NUnit.Framework;
 
@@ -66,6 +68,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             var config = new Dictionary<string, string>()
             {
                 { ApplicationConstants.AllowedMaxResendDurationInDays, "1"},
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = ApplicationConstants.NotificationsQueue, }) },
             };
 
             this.configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();

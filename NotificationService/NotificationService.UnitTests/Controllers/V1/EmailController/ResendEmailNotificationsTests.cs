@@ -14,7 +14,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NUnit.Framework;
 
     /// <summary>
@@ -138,7 +138,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public void ResendEmailNotificationsByDateRangeTest_InvalidInput()
         {
             EmailController emailController = new EmailController(this.emailHandlerManager.Object, this.mailTemplateManager.Object, this.logger);
-            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await emailController.ResendEmailNotificationsByDateRange(null, null));
+            _ = Assert.ThrowsAsync<ArgumentException>(async () => await emailController.ResendEmailNotificationsByDateRange(null, null));
             _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await emailController.ResendEmailNotificationsByDateRange(this.applicationName, null));
         }
     }

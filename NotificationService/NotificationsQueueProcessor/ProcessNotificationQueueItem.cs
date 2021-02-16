@@ -73,7 +73,7 @@ namespace NotificationsQueueProcessor
         /// <param name="inputQueueItem">Serialized queue item.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         [FunctionName("ProcessNotificationQueueItem")]
-        public async Task Run([QueueTrigger("notifications-queue", Connection = "AzureWebJobsStorage")] CloudQueueMessage inputQueueItem)
+        public async Task Run([QueueTrigger("%NotificationQueueName%", Connection = "AzureWebJobsStorage")] CloudQueueMessage inputQueueItem)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();

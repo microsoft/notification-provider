@@ -20,6 +20,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
 
     /// <summary>
@@ -55,7 +56,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         /// <summary>
         /// StorageAccountSetting configuration object.
         /// </summary>
-        private readonly StorageAccountSetting storageAccountSettings;
+        private readonly StorageAccountSetting storageAccountSetings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailHandlerManager"/> class.
@@ -79,7 +80,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.emailManager = emailManager;
             if (this.configuration?[ConfigConstants.StorageAccountConfigSectionKey] != null)
             {
-                this.storageAccountSettings = JsonConvert.DeserializeObject<StorageAccountSetting>(this.configuration?[ConfigConstants.StorageAccountConfigSectionKey]);
+                this.storageAccountSetings = JsonConvert.DeserializeObject<StorageAccountSetting>(this.configuration?[ConfigConstants.StorageAccountConfigSectionKey]);
             }
         }
 
@@ -122,7 +123,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSettings.NotificationQueueName);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
 
                 foreach (var item in entitiesToQueue)
                 {
@@ -194,7 +195,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(ApplicationConstants.NotificationsQueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
 
                 foreach (var item in entitiesToQueue)
                 {
@@ -245,7 +246,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
 
             // Queue a single cloud message for all entities created to enable parallel processing.
-            var cloudQueue = this.cloudStorageClient.GetCloudQueue(ApplicationConstants.NotificationsQueue);
+            var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
             IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, ignoreAlreadySent);
             await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
 

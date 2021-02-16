@@ -14,7 +14,7 @@ namespace NotificationHandler.Controllers
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>

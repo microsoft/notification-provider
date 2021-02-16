@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.Contracts.Models
+namespace NotificationService.Contracts.Models.Request
 {
     using System;
     using System.ComponentModel.DataAnnotations;

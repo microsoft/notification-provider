@@ -9,9 +9,11 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -38,7 +40,13 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
         /// </summary>
         public EmailHandlerManagerTests()
         {
-            this.Configuration = new Mock<IConfiguration>();
+            var config = new Dictionary<string, string>()
+            {
+                { ApplicationConstants.AllowedMaxResendDurationInDays, "1"},
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = ApplicationConstants.NotificationsQueue, }) },
+            };
+
+            this.Configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();
             this.Logger = new Mock<ILogger>().Object;
             this.msGraphSettings = Options.Create<MSGraphSetting>(new MSGraphSetting { Authority = "aa" });
             this.mockedCloudStorageClient = new Mock<ICloudStorageClient>();
@@ -53,7 +61,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
         /// <summary>
         /// Gets or sets Configuration.
         /// </summary>
-        public Mock<IConfiguration> Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Queues the meeting notifications tests.
@@ -65,7 +73,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
             var items = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { Application = "TestApp", RequiredAttendees = "user@contoso.com" } };
             _ = this.mockedEmailManager.Setup(x => x.CreateMeetingNotificationEntities("TestApp", It.IsAny<MeetingNotificationItem[]>(), NotificationService.Contracts.NotificationItemStatus.Queued)).ReturnsAsync(items);
             _ = this.mockedEmailManager.Setup(x => x.NotificationEntitiesToResponse(new List<NotificationResponse>(), It.Is<List<MeetingNotificationItemEntity>>(y => y.Any(c => c.Application == "TestApp")))).Returns(new List<NotificationResponse> { new NotificationResponse { NotificationId = "notificationId1" } });
-            var emailHandler = new EmailHandlerManager(this.Configuration.Object, this.msGraphSettings, this.mockedCloudStorageClient.Object, this.Logger, this.mockedEmailManager.Object);
+            var emailHandler = new EmailHandlerManager(this.Configuration, this.msGraphSettings, this.mockedCloudStorageClient.Object, this.Logger, this.mockedEmailManager.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem> { new MeetingNotificationItem { RequiredAttendees = "user@contoso.com" } };
             var response = await emailHandler.QueueMeetingNotifications("TestApp", meetingNotificationItems.ToArray());
             Assert.IsNotNull(response);

@@ -259,7 +259,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Setup(ema => ema.FetchAccountToBeUsedForApplication(It.IsAny<string>(), It.IsAny<List<ApplicationAccounts>>()))
                 .Returns(applicationAccounts[0].Accounts[0]);
 
-            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
 
             _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))

@@ -13,7 +13,7 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Repository for TableStorage.

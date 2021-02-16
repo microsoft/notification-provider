@@ -16,7 +16,7 @@ namespace NotificationService.Data
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Repository for Email Notifications.

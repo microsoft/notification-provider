@@ -61,11 +61,6 @@ namespace NotificationService.BusinessLibrary.Providers
         private readonly List<MailSettings> mailSettings;
 
         /// <summary>
-        /// Polly Retry Setting.
-        /// </summary>
-        private readonly RetrySetting pollyRetrySetting;
-
-        /// <summary>
         /// Instance of <see cref="ITokenHelper"/>.
         /// </summary>
         private readonly ITokenHelper tokenHelper;

@@ -129,7 +129,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
                 .ReturnsAsync(new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, "Test"));
 
-            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
+            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
 
             _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))
@@ -247,7 +247,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
                 .ReturnsAsync(new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, "Test"));
 
-            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(retrySetting), this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
+            this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
 
             _ = this.NotificationProviderFactory
                 .Setup(provider => provider.GetNotificationProvider(NotificationProviderType.Graph))

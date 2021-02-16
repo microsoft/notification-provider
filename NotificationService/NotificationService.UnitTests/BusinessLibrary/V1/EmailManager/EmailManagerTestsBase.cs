@@ -220,6 +220,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                     SaveToSent = true,
                 },
             };
+
+            var storageAccountSettings = new StorageAccountSetting()
+            {
+                NotificationQueueName = ApplicationConstants.NotificationsQueue,
+            };
+
             Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
             {
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
@@ -227,6 +233,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 { "RetrySetting:TransientRetryCount", "3" },
                 { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(storageAccountSettings) },
                 { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
@@ -298,7 +305,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 this.EmailAccountManager.Object,
                 this.Logger,
                 this.MsGraphSetting,
-                Options.Create(retrySetting),
                 this.TokenHelper.Object,
                 this.MsGraphProvider.Object,
                 this.EmailManager);
