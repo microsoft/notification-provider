@@ -32,9 +32,9 @@ namespace NotificationService.Contracts.Extensions
                 return new MailTemplateEntity()
                 {
                     PartitionKey = applicationName,
-                    RowKey = mailTempalteItem.TemplateName,
+                    RowKey = mailTempalteItem.TemplateId,
                     Application = applicationName,
-                    TemplateName = mailTempalteItem.TemplateName,
+                    TemplateId = mailTempalteItem.TemplateId,
                     Description = mailTempalteItem.Description,
                     TemplateType = mailTempalteItem.TemplateType,
                     Content = encryptionService.Encrypt(mailTempalteItem.Content),
@@ -61,7 +61,7 @@ namespace NotificationService.Contracts.Extensions
             {
                 return new MailTemplate
                 {
-                    TemplateName = mailTemplateEntity.TemplateName,
+                    TemplateId = mailTemplateEntity.TemplateId,
                     Description = mailTemplateEntity.Description,
                     TemplateType = mailTemplateEntity.TemplateType,
                     Content = encryptionService.Decrypt(mailTemplateEntity.Content),
@@ -82,7 +82,7 @@ namespace NotificationService.Contracts.Extensions
             {
                 return new MailTemplateInfo
                 {
-                    TemplateName = mailTemplateEntity.TemplateName,
+                    TemplateName = mailTemplateEntity.TemplateId,
                     Description = mailTemplateEntity.Description,
                     TemplateType = mailTemplateEntity.TemplateType,
                 };

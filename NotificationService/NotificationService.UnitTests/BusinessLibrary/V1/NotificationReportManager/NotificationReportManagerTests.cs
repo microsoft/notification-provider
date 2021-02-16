@@ -129,14 +129,14 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             IList<MailTemplateEntity> mailTemplateEntities = new List<MailTemplateEntity>();
             mailTemplateEntities.Add(new MailTemplateEntity()
             {
-                TemplateName = "TestTemplate",
+                TemplateId = "TestTemplate",
                 Description = "Test template",
                 Content = "Testing the template",
                 TemplateType = "Text",
                 Application = "TestApp",
             });
             List<MailTemplate> results = new List<MailTemplate>();
-            results.Add(new MailTemplate() { TemplateName = "TestTemplate" });
+            results.Add(new MailTemplate() { TemplateId = "TestTemplate" });
 
             string applicationName = "TestApp";
 
@@ -148,7 +148,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
             var managerResult = this.NotificationReportManager.GetAllTemplateEntities(applicationName);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
-            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateName), results.Select(x => x.TemplateName));
+            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateName), results.Select(x => x.TemplateId));
 
             this.MailTemplateRepository.Verify(repo => repo.GetAllTemplateEntities(applicationName));
         }
