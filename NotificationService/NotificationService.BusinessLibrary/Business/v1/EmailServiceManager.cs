@@ -27,11 +27,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
     public class EmailServiceManager : IEmailServiceManager
     {
         /// <summary>
-        /// Instance of <see cref="IRepositoryFactory"/>.
-        /// </summary>
-        private readonly IRepositoryFactory repositoryFactory;
-
-        /// <summary>
         /// Instance of Application Configuration.
         /// </summary>
         private readonly IConfiguration configuration;
@@ -98,7 +93,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
             INotificationProviderFactory notificationProviderFactory,
             IEmailManager emailManager)
         {
-            this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
             this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ApplicationConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.cloudStorageClient = cloudStorageClient;

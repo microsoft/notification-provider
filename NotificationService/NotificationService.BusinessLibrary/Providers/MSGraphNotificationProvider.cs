@@ -87,7 +87,6 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <param name="emailAccountManager">Instance of <see cref="IEmailAccountManager"/>.</param>
         /// <param name="logger">Instance of <see cref="ILogger"/>.</param>
         /// <param name="mSGraphSetting">Instance of <see cref="IEmailManager"/>.</param>
-        /// <param name="pollyRetrySetting">Instance of <see cref="RetrySetting"/>.</param>
         /// <param name="tokenHelper">Instance of <see cref="ITokenHelper"/>.</param>
         /// <param name="msGraphProvider">Instance of <see cref="IMSGraphProvider"/>.</param>
         /// <param name="emailManager">Instance of <see cref="IEmailManager"/>..</param>
@@ -96,7 +95,6 @@ namespace NotificationService.BusinessLibrary.Providers
              IEmailAccountManager emailAccountManager,
              ILogger logger,
              IOptions<MSGraphSetting> mSGraphSetting,
-             IOptions<RetrySetting> pollyRetrySetting,
              ITokenHelper tokenHelper,
              IMSGraphProvider msGraphProvider,
              IEmailManager emailManager)
@@ -112,7 +110,6 @@ namespace NotificationService.BusinessLibrary.Providers
             }
 
             this.mSGraphSetting = mSGraphSetting?.Value;
-            this.pollyRetrySetting = pollyRetrySetting?.Value;
             this.tokenHelper = tokenHelper;
             this.msGraphProvider = msGraphProvider;
             this.emailManager = emailManager;

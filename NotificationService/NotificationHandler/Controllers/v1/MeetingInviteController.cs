@@ -30,7 +30,6 @@ namespace NotificationHandler.Controllers
         /// Instance of <see cref="IEmailHandlerManager"/>.
         /// </summary>
         private readonly IEmailHandlerManager emailHandlerManager;
-        private readonly IMailTemplateManager templateManager;
 
         /// <summary>
         /// Instance of <see cref="ILogger"/>.
@@ -44,10 +43,9 @@ namespace NotificationHandler.Controllers
         /// <param name="templateManager">An instance of <see cref="MailTemplateManager"/>.</param>
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
-        public MeetingInviteController(IEmailHandlerManager emailHandlerManager, IMailTemplateManager templateManager, ILogger logger)
+        public MeetingInviteController(IEmailHandlerManager emailHandlerManager, ILogger logger)
         {
             this.emailHandlerManager = emailHandlerManager ?? throw new System.ArgumentNullException(nameof(emailHandlerManager));
-            this.templateManager = templateManager ?? throw new ArgumentNullException(nameof(templateManager));
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 

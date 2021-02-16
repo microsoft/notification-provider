@@ -112,7 +112,7 @@ namespace DirectSend
             {
                 this.logger.TraceInformation("Initializing email client.", traceProps);
                 this.smtpClient.Connect(this.config.SmtpServer, this.config.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                this.smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
+                _ = this.smtpClient.AuthenticationMechanisms.Remove("XOAUTH2");
 
                 this.logger.WriteMetric("SmtpClientPool_SmtpConnectionOpen", 1, traceProps);
             }

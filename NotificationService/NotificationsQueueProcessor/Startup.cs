@@ -54,7 +54,7 @@ namespace NotificationsQueueProcessor
             var configuration = configBuilder.Build();
             MaxDequeueCount = configuration.GetSection(ConfigConstants.MaxDequeueCountConfigKey);
 
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration["KeyVaultUrl"])
+            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration[ConfigConstants.KeyVaultUrlConfigKey])
             {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
             };

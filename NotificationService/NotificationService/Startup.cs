@@ -135,8 +135,7 @@ namespace NotificationService
                 .AddScoped<DirectSendNotificationProvider>(s => new DirectSendNotificationProvider(this.Configuration, s.GetService<IEmailService>(), s.GetService<ILogger>(), s.GetService<IEmailManager>()))
                 .AddScoped<INotificationProvider, DirectSendNotificationProvider>()
                 .AddScoped<MSGraphNotificationProvider>(s => new MSGraphNotificationProvider(this.Configuration, s.GetService<IEmailAccountManager>(), s.GetService<ILogger>(),
-                Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()), Options.Create(this.Configuration.GetSection("PollyRetrySetting").Get<RetrySetting>()),
-                s.GetService<ITokenHelper>(), s.GetService<IMSGraphProvider>(), s.GetService<IEmailManager>()))
+                Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()), s.GetService<ITokenHelper>(), s.GetService<IMSGraphProvider>(), s.GetService<IEmailManager>()))
                 .AddScoped<INotificationProvider, MSGraphNotificationProvider>();
 
 

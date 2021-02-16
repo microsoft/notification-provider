@@ -55,7 +55,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         /// <summary>
         /// StorageAccountSetting configuration object.
         /// </summary>
-        private readonly StorageAccountSetting storageAccountSetings;
+        private readonly StorageAccountSetting storageAccountSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailHandlerManager"/> class.
@@ -79,7 +79,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.emailManager = emailManager;
             if (this.configuration?[ConfigConstants.StorageAccountConfigSectionKey] != null)
             {
-                this.storageAccountSetings = JsonConvert.DeserializeObject<StorageAccountSetting>(this.configuration?[ConfigConstants.StorageAccountConfigSectionKey]);
+                this.storageAccountSettings = JsonConvert.DeserializeObject<StorageAccountSetting>(this.configuration?[ConfigConstants.StorageAccountConfigSectionKey]);
             }
         }
 
@@ -122,7 +122,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSettings.NotificationQueueName);
 
                 foreach (var item in entitiesToQueue)
                 {
