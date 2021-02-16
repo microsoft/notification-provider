@@ -13,7 +13,8 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using Org.BouncyCastle.Security;
+    using NotificationService.Contracts.Models;
+
 
     /// <summary>
     /// Repository for TableStorage.
@@ -311,6 +312,57 @@ namespace NotificationService.Data.Repositories
             return Task.FromResult(true);
         }
 
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
+        {
+            if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
+            }
+
+            string filterExpression = TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, dateRange.StartDate)
+                    + " and "
+                    + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThan, dateRange.EndDate);
+
+            if (!string.IsNullOrEmpty(applicationName))
+            {
+                filterExpression = filterExpression
+                    + " and "
+                    + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, applicationName);
+            }
+
+            if (statusList != null && statusList.Count > 0)
+            {
+                string statusFilterExpression = null;
+                foreach (var status in statusList)
+                {
+                    string filter = TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status.ToString());
+                    statusFilterExpression = statusFilterExpression == null ? filter : " or " + filter;
+                }
+
+                filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedEmailNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.");
+            List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
+            var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
+            emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            if (emailNotificationItemEntities == null || emailNotificationItemEntities.Count == 0)
+            {
+                return null;
+            }
+
+            IList<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => this.ConvertToEmailNotificationItemEntity(e)).ToList();
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
+            if (!string.IsNullOrEmpty(applicationName) && loadBody)
+            {
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(notificationEntities, applicationName).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetPendingOrFailedEmailNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.");
+            return updatedNotificationEntities;
+        }
+
         private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
         {
             var filterSet = new HashSet<string>();
@@ -415,7 +467,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.Sensitivity = emailNotificationItemEntity.Sensitivity;
             emailNotificationItemTableEntity.Status = emailNotificationItemEntity.Status.ToString();
             emailNotificationItemTableEntity.Subject = emailNotificationItemEntity.Subject;
-            emailNotificationItemTableEntity.TemplateName = emailNotificationItemEntity.TemplateName;
+            emailNotificationItemTableEntity.TemplateId = emailNotificationItemEntity.TemplateId;
             emailNotificationItemTableEntity.Timestamp = emailNotificationItemEntity.Timestamp;
             emailNotificationItemTableEntity.To = emailNotificationItemEntity.To;
             emailNotificationItemTableEntity.TrackingId = emailNotificationItemEntity.TrackingId;
@@ -459,9 +511,9 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemTableEntity.Ocurrences = meetingNotificationItemEntity.Ocurrences ?? default;
             meetingNotificationItemTableEntity.RecurrencePattern = meetingNotificationItemEntity.RecurrencePattern.ToString();
             meetingNotificationItemTableEntity.ReminderMinutesBeforeStart = meetingNotificationItemEntity.ReminderMinutesBeforeStart;
-            meetingNotificationItemTableEntity.TemplateName = meetingNotificationItemEntity.TemplateName;
-            meetingNotificationItemTableEntity.MeetingEnd = meetingNotificationItemEntity.End;
-            meetingNotificationItemTableEntity.MeetingStart = meetingNotificationItemEntity.Start;
+            meetingNotificationItemTableEntity.TemplateId = meetingNotificationItemEntity.TemplateId;
+            meetingNotificationItemTableEntity.End = meetingNotificationItemEntity.End;
+            meetingNotificationItemTableEntity.Start = meetingNotificationItemEntity.Start;
             meetingNotificationItemTableEntity.SequenceNumber = meetingNotificationItemEntity.SequenceNumber ?? default;
             meetingNotificationItemTableEntity.SendOnUtcDate = meetingNotificationItemEntity.SendOnUtcDate;
             meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
@@ -509,9 +561,9 @@ namespace NotificationService.Data.Repositories
             meetingNotificationItemEntity.Ocurrences = meetingNotificationItemTableEntity.Ocurrences;
             meetingNotificationItemEntity.RecurrencePattern = meetingNotificationItemTableEntity.RecurrencePattern == null ? MeetingRecurrencePattern.None : (MeetingRecurrencePattern)Enum.Parse(typeof(MeetingRecurrencePattern), meetingNotificationItemTableEntity.RecurrencePattern);
             meetingNotificationItemEntity.ReminderMinutesBeforeStart = meetingNotificationItemTableEntity.ReminderMinutesBeforeStart;
-            meetingNotificationItemEntity.TemplateName = meetingNotificationItemTableEntity.TemplateName;
-            meetingNotificationItemEntity.End = meetingNotificationItemTableEntity.MeetingEnd;
-            meetingNotificationItemEntity.Start = meetingNotificationItemTableEntity.MeetingStart;
+            meetingNotificationItemEntity.TemplateId = meetingNotificationItemTableEntity.TemplateId;
+            meetingNotificationItemEntity.End = meetingNotificationItemTableEntity.End;
+            meetingNotificationItemEntity.Start = meetingNotificationItemTableEntity.Start;
             meetingNotificationItemEntity.EndDate = meetingNotificationItemTableEntity.EndDate;
             meetingNotificationItemEntity.SequenceNumber = meetingNotificationItemTableEntity.SequenceNumber;
             meetingNotificationItemEntity.SendOnUtcDate = meetingNotificationItemTableEntity.SendOnUtcDate;
@@ -550,7 +602,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.ReplyTo = emailNotificationItemTableEntity.ReplyTo;
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
             emailNotificationItemEntity.Subject = emailNotificationItemTableEntity.Subject;
-            emailNotificationItemEntity.TemplateName = emailNotificationItemTableEntity.TemplateName;
+            emailNotificationItemEntity.TemplateId = emailNotificationItemTableEntity.TemplateId;
             emailNotificationItemEntity.Timestamp = emailNotificationItemTableEntity.Timestamp;
             emailNotificationItemEntity.To = emailNotificationItemTableEntity.To;
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;

@@ -125,8 +125,8 @@ namespace NotificationService.Contracts
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        [DataMember(Name = "TemplateName")]
-        public string TemplateName { get; set; }
+        [DataMember(Name = "TemplateId")]
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the TemplateData.

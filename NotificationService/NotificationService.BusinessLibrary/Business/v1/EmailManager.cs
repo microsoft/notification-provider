@@ -186,14 +186,14 @@ namespace NotificationService.BusinessLibrary
                     throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
                 }
 
-                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
                     if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
 
-                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
                         throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
@@ -252,14 +252,14 @@ namespace NotificationService.BusinessLibrary
                     throw new ArgumentNullException(nameof(notification), "notification cannot be null.");
                 }
 
-                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateName))
+                if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
                     if (string.IsNullOrEmpty(notification.TemplateData))
                     {
                         throw new ArgumentException("TemplateData cannot be null or empty.");
                     }
 
-                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateName).ConfigureAwait(false);
+                    MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
                         throw new ArgumentException("Template cannot be found, please provide a valid template and application name");
@@ -314,6 +314,12 @@ namespace NotificationService.BusinessLibrary
             await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList)
+        {
+            return await this.emailNotificationRepository.GetPendingOrFailedEmailNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
         }
     }
 }

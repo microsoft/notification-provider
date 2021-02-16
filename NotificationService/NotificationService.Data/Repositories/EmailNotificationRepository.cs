@@ -16,6 +16,7 @@ namespace NotificationService.Data
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// Repository for Email Notifications.
@@ -336,7 +337,7 @@ namespace NotificationService.Data
                 ReplyTo = n.ReplyTo,
                 Subject = n.Subject,
                 TemplateData = n.TemplateData,
-                TemplateName = n.TemplateName,
+                TemplateId = n.TemplateId,
                 TrackingId = n.TrackingId,
             };
             return selectExpression;
@@ -353,5 +354,8 @@ namespace NotificationService.Data
 
         /// <inheritdoc/>
         public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
     }
 }

@@ -35,14 +35,14 @@ namespace NotificationService.Contracts
         High,
 
         /// <summary>
+        /// Log
+        /// </summary>
+        Low,
+
+        /// <summary>
         /// Normal
         /// </summary>
         Normal,
-
-        /// <summary>
-        /// Low
-        /// </summary>
-        Low,
     }
 
     /// <summary>
