@@ -5,6 +5,7 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
@@ -112,6 +113,7 @@ namespace NotificationService.BusinessLibrary
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.EmailNotificationCount] = emailNotificationItems?.Length.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
@@ -295,6 +297,7 @@ namespace NotificationService.BusinessLibrary
 
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItems?.Length.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();

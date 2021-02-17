@@ -8,7 +8,7 @@ namespace NotificationService.Data
     using System.Threading.Tasks;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Repository Interface for Email Notification Items.

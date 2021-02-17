@@ -56,7 +56,11 @@ namespace NotificationService.Data
         /// <inheritdoc/>
         public async Task<MailTemplateEntity> GetMailTemplate(string applicationName, string templateName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.GetMailTemplate)} method of {nameof(MailTemplateRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.MailTemplateName] = templateName;
+
+            this.logger.TraceInformation($"Started {nameof(this.GetMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             string blobName = this.GetBlobName(applicationName, templateName);
             var contentTask = this.cloudStorageClient.DownloadBlobAsync(blobName).ConfigureAwait(false);
@@ -72,7 +76,7 @@ namespace NotificationService.Data
                 templateEntity.Content = await contentTask;
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.GetMailTemplate)} method of {nameof(MailTemplateRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             return templateEntity;
         }
@@ -80,7 +84,10 @@ namespace NotificationService.Data
         /// <inheritdoc/>
         public async Task<IList<MailTemplateEntity>> GetAllTemplateEntities(string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+
+            this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             List<MailTemplateEntity> mailTemplateEntities = new List<MailTemplateEntity>();
             var filterPartitionkey = TableQuery.GenerateFilterCondition(nameof(MailTemplateEntity.PartitionKey), QueryComparisons.Equal, applicationName);
@@ -94,7 +101,7 @@ namespace NotificationService.Data
             }
             while (continuationToken != null);
 
-            this.logger.TraceInformation($"Finished {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             return mailTemplateEntities;
         }
@@ -131,7 +138,11 @@ namespace NotificationService.Data
         /// <inheritdoc/>
         public async Task<bool> DeleteMailTemplate(string applicationName, string templateName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.DeleteMailTemplate)} method of {nameof(MailTemplateRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.MailTemplateName] = templateName;
+
+            this.logger.TraceInformation($"Started {nameof(this.DeleteMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
             bool result = false;
             string blobName = this.GetBlobName(applicationName, templateName);
             var status = await this.cloudStorageClient.DeleteBlobsAsync(blobName).ConfigureAwait(false);
@@ -149,7 +160,7 @@ namespace NotificationService.Data
                 result = true;
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.DeleteMailTemplate)} method of {nameof(MailTemplateRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DeleteMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             return result;
         }

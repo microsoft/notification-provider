@@ -101,33 +101,9 @@
         public const string BearerTokenConfigSectionKey = "BearerTokenAuthentication";
 
         /// <summary>
-        /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
-        /// </summary>
-        public static string BearerTokenIssuerConfigKey = $"{BearerTokenConfigSectionKey}:Issuer";
-
-        /// <summary>
-        /// A constant for BearerTokenAuthenticationValidAudiences config key from appsetting.json.
-        /// </summary>
-        public static string BearerTokenValidAudiencesConfigKey = $"{BearerTokenConfigSectionKey}:ValidAudiences";
-
-        /// <summary>
         /// A constant for A config section key from appsetting.json.
         /// </summary>
         public const string AIConfigSectionKey = "ApplicationInsights";
-        /// <summary>
-        /// A constant for AI Tracelevel config key from appsetting.json.
-        /// </summary>
-        public static string AITraceLelelConfigKey = $"{AIConfigSectionKey}:TraceLevel";
-
-        /// <summary>
-        /// A constant for AI InstrumentationKey config key from appsetting.json.
-        /// </summary>
-        public static string AIInsrumentationConfigKey = $"{AIConfigSectionKey}:InstrumentationKey";
-
-        /// <summary>
-        /// A constant for AzureAppConfigConnectionstring config key from appsetting.json.
-        /// </summary>
-        public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
 
         /// <summary>
         /// A constant for ForceRefresh config key from appsetting.json.
@@ -148,6 +124,36 @@
         /// A constant for DirectSendSetting config section key from appsetting.json.
         /// </summary>
         public const string DirectSendSettingConfigSectionKey = "DirectSendSetting";
+
+        /// <summary>
+        /// A constant or resend allowed days.
+        /// </summary>
+        public const string AllowedMaxResendDurationInDays = "AllowedMaxResendDurationInDays";
+
+        /// <summary>
+        /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
+        /// </summary>
+        public static string BearerTokenIssuerConfigKey = $"{BearerTokenConfigSectionKey}:Issuer";
+
+        /// <summary>
+        /// A constant for BearerTokenAuthenticationValidAudiences config key from appsetting.json.
+        /// </summary>
+        public static string BearerTokenValidAudiencesConfigKey = $"{BearerTokenConfigSectionKey}:ValidAudiences";
+
+        /// <summary>
+        /// A constant for AI Tracelevel config key from appsetting.json.
+        /// </summary>
+        public static string AITraceLelelConfigKey = $"{AIConfigSectionKey}:TraceLevel";
+
+        /// <summary>
+        /// A constant for AI InstrumentationKey config key from appsetting.json.
+        /// </summary>
+        public static string AIInsrumentationConfigKey = $"{AIConfigSectionKey}:InstrumentationKey";
+
+        /// <summary>
+        /// A constant for AzureAppConfigConnectionstring config key from appsetting.json.
+        /// </summary>
+        public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
 
         /// <summary>
         /// A constant for DirectSend DisplayName config key from appsetting.json.

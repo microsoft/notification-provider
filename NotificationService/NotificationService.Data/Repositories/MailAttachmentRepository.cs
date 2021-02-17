@@ -4,6 +4,7 @@
 namespace NotificationService.Data.Repositories
 {
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using NotificationService.Common;
@@ -48,7 +49,12 @@ namespace NotificationService.Data.Repositories
         /// <inheritdoc/>
         public async Task<IList<EmailNotificationItemEntity>> UploadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string notificationType, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.NotificationType] = notificationType;
+            traceProps[AIConstants.EmailNotificationCount] = emailNotificationItemEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
             if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
             {
@@ -68,14 +74,19 @@ namespace NotificationService.Data.Repositories
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             return notificationEntities;
         }
 
         /// <inheritdoc/>
         public async Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string notificationType, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.UploadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.NotificationType] = notificationType;
+            traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItemEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.UploadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
             if (!(meetingNotificationItemEntities is null) && meetingNotificationItemEntities.Count > 0)
             {
@@ -95,14 +106,18 @@ namespace NotificationService.Data.Repositories
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.UploadEmail)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             return notificationEntities;
         }
 
         /// <inheritdoc/>
         public async Task<IList<EmailNotificationItemEntity>> DownloadEmail(IList<EmailNotificationItemEntity> emailNotificationItemEntities, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.EmailNotificationCount] = emailNotificationItemEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
             if (!(emailNotificationItemEntities is null) && emailNotificationItemEntities.Count > 0)
             {
@@ -120,14 +135,18 @@ namespace NotificationService.Data.Repositories
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DownloadEmail)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             return notificationEntities;
         }
 
         /// <inheritdoc/>
         public async Task<IList<MeetingNotificationItemEntity>> DownloadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName)
         {
-            this.logger.TraceInformation($"Started {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItemEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
             if (!(meetingNotificationItemEntities is null) && meetingNotificationItemEntities.Count > 0)
             {
@@ -145,7 +164,7 @@ namespace NotificationService.Data.Repositories
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DownloadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.", traceProps);
             return notificationEntities;
         }
 

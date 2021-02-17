@@ -109,9 +109,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
 
                 this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
                 IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
-                this.logger.TraceVerbose($"Started {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 IList<EmailNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateNotificationEntities(applicationName, emailNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 List<List<EmailNotificationItemEntity>> entitiesToQueue;
                 if (string.Equals(this.configuration?[ApplicationConstants.NotificationProviderType], NotificationProviderType.Graph))
                 {
@@ -150,7 +148,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             finally
             {
                 stopwatch.Stop();
-                traceProps[AIConstants.Result] = result.ToString();
+                traceProps[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
                 metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("QueueEmailNotifications Completed", traceProps, metrics);
@@ -181,9 +179,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
 
                 this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
                 IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
-                this.logger.TraceVerbose($"Started {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 IList<MeetingNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateMeetingNotificationEntities(applicationName, meetingNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 List<List<MeetingNotificationItemEntity>> entitiesToQueue;
                 if (string.Equals(this.configuration?[ApplicationConstants.NotificationProviderType], NotificationProviderType.Graph))
                 {
@@ -266,7 +262,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         public async Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
         {
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
-            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), ApplicationConstants.AllowedMaxResendDurationInDays);
+            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), ConfigConstants.AllowedMaxResendDurationInDays);
             if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= allowedMaxResendDurationInDays)
             {
                 throw new DataException($"Date-range must not be less or equal to {allowedMaxResendDurationInDays}");

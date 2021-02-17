@@ -67,7 +67,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             this.msGraphSettingOptions = new Mock<IOptions<MSGraphSetting>>();
             var config = new Dictionary<string, string>()
             {
-                { ApplicationConstants.AllowedMaxResendDurationInDays, "1"},
+                { ConfigConstants.AllowedMaxResendDurationInDays, "1"},
                 { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = ApplicationConstants.NotificationsQueue, }) },
             };
 

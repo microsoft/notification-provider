@@ -265,13 +265,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
             traceProps[AIConstants.Application] = applicationName;
             IList<EmailNotificationItemEntity> notSentEntities = new List<EmailNotificationItemEntity>();
 
-            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
-
             List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
-
-            this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
+            traceProps[AIConstants.NotificationIds] = JsonConvert.SerializeObject(notificationIds);
+            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
             IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(notificationIds, applicationName).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
 
             var notificationEntitiesToBeSkipped = new List<EmailNotificationItemEntity>();
             if (notificationEntities.Count == 0)
@@ -290,9 +287,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 return notificationEntitiesToBeSkipped;
             }
 
-            this.logger.TraceVerbose($"Started {nameof(this.ProcessNotificationEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
             var retEntities = await this.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.ProcessNotificationEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
             retEntities = retEntities.Concat(notificationEntitiesToBeSkipped).ToList();
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
 
@@ -309,16 +304,12 @@ namespace NotificationService.BusinessLibrary.Business.v1
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
+            List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
+            traceProps[AIConstants.NotificationIds] = JsonConvert.SerializeObject(notificationIds);
             IList<MeetingNotificationItemEntity> notSentEntities = new List<MeetingNotificationItemEntity>();
 
             this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
-
-            List<string> notificationIds = queueNotificationItem.NotificationIds.ToList();
-
-            this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
             IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(notificationIds, applicationName).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetMeetingNotificationItemEntities)} method in {nameof(EmailServiceManager)}.", traceProps);
-
             var notificationEntitiesToBeSkipped = new List<MeetingNotificationItemEntity>();
             if (notificationEntities?.Count == 0)
             {
@@ -336,9 +327,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 return notificationEntitiesToBeSkipped;
             }
 
-            this.logger.TraceVerbose($"Started {nameof(this.ProcessMeetingNotificationsUsingProvider)} method in {nameof(EmailServiceManager)}.", traceProps);
             var retEntities = await this.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.ProcessMeetingNotificationsUsingProvider)} method in {nameof(EmailServiceManager)}.", traceProps);
             retEntities = retEntities.Concat(notificationEntitiesToBeSkipped).ToList();
             this.logger.TraceInformation($"Completed {nameof(this.ProcessNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.", traceProps);
 
@@ -407,11 +396,8 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
             }
 
-            this.logger.TraceVerbose($"Starting {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessNotificationEntities)}", traceProps);
-
             // Update the status of processed entities
             await this.emailNotificationRepository.UpdateEmailNotificationItemEntities(notificationEntities).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessNotificationEntities)}", traceProps);
 
             // Requeue items that were updated as Queued, due to transient failures
             var retryItemsToBeQueued = notificationEntities?.Where(nie => nie.Status == NotificationItemStatus.Retrying)?.ToList();
@@ -442,6 +428,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.MeetingNotificationCount] = notificationEntities?.Count.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(EmailServiceManager)}.", traceProps);
             if (this.mailSettings is null || this.mailSettings.Any(a => a.ApplicationName == applicationName) is false)
@@ -494,11 +481,8 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
             }
 
-            this.logger.TraceVerbose($"Starting {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessMeetingNotificationEntities)}", traceProps);
-
             // Update the status of processed entities
             await this.emailNotificationRepository.UpdateMeetingNotificationItemEntities(notificationEntities).ConfigureAwait(false);
-            this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.UpdateEmailNotificationItemEntities)} in {nameof(this.ProcessMeetingNotificationEntities)}", traceProps);
 
             // Requeue items that were updated as Queued, due to transient failures
             var retryItemsToBeQueued = notificationEntities?.Where(nie => nie.Status == NotificationItemStatus.Retrying)?.ToList();

@@ -89,5 +89,10 @@
         /// The Email template name.
         /// </summary>
         public const string MailTemplateName = "MailTemplateName";
+
+        /// <summary>
+        /// DateRange for resend.
+        /// </summary>
+        public const string ResendDateRange = "ResendDateRange";
     }
 }

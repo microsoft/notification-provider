@@ -6,12 +6,13 @@ namespace NotificationService.BusinessLibrary.Business.V1
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Logging;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Providers;
+    using NotificationService.Common.Logger;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Entities.Web;
     using NotificationService.Contracts.Models.Web.Request;
@@ -28,7 +29,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
         /// <summary>
         /// The logger.
         /// </summary>
-        private readonly ILogger<NotificationsManager> logger;
+        private readonly ILogger logger;
 
         /// <summary>
         /// The notifications repository.
@@ -39,10 +40,10 @@ namespace NotificationService.BusinessLibrary.Business.V1
         /// Initializes a new instance of the <see cref="NotificationsManager"/> class.
         /// </summary>
         /// <param name="notificationsRepository">The intsnce for <see cref="IRepository{WebNotificationItemEntity}"/>.</param>
-        /// <param name="logger">The instance for <see cref="ILogger{NotificationsManager}"/>.</param>
+        /// <param name="logger">The instance for <see cref="ILogger"/>.</param>
         /// <exception cref="ArgumentNullException">logger.</exception>
         /// <exception cref="ArgumentNullException">notificationsRepository.</exception>
-        public NotificationsManager(IRepository<WebNotificationItemEntity> notificationsRepository, ILogger<NotificationsManager> logger)
+        public NotificationsManager(IRepository<WebNotificationItemEntity> notificationsRepository, ILogger logger)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.notificationsRepository = notificationsRepository ?? throw new ArgumentNullException(nameof(notificationsRepository));
@@ -60,11 +61,12 @@ namespace NotificationService.BusinessLibrary.Business.V1
             {
                 throw new ArgumentException("The notification identifiers are not specified.", nameof(notificationIds));
             }
-
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.NotificationIds] = notificationIds?.Count().ToString(CultureInfo.InvariantCulture);
             EntityCollection<WebNotificationItemEntity> webNotificationEntities = null;
             List<WebNotificationItemEntity> updatedReadStatusEntities;
-            this.logger.LogInformation($"Started {nameof(this.MarkNotificationsAsReadAsync)} method of {nameof(NotificationsManager)}.");
-            this.logger.LogInformation($"Total Notification Ids to process : {notificationIds.Count()}");
+            this.logger.TraceInformation($"Started {nameof(this.MarkNotificationsAsReadAsync)} method of {nameof(NotificationsManager)}.", traceprops);
             webNotificationEntities = await this.LoadNotificationsWithIdsInternalAsync(notificationIds, applicationName, isTrackingIds: false).ConfigureAwait(false);
             if (webNotificationEntities != null && webNotificationEntities.Items.Any())
             {
@@ -78,7 +80,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                 _ = await this.notificationsRepository.UpsertAsync(updatedReadStatusEntities).ConfigureAwait(false);
             }
 
-            this.logger.LogInformation($"Finished {nameof(this.MarkNotificationsAsReadAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.MarkNotificationsAsReadAsync)} method of {nameof(NotificationsManager)}.", traceprops);
         }
 
         /// <inheritdoc cref="INotificationsManager"/>
@@ -95,7 +97,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
             }
 
             WebNotificationResponse webNotificationResponse = new WebNotificationResponse();
-            this.logger.LogInformation($"Started {nameof(this.DeliverNotificationsAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.DeliverNotificationsAsync)} method of {nameof(NotificationsManager)}.");
             Expression<Func<WebNotificationItemEntity, bool>> filterExpression = NotificationsExpressionProvider.PrepareNotificationsFilter(applicationName, notificationReadStatus: null, userObjectId: userObjectId);
             EntityCollection<WebNotificationItemEntity> notificationCollection =
                 await this.notificationsRepository.ReadAsync(
@@ -109,7 +111,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                 await this.MarkNotificationsDeliveredInternalAsync(NotificationDeliveryChannel.Web, notificationCollection.Items).ConfigureAwait(false);
             }
 
-            this.logger.LogInformation($"Finished {nameof(this.DeliverNotificationsAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.DeliverNotificationsAsync)} method of {nameof(NotificationsManager)}.");
             return webNotificationResponse;
         }
 
@@ -117,7 +119,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
         public async Task MarkNotificationDeliveredAsync(IEnumerable<string> notificationIds, NotificationDeliveryChannel deliveryChannel, bool throwExceptions = true)
         {
             EntityCollection<WebNotificationItemEntity> notificationCollection;
-            this.logger.LogInformation($"Started {nameof(this.MarkNotificationDeliveredAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.MarkNotificationDeliveredAsync)} method of {nameof(NotificationsManager)}.");
 
             if (throwExceptions && notificationIds == null)
             {
@@ -127,7 +129,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
             {
                 if (!notificationIds.Any())
                 {
-                    this.logger.LogWarning("There are no notifications to mark delivered.");
+                    this.logger.TraceWarning("There are no notifications to mark delivered.");
                 }
                 else
                 {
@@ -138,12 +140,12 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     }
                     else
                     {
-                        this.logger.LogWarning($"There are no notifications located with identifier(s) '{string.Join(',', notificationIds.ToArray())}'");
+                        this.logger.TraceWarning($"There are no notifications located with identifier(s) '{string.Join(',', notificationIds.ToArray())}'");
                     }
                 }
             }
 
-            this.logger.LogInformation($"Finished {nameof(this.MarkNotificationDeliveredAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.MarkNotificationDeliveredAsync)} method of {nameof(NotificationsManager)}.");
         }
 
         /// <inheritdoc cref="INotificationsManager"/>
@@ -159,16 +161,16 @@ namespace NotificationService.BusinessLibrary.Business.V1
                 throw new ArgumentException("There is no web notification request item to process.");
             }
 
-            this.logger.LogInformation($"Started {nameof(this.ProcessNotificationsAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationsAsync)} method of {nameof(NotificationsManager)}.");
             IEnumerable<WebNotification> notifications = await this.ProcessNotificationsInternalAsync(applicationName, webNotificationRequestItems).ConfigureAwait(false);
-            this.logger.LogInformation($"Finished {nameof(this.ProcessNotificationsAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationsAsync)} method of {nameof(NotificationsManager)}.");
             return notifications;
         }
 
         /// <inheritdoc cref="INotificationsManager"/>
         public async Task<WebNotificationStatusResponse> LoadNotificationStatusAsync(string applicationName, IEnumerable<string> trackingIds)
         {
-            this.logger.LogInformation($"Started {nameof(this.LoadNotificationStatusAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.LoadNotificationStatusAsync)} method of {nameof(NotificationsManager)}.");
             if (string.IsNullOrWhiteSpace(applicationName))
             {
                 throw new ArgumentException("The application name is not specified.", nameof(applicationName));
@@ -181,7 +183,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
 
             EntityCollection<WebNotificationItemEntity> webNotificationsCollection = await this.LoadNotificationsWithIdsInternalAsync(trackingIds, applicationName, isTrackingIds: true).ConfigureAwait(false);
             WebNotificationStatusResponse statusResponse = PrepareNotificationStatusResponse(trackingIds, webNotificationsCollection.Items);
-            this.logger.LogInformation($"Finished {nameof(this.LoadNotificationStatusAsync)} method of {nameof(NotificationsManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.LoadNotificationStatusAsync)} method of {nameof(NotificationsManager)}.");
             return statusResponse;
         }
 

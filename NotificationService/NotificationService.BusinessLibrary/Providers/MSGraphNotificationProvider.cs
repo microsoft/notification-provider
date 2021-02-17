@@ -113,7 +113,6 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <inheritdoc/>
         public async Task ProcessNotificationEntities(string applicationName, IList<EmailNotificationItemEntity> notificationEntities)
          {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.");
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -123,6 +122,7 @@ namespace NotificationService.BusinessLibrary.Providers
             traceProps[AIConstants.Application] = applicationName;
             traceProps[AIConstants.EmailNotificationCount] = notificationEntities.Count.ToString(CultureInfo.InvariantCulture);
 
+            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
             AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
@@ -154,7 +154,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
         }
 
         /// <summary>
@@ -165,9 +165,10 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <param name="emailAccountUsed">Email account used to process the notifications.</param>
         private async Task ProcessEntitiesIndividually(string applicationName, IList<EmailNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> emailAccountUsed)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.");
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
+            this.logger.TraceInformation($"Started {nameof(this.ProcessEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+
             List<Task> emailNotificationSendTasks = new List<Task>();
             foreach (var item in notificationEntities)
             {
@@ -183,7 +184,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     EmailMessage message = item.ToGraphEmailMessage(body);
                     if (!sendForReal)
                     {
-                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessEntitiesIndividually)} method of {nameof(EmailManager)}.");
+                        this.logger.TraceInformation($"Overriding the ToRecipients in {nameof(this.ProcessEntitiesIndividually)} method of {nameof(EmailManager)}.", traceProps);
                         message.ToRecipients = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(torecipient => new Recipient { EmailAddress = new EmailAddress { Address = torecipient } }).ToList();
                         message.CCRecipients = null;
                         message.BCCRecipients = null;
@@ -202,7 +203,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesIndividually)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
         }
 
         /// <summary>
@@ -304,7 +305,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     if (itemResponse.Error?.Contains("quota was exceeded", StringComparison.InvariantCultureIgnoreCase) ?? false)
                     {
                         this.logger.WriteCustomEvent($"Mail Box Exhausted :  {item.EmailAccountUsed} ");
-                        this.logger.TraceInformation($"{itemResponse.Error} Item with notification id={item.NotificationId} will be retried with a different mail box");
+                        this.logger.TraceInformation($"{itemResponse.Error} Item with notification id={item.NotificationId} will be retried with a different mail box", traceProps);
                         if (!isAccountIndexIncremented)
                         {
                             isAccountIndexIncremented = true;

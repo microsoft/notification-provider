@@ -87,7 +87,7 @@ namespace NotificationService.BusinessLibrary
 
             traceProps[AIConstants.EmailAccount] = selectedAccountCredential.AccountName;
 
-            this.logger.TraceInformation($"Started {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.", traceProps);
             string authority = this.userTokenSetting.Authority;
             string clientId = this.userTokenSetting.ClientId;
             string userEmail = selectedAccountCredential?.AccountName;
@@ -119,7 +119,7 @@ namespace NotificationService.BusinessLibrary
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.", traceProps);
             return token;
         }
 

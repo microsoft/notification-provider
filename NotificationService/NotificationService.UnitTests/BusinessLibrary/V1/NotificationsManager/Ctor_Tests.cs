@@ -5,15 +5,8 @@
 namespace NotificationService.UnitTests.BusinessLibrary.V1.NotificationsManager_Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using Microsoft.Extensions.Logging;
-    using Moq;
     using NotificationService.BusinessLibrary.Business.V1;
-    using NotificationService.Contracts;
-    using NotificationService.Contracts.Entities.Web;
-    using NotificationService.Contracts.Models.Graph;
-    using NotificationService.Data.Interfaces;
     using NUnit.Framework;
 
     /// <summary>

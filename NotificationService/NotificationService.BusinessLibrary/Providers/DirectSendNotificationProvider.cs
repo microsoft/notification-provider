@@ -88,7 +88,11 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <inheritdoc/>
         public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MeetingNotificationCount] = notificationEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -138,13 +142,19 @@ namespace NotificationService.BusinessLibrary.Providers
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }
+
+                this.logger.TraceInformation($"Finished {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             }
         }
 
         /// <inheritdoc/>
         public async Task ProcessNotificationEntities(string applicationName, IList<EmailNotificationItemEntity> notificationEntities)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MeetingNotificationCount] = notificationEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -180,7 +190,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
         }
 
         private static DayOfTheWeek[] GetDaysOfWeek(string daysOfWeek)

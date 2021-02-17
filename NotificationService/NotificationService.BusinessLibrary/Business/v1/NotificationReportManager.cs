@@ -96,17 +96,18 @@ namespace NotificationService.BusinessLibrary
         /// <inheritdoc/>
         public async Task<EmailMessage> GetNotificationMessage(string applicationName, string notificationId)
         {
-            this.logger.TraceVerbose($"Started {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.NotificationIds] = notificationId;
+            this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.", traceprops);
             try
             {
-                this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntity)} method in {nameof(NotificationReportManager)}.");
                 EmailNotificationItemEntity notification = await this.emailNotificationRepository.GetEmailNotificationItemEntity(notificationId).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntity)} method in {nameof(NotificationReportManager)}.");
 
                 if (notification != null)
                 {
                     MessageBody body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, notification).ConfigureAwait(false);
-                    this.logger.TraceVerbose($"Completed {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.");
+                    this.logger.TraceInformation($"Completed {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.", traceprops);
 
                     return notification.ToGraphEmailMessage(body);
                 }
@@ -127,7 +128,7 @@ namespace NotificationService.BusinessLibrary
         {
             try
             {
-                this.logger.TraceVerbose($"Started {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
+                this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
                 IList<MailTemplateEntity> mailTemplateEntities = await this.mailTemplateRepository.GetAllTemplateEntities(applicationName).ConfigureAwait(false);
                 IList<MailTemplateInfo> mailTemplatesInfo = new List<MailTemplateInfo>();
                 foreach (var item in mailTemplateEntities)
@@ -135,7 +136,7 @@ namespace NotificationService.BusinessLibrary
                     mailTemplatesInfo.Add(item.ToTemplateInfoContract());
                 }
 
-                this.logger.TraceVerbose($"Completed {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
+                this.logger.TraceInformation($"Completed {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
                 return mailTemplatesInfo;
             }
             catch (Exception ex)
