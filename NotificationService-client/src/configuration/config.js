@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 export var config = {
     msalConfig : {
         "clientId": window.app.env.clientID,

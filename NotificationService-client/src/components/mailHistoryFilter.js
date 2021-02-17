@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 import React, { useState } from 'react';
 import { ActionButton,OverflowSet, Callout,PrimaryButton,Dropdown,DefaultButton,unregisterIcons,
   registerIcons, FontWeights, mergeStyleSets, DirectionalHint, Stack, 
@@ -188,7 +189,6 @@ export default function  MailHistoryFilter (props) {
       setSelectedFilter(o);
       if (validateOnSelectAddFilter()) {
        updateFilter(o); //update filter whose key == o
-       //console.log(filterVal[o].value);
        props.onSelectFilter(o, filterVal.filter(element=>element.key === o));
        toggIsMessageCalloutVisible(calloutSelected);
       } 

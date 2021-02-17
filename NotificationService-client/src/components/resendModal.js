@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 import {Dialog,DialogFooter,DialogType,PrimaryButton,DefaultButton} from 'office-ui-fabric-react';
 import {resendEmailService} from "../services";
 import React, {useState} from 'react';

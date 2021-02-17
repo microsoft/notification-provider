@@ -1,4 +1,4 @@
-
+// Copyright (c) Microsoft Corporation.
 const clientID = "__ClientID__";
 
 const serviceEndpoints = {

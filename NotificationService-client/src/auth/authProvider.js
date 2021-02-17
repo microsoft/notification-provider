@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+
 import { UserAgentApplication } from 'msal';
 import axios from 'axios';
 import {config} from "../configuration/config";

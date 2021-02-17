@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 import {instance} from "./auth/authProvider";
 import {config} from "./configuration/config"
 

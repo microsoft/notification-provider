@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 import {CoherenceHeader} from "@cseo/controls";
 import MailHistory from "./components/mailHistory";
 import {signOut} from "./auth/authProvider";
