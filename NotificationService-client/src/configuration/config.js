@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 export var config = {
     msalConfig : {
         "clientId": window.app.env.clientID,

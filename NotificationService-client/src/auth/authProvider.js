@@ -1,4 +1,5 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 import { UserAgentApplication } from 'msal';
 import axios from 'axios';

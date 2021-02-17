@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import {instance} from "./auth/authProvider";
 import {config} from "./configuration/config"
 

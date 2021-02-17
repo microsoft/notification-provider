@@ -1,5 +1,5 @@
 {
-  "name": "csp-spa",
+  "name": "nsclient",
   "version": "0.1.0",
   "private": true,
   "proxy": "https://localhost:44300/",

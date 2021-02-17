@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useEffect, useState } from 'react';
 import { useBoolean } from '@uifabric/react-hooks';
 import {

@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { render, screen } from '@testing-library/react';
 import App from './App';
 

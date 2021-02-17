@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import {Dialog,DialogFooter,DialogType,DefaultButton,ProgressIndicator} from 'office-ui-fabric-react';
 
 export default function ViewMailModal (props) {

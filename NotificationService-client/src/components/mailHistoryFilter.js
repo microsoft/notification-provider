@@ -1,4 +1,6 @@
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState } from 'react';
 import { ActionButton,OverflowSet, Callout,PrimaryButton,Dropdown,DefaultButton,unregisterIcons,
   registerIcons, FontWeights, mergeStyleSets, DirectionalHint, Stack, 
