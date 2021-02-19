@@ -17,6 +17,7 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Request;
 
+
     /// <summary>
     /// Repository for TableStorage.
     /// </summary>
@@ -402,33 +403,48 @@ namespace NotificationService.Data.Repositories
 
         private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
         {
+            var filterSet = new HashSet<string>();
             string filterExpression = null;
+           
+            string applicationFilter = null;
+            string accountFilter = null;
+            string notificationFilter = null;
+            string statusFilter = null;
             if (notificationReportRequest.ApplicationFilter?.Count > 0)
             {
                 foreach (var item in notificationReportRequest.ApplicationFilter)
                 {
-                    filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item) : filterExpression + " And " + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item);
+                    applicationFilter = applicationFilter == null ? TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item) : applicationFilter + " or " + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item);
                 }
+
+                filterSet.Add(applicationFilter);
             }
 
             if (notificationReportRequest.AccountsUsedFilter?.Count > 0)
             {
+
                 foreach (var item in notificationReportRequest.AccountsUsedFilter)
                 {
-                    filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item) : filterExpression + " and " + TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item);
+                    accountFilter = accountFilter == null ? TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item) : accountFilter + " or " + TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item);
                 }
+
+                filterSet.Add(accountFilter);
             }
 
             if (notificationReportRequest.NotificationIdsFilter?.Count > 0)
             {
+
                 foreach (var item in notificationReportRequest.NotificationIdsFilter)
                 {
-                    filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : filterExpression + " and " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
+                    notificationFilter = notificationFilter == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : notificationFilter + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
                 }
+
+                filterSet.Add(notificationFilter);
             }
 
             if (notificationReportRequest.NotificationStatusFilter?.Count > 0)
             {
+
                 foreach (int item in notificationReportRequest.NotificationStatusFilter)
                 {
                     string status = "Queued";
@@ -454,11 +470,20 @@ namespace NotificationService.Data.Repositories
                             break;
                     }
 
-                    filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status) : filterExpression + " and " + TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status);
+                    statusFilter = statusFilter == null ? TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status) : statusFilter + " or " + TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status);
                 }
+
+                filterSet.Add(statusFilter);
             }
 
+            filterExpression = PrepareFilterExp(filterSet);
             return filterExpression;
+
+            static string PrepareFilterExp(HashSet<string> filterSet)
+            {
+                string filterExp = String.Join(" and ", filterSet.ToArray());
+                return filterExp;
+            }
         }
 
         private EmailNotificationItemTableEntity ConvertToEmailNotificationItemTableEntity(EmailNotificationItemEntity emailNotificationItemEntity)

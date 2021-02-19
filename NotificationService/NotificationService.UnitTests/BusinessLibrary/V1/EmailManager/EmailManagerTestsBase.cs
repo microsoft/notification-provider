@@ -241,7 +241,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             MailTemplate template = new MailTemplate()
             {
-                TemplateName = "TestTemplate",
+                TemplateId = "TestTemplate",
                 Description = "Test template",
                 Content = "Testing {{Key}} template",
                 TemplateType = "Text",

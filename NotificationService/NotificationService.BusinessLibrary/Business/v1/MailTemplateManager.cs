@@ -104,7 +104,7 @@ namespace NotificationService.BusinessLibrary
             bool result = false;
             var traceprops = new Dictionary<string, string>();
             traceprops[AIConstants.Application] = applicationName;
-            traceprops[AIConstants.MailTemplateName] = mailTempalte.TemplateName;
+            traceprops[Constants.MailTemplateName] = mailTempalte.TemplateId;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             this.logger.WriteCustomEvent($"{nameof(this.SaveEmailTemplate)} Started", traceprops);

@@ -117,7 +117,7 @@ namespace NotificationService.Data
                 throw new ArgumentNullException(nameof(mailTemplateEntity));
             }
 
-            string blobName = this.GetBlobName(mailTemplateEntity.Application, mailTemplateEntity.TemplateName);
+            string blobName = this.GetBlobName(mailTemplateEntity.Application, mailTemplateEntity.TemplateId);
             string blobUri = await this.cloudStorageClient.UploadBlobAsync(
                 blobName,
                 mailTemplateEntity.Content)
