@@ -45,9 +45,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// </summary>
         public IConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// Initialize test setup.
+        /// </summary>
         protected void SetupTestBase()
         {
-            this.MsGraphSetting = Options.Create(new MSGraphSetting() { EnableBatching = false, SendMailUrl = this.sendEmailUrl, BatchRequestLimit = 4 });
+            this.MsGraphSetting = Options.Create(new MSGraphSetting() { EnableBatching = false, SendMailUrl = this.sendEmailUrl, BatchRequestLimit = 4, SendInviteUrl= "v1/events", BaseUrl="https://graphtest.com/" });
             this.Logger = new Mock<ILogger>().Object;
             this.MockedHttpClient = new Mock<HttpClient>();
         }
