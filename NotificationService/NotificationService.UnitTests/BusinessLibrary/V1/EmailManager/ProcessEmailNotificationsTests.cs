@@ -349,9 +349,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -448,9 +448,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -534,9 +534,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -620,9 +620,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -707,9 +707,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -776,9 +776,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.DirectSend.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.DirectSend.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -842,9 +842,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.DirectSend.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.DirectSend.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -919,9 +919,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", null },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -962,9 +962,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()

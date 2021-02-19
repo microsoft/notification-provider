@@ -101,14 +101,20 @@ namespace NotificationsQueueProcessor
             requestTrackingTelemetryModule.Initialize(tconfig);
 
             _ = builder.Services.AddSingleton<ILogger>(_ => new AILogger(loggingConfiguration, tconfig, itm));
-            _ = builder.Services.Configure<CosmosDBSetting>(configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
-            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Key = configuration[ConfigConstants.CosmosDBKeyConfigKey]);
-            _ = builder.Services.Configure<CosmosDBSetting>(s => s.Uri = configuration[ConfigConstants.CosmosDBURIConfigKey]);
+
+            StorageType storageType = (StorageType)Enum.Parse(typeof(StorageType), configuration?[ConfigConstants.StorageType]);
+            if (storageType == StorageType.DocumentDB)
+            {
+                _ = builder.Services.Configure<CosmosDBSetting>(configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
+                _ = builder.Services.Configure<CosmosDBSetting>(s => s.Key = configuration[ConfigConstants.CosmosDBKeyConfigKey]);
+                _ = builder.Services.Configure<CosmosDBSetting>(s => s.Uri = configuration[ConfigConstants.CosmosDBURIConfigKey]);
+                _ = builder.Services.AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>();
+                _ = builder.Services.AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>();
+            }
+
             _ = builder.Services.Configure<StorageAccountSetting>(configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
             _ = builder.Services.Configure<StorageAccountSetting>(s => s.ConnectionString = configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
             _ = builder.Services.AddSingleton<IConfiguration>(configuration);
-            _ = builder.Services.AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>();
-            _ = builder.Services.AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>();
             _ = builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
             _ = builder.Services.AddScoped<EmailNotificationRepository>();
             _ = builder.Services.AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>());

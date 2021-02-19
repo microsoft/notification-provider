@@ -23,12 +23,15 @@ namespace NotificationService.SvCommon.Common
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using NotificationService.BusinessLibrary;
+    using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Exceptions;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
+    using NotificationService.Data.Interfaces;
+    using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
@@ -124,14 +127,8 @@ namespace NotificationService.SvCommon.Common
 
             _ = services.AddApplicationInsightsTelemetry();
             _ = services.AddScoped(typeof(ValidateModelAttribute));
-
             _ = services.AddOptions();
-            _ = services.Configure<MSGraphSetting>(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey));
-            _ = services.Configure<MSGraphSetting>(s => s.ClientCredential = this.Configuration[ConfigConstants.MSGraphSettingClientCredentialConfigKey]);
-            _ = services.Configure<MSGraphSetting>(s => s.ClientId = this.Configuration[ConfigConstants.MSGraphSettingClientIdConfigKey]);
-            _ = services.Configure<CosmosDBSetting>(this.Configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
-            _ = services.Configure<CosmosDBSetting>(s => s.Key = this.Configuration[ConfigConstants.CosmosDBKeyConfigKey]);
-            _ = services.Configure<CosmosDBSetting>(s => s.Uri = this.Configuration[ConfigConstants.CosmosDBURIConfigKey]);
+
             _ = services.Configure<StorageAccountSetting>(this.Configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
             _ = services.Configure<StorageAccountSetting>(s => s.ConnectionString = this.Configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
             _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection(ConfigConstants.UserTokenSettingConfigSectionKey));
@@ -142,11 +139,19 @@ namespace NotificationService.SvCommon.Common
             _ = services.AddSingleton<IKeyEncryptionKey, CryptographyClient>(cc => new CryptographyClient(new Uri(this.Configuration[ConfigConstants.KeyVaultRSAUriConfigKey]), new DefaultAzureCredential()));
 
             _ = services.AddTransient<IHttpContextAccessor, HttpContextAccessor>()
-                .AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>()
-                .AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>()
                 .AddSingleton<ICloudStorageClient, CloudStorageClient>()
                 .AddScoped<ITokenHelper, TokenHelper>()
-                .AddHttpClient<IMSGraphProvider, MSGraphProvider>();
+                .AddScoped<IRepositoryFactory, RepositoryFactory>()
+                .AddSingleton<IEmailAccountManager, EmailAccountManager>();
+
+            StorageType storageType = (StorageType)Enum.Parse(typeof(StorageType), this.Configuration?[ConfigConstants.StorageType]);
+
+            if (storageType == StorageType.DocumentDB)
+            {
+                this.ConfigureCosmosDB(services);
+            }
+
+            ConfigureStorageAccountServices(services);
 
             _ = services.AddHttpContextAccessor();
 
@@ -191,6 +196,35 @@ namespace NotificationService.SvCommon.Common
             requestTrackingTelemetryModule.Initialize(tconfig);
 
             _ = services.AddSingleton<ILogger>(_ => new AILogger(loggingConfiguration, tconfig, itm));
+        }
+
+        /// <summary>
+        /// Configure Cosmos DB services.
+        /// </summary>
+        /// <param name="services"> IServiceCollection instance.</param>
+        private void ConfigureCosmosDB(IServiceCollection services)
+        {
+            _ = services.Configure<CosmosDBSetting>(this.Configuration.GetSection(ConfigConstants.CosmosDBConfigSectionKey));
+            _ = services.Configure<CosmosDBSetting>(s => s.Key = this.Configuration[ConfigConstants.CosmosDBKeyConfigKey]);
+            _ = services.Configure<CosmosDBSetting>(s => s.Uri = this.Configuration[ConfigConstants.CosmosDBURIConfigKey]);
+            _ = services.AddScoped<ICosmosLinqQuery, CustomCosmosLinqQuery>()
+                .AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>()
+                .AddScoped<EmailNotificationRepository>()
+                .AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>());
+        }
+
+        /// <summary>
+        /// Configure storage account services.
+        /// </summary>
+        /// <param name="services"> IServiceCollection instance.</param>
+        private static void ConfigureStorageAccountServices(IServiceCollection services)
+        {
+            _ = services.AddScoped<TableStorageEmailRepository>()
+                .AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>())
+                .AddScoped<ITableStorageClient, TableStorageClient>()
+                .AddScoped<IMailTemplateManager, MailTemplateManager>()
+                .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>();
         }
     }
 }

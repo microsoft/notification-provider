@@ -7,12 +7,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using System.Linq.Expressions;
-    using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.BusinessLibrary;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -63,7 +62,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -119,7 +118,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()
@@ -163,7 +162,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { NotificationService.Common.ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
             };
 
             this.Configuration = new ConfigurationBuilder()

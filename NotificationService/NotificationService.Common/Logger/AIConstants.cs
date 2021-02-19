@@ -91,6 +91,11 @@
         public const string MailTemplateName = "MailTemplateName";
 
         /// <summary>
+        /// The Email template name.
+        /// </summary>
+        public const string MailTemplateId = "MailTemplateId";
+
+        /// <summary>
         /// DateRange for resend.
         /// </summary>
         public const string ResendDateRange = "ResendDateRange";

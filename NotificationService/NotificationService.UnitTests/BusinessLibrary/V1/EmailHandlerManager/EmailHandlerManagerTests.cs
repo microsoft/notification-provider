@@ -43,7 +43,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
             var config = new Dictionary<string, string>()
             {
                 { ConfigConstants.AllowedMaxResendDurationInDays, "1"},
-                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = ApplicationConstants.NotificationsQueue, }) },
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = "notifications-queue", }) },
             };
 
             this.Configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();

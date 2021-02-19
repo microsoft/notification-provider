@@ -223,7 +223,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             var storageAccountSettings = new StorageAccountSetting()
             {
-                NotificationQueueName = ApplicationConstants.NotificationsQueue,
+                NotificationQueueName = "test-queue",
             };
 
             Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
@@ -231,10 +231,10 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { ApplicationConstants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
                 { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(storageAccountSettings) },
-                { ApplicationConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             string mergedTemplate = "Testing Html template";

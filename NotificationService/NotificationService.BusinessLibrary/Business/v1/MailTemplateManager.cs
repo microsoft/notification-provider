@@ -8,7 +8,6 @@ namespace NotificationService.BusinessLibrary
     using System.Diagnostics;
     using System.Globalization;
     using System.Threading.Tasks;
-    using NotificationService.Common;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -104,7 +103,7 @@ namespace NotificationService.BusinessLibrary
             bool result = false;
             var traceprops = new Dictionary<string, string>();
             traceprops[AIConstants.Application] = applicationName;
-            traceprops[Constants.MailTemplateName] = mailTempalte.TemplateId;
+            traceprops[AIConstants.MailTemplateId] = mailTempalte.TemplateId;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             this.logger.WriteCustomEvent($"{nameof(this.SaveEmailTemplate)} Started", traceprops);

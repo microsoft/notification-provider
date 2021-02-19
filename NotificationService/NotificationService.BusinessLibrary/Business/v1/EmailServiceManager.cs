@@ -74,7 +74,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         /// <summary>
         /// StorageAccountSetting configuration object.
         /// </summary>
-        private readonly StorageAccountSetting storageAccountSetings;
+        private readonly string notificationQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailServiceManager"/> class.
@@ -94,20 +94,16 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IEmailManager emailManager)
         {
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ApplicationConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.cloudStorageClient = cloudStorageClient;
             this.logger = logger;
-            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[ApplicationConstants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
+            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[ConfigConstants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
             if (this.configuration?[ConfigConstants.MailSettingsConfigKey] != null)
             {
                 this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?[ConfigConstants.MailSettingsConfigKey]);
             }
 
-            if (this.configuration?[ConfigConstants.StorageAccountConfigSectionKey] != null)
-            {
-                this.storageAccountSetings = JsonConvert.DeserializeObject<StorageAccountSetting>(this.configuration?[ConfigConstants.StorageAccountConfigSectionKey]);
-            }
-
+            this.notificationQueue = this.configuration?[$"{ConfigConstants.StorageAccountConfigSectionKey}:{ConfigConstants.StorageAccNotificationQueueName}"];
             this.emailManager = emailManager;
         }
 
@@ -171,7 +167,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             finally
             {
                 stopwatch.Stop();
-                traceprops[AIConstants.Result] = result.ToString();
+                traceprops[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
                 metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("ProcessEmailNotifications Completed", traceprops, metrics);
@@ -405,7 +401,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             if (retryItemsToBeQueued?.Count > 0)
             {
                 this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count}", traceProps);
@@ -490,7 +486,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             if (retryItemsToBeQueued?.Count > 0)
             {
                 this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.storageAccountSetings.NotificationQueueName);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
                 this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
 
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);

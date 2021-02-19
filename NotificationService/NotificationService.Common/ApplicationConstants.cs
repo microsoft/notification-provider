@@ -64,21 +64,6 @@ namespace NotificationService.Common
         public const string POSTHttpVerb = "POST";
 
         /// <summary>
-        /// StorageType.
-        /// </summary>
-        public const string StorageType = "StorageType";
-
-        /// <summary>
-        /// NotificationProviderType.
-        /// </summary>
-        public const string NotificationProviderType = "NotificationProviderType";
-
-        /// <summary>
-        /// The meetingnotificationsqueue.
-        /// </summary>
-        public const string NotificationsQueue = "notifications-queue";
-
-        /// <summary>
         /// EmailNotificationsFolderName.
         /// </summary>
         public const string EmailNotificationsFolderName = "EmailNotifications";

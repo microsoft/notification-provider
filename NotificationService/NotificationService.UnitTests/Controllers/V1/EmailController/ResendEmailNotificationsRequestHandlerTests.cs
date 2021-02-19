@@ -68,7 +68,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             var config = new Dictionary<string, string>()
             {
                 { ConfigConstants.AllowedMaxResendDurationInDays, "1"},
-                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = ApplicationConstants.NotificationsQueue, }) },
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting() { NotificationQueueName = "test-queue", }) },
             };
 
             this.configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();

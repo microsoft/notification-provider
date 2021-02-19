@@ -84,18 +84,7 @@ namespace NotificationHandler
                         Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()),
                         s.GetService<ICloudStorageClient>(),
                         s.GetService<ILogger>(),
-                        s.GetService<IEmailManager>()))
-                .AddScoped<IRepositoryFactory, RepositoryFactory>()
-                .AddScoped<EmailNotificationRepository>()
-                .AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>())
-                .AddScoped<TableStorageEmailRepository>()
-                .AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>())
-                .AddScoped<ITableStorageClient, TableStorageClient>()
-                .AddScoped<IMailTemplateManager, MailTemplateManager>()
-                .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
-                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
-                .AddScoped<ITemplateMerge, TemplateMerge>()
-                .AddSingleton<IEmailAccountManager, EmailAccountManager>();
+                        s.GetService<IEmailManager>()));
         }
     }
 }

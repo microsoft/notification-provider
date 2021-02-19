@@ -9,6 +9,7 @@ namespace NotificationService.BusinessLibrary
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using NotificationService.BusinessLibrary.Interfaces;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
@@ -67,7 +68,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.logger = logger;
             this.configuration = configuration;
-            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.ApplicationConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
+            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
             this.emailManager = emailManager;
             this.mailTemplateRepository = mailTemplateRepository ?? throw new System.ArgumentNullException(nameof(mailTemplateRepository));
         }
@@ -136,7 +137,7 @@ namespace NotificationService.BusinessLibrary
                     mailTemplatesInfo.Add(item.ToTemplateInfoContract());
                 }
 
-                this.logger.TraceInformation($"Completed {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
+                this.logger.TraceVerbose($"Completed {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
                 return mailTemplatesInfo;
             }
             catch (Exception ex)

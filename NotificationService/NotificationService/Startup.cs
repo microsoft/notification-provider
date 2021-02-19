@@ -27,7 +27,6 @@ namespace NotificationService
     using NotificationService.Common.Logger;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
-    using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Common;
     using NotificationService.Common.Configurations;
 
@@ -90,7 +89,54 @@ namespace NotificationService
 
             _ = services.AddSingleton<NotificationProviders.Common.Logger.ILogger>(_ => new NotificationProviders.Common.Logger.AILogger(loggingConfiguration, tconfig, itm));
 
+            _ = services.AddScoped<INotificationReportManager, NotificationReportManager>()
+                .AddScoped<IEmailManager, EmailManager>(s =>
+                    new EmailManager(
+                        this.Configuration,
+                        s.GetService<IRepositoryFactory>(),
+                        s.GetService<ILogger>(),
+                        s.GetService<IMailTemplateManager>(),
+                        s.GetService<ITemplateMerge>()))
+                .AddScoped<IEmailServiceManager, EmailServiceManager>(s =>
+                    new EmailServiceManager(this.Configuration, s.GetService<IRepositoryFactory>(), s.GetService<ICloudStorageClient>(), s.GetService<ILogger>(),
+                    s.GetService<INotificationProviderFactory>(), s.GetService<IEmailManager>()))
+                .AddScoped<ITemplateMerge, TemplateMerge>()
+                .AddSingleton<IEmailAccountManager, EmailAccountManager>()
+                .AddScoped<INotificationProviderFactory, NotificationProviderFactory>();
 
+            NotificationProviderType providerType = (NotificationProviderType)Enum.Parse(typeof(NotificationProviderType), this.Configuration[ConfigConstants.NotificationProviderType]);
+
+            if (NotificationProviderType.DirectSend == providerType)
+            {
+                this.ConfigureDirectSendServices(services);
+            }
+            else
+            {
+                this.ConfigureGraphServices(services);
+            }
+        }
+
+        /// <summary>
+        /// Configure Graph services.
+        /// </summary>
+        /// <param name="services">IServiceCollection instance.</param>
+        private void ConfigureGraphServices(IServiceCollection services)
+        {
+            _ = services.Configure<MSGraphSetting>(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey));
+            _ = services.Configure<MSGraphSetting>(s => s.ClientCredential = this.Configuration[ConfigConstants.MSGraphSettingClientCredentialConfigKey]);
+            _ = services.Configure<MSGraphSetting>(s => s.ClientId = this.Configuration[ConfigConstants.MSGraphSettingClientIdConfigKey]);
+            _ = services.AddHttpClient<IMSGraphProvider, MSGraphProvider>();
+            _ = services.AddScoped<MSGraphNotificationProvider>(s => new MSGraphNotificationProvider(this.Configuration, s.GetService<IEmailAccountManager>(), s.GetService<ILogger>(),
+            Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()), s.GetService<ITokenHelper>(), s.GetService<IMSGraphProvider>(), s.GetService<IEmailManager>()))
+            .AddScoped<INotificationProvider, MSGraphNotificationProvider>();
+        }
+
+        /// <summary>
+        /// Configure Direct Send Services.
+        /// </summary>
+        /// <param name="services">IServiceCollection instance.</param>
+        private void ConfigureDirectSendServices(IServiceCollection services)
+        {
             _ = services.AddSingleton<SendAccountConfiguration>(new SendAccountConfiguration()
             {
                 DisplayName = this.Configuration[ConfigConstants.DirectSendDisplayNameConfigKey],
@@ -103,46 +149,15 @@ namespace NotificationService
                     SmtpPort = port,
                     SmtpServer = this.Configuration[ConfigConstants.DirectSendSMTPServerConfigKey]
                 });
-        }
+            }
 
             _ = services.AddSingleton<ISmtpClientFactory, DSSmtpClientFactory>()
                 .AddSingleton<ISmtpClientPool, SmtpClientPool>()
-                .AddSingleton<IEmailService, DirectSendMailService>();
-
-            _ = services.AddScoped<INotificationReportManager, NotificationReportManager>()
-                .AddScoped<IEmailManager, EmailManager>(s =>
-                    new EmailManager(
-                        this.Configuration,
-                        s.GetService<IRepositoryFactory>(),
-                        s.GetService<ILogger>(),
-                        s.GetService<IMailTemplateManager>(),
-                        s.GetService<ITemplateMerge>()))
-                .AddScoped<IEmailServiceManager, EmailServiceManager>(s =>
-                    new EmailServiceManager(this.Configuration, s.GetService<IRepositoryFactory>(), s.GetService<ICloudStorageClient>(), s.GetService<ILogger>(),
-                    s.GetService<INotificationProviderFactory>(), s.GetService<IEmailManager>()))
-                .AddScoped<IRepositoryFactory, RepositoryFactory>()
-                .AddScoped<EmailNotificationRepository>()
-                .AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>())
-                .AddScoped<TableStorageEmailRepository>()
-                .AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>())
-                .AddScoped<ITableStorageClient, TableStorageClient>()
-                .AddScoped<IMailTemplateManager, MailTemplateManager>()
-                .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
-                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>()
-                .AddScoped<ITemplateMerge, TemplateMerge>()
-                .AddSingleton<IEmailAccountManager, EmailAccountManager>()
-                .AddScoped<INotificationProviderFactory, NotificationProviderFactory>()
+                .AddSingleton<IEmailService, DirectSendMailService>()
                 .AddScoped<DirectSendNotificationProvider>(s => new DirectSendNotificationProvider(this.Configuration, s.GetService<IEmailService>(), s.GetService<ILogger>(), s.GetService<IEmailManager>()))
-                .AddScoped<INotificationProvider, DirectSendNotificationProvider>()
-                .AddScoped<MSGraphNotificationProvider>(s => new MSGraphNotificationProvider(this.Configuration, s.GetService<IEmailAccountManager>(), s.GetService<ILogger>(),
-                Options.Create(this.Configuration.GetSection(ConfigConstants.MSGraphSettingConfigSectionKey).Get<MSGraphSetting>()), s.GetService<ITokenHelper>(), s.GetService<IMSGraphProvider>(), s.GetService<IEmailManager>()))
-                .AddScoped<INotificationProvider, MSGraphNotificationProvider>();
-
-
-
+                .AddScoped<INotificationProvider, DirectSendNotificationProvider>();
 
         }
-
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>

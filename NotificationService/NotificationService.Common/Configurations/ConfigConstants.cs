@@ -126,9 +126,24 @@
         public const string DirectSendSettingConfigSectionKey = "DirectSendSetting";
 
         /// <summary>
-        /// A constant or resend allowed days.
+        /// A constant for resend allowed days.
         /// </summary>
         public const string AllowedMaxResendDurationInDays = "AllowedMaxResendDurationInDays";
+
+        /// <summary>
+        /// A constact for StorageAccount notification queue. 
+        /// </summary>
+        public const string StorageAccNotificationQueueName = "NotificationQueueName";
+
+        /// <summary>
+        /// StorageType.
+        /// </summary>
+        public const string StorageType = "StorageType";
+
+        /// <summary>
+        /// NotificationProviderType.
+        /// </summary>
+        public const string NotificationProviderType = "NotificationProviderType";
 
         /// <summary>
         /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
