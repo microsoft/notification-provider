@@ -61,6 +61,7 @@ export default function MailHistory() {
         previousPageAriaLabel: 'previous page',
         nextPageAriaLabel: 'next page',
         inputFieldAriaLabel: 'page number',
+        
         onPageChange: onPageChange
     };
     const paginationPageSizeProps = {
@@ -78,7 +79,7 @@ export default function MailHistory() {
 
     useEffect(() => {
         fetchMailHistory(null, null, null);
-    });
+    },[]);
 
     const fetchMailHistory = (filter, token, pageSize) => {
         setShowShimmer(true);
@@ -116,9 +117,10 @@ export default function MailHistory() {
             key: 'column' + (index + 1),
             name: item,
             fieldName: fieldNames[index],
-            minWidth: 80,
-            maxWidth: 100,
-            isResizable: true
+            minWidth: 10,
+            maxWidth: 140,
+            isResizable: true,
+            isHeader:true
 
         }));
 
@@ -145,7 +147,10 @@ export default function MailHistory() {
             return null;
         }
         return (
-            <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced stickyBackgroundColor="transparent">
+            <Sticky 
+            stickyPosition={StickyPositionType.Header} 
+            isScrollSynced 
+            stickyBackgroundColor="transparent">
                 {defaultRender({
                     ...props
                 })}
@@ -155,8 +160,7 @@ export default function MailHistory() {
 
     const filterProps = [
         { key: 0, text: "NotificationId", selector: "InputBox", value: [] },
-        {
-            key: 1, text: "Status", selector: "ComboBox", value: [{ key: 0, text: "Queued" }, { key: 1, text: "Processing" },
+        {key: 1, text: "Status", selector: "ComboBox", value: [{ key: 0, text: "Queued" }, { key: 1, text: "Processing" },
             { key: 2, text: "Retrying" }, { key: 3, text: "Failed" }, { key: 4, text: "Sent" },]
         },
         { key: 2, text: "SentOn", selector: "InputBox", value: [] }
@@ -237,7 +241,9 @@ export default function MailHistory() {
                             constrainMode={ConstrainMode.unconstrained}
                             items={mailHistoryData ? mailHistoryData : []}
                             isHeaderVisible={true}
-                            checkButtonAriaLabel="None"
+                            checkButtonAriaLabel="checkButton"
+                            ariaLabelForSelectAllCheckbox="selectallcheckbutton"
+                            ariaLabel="checkButton"
                             onRenderDetailsHeader={onRenderDetailsHeader}
                             onActiveItemChanged={onActiveItemChanged}
                             selectionMode={SelectionMode.multiple}
@@ -260,7 +266,8 @@ export default function MailHistory() {
             <Stack horizontal horizontalAlign="end">
                 <Stack horizontal horizontalAlign="space-between" styles={{ root: { width: '50%' } }}>
                     <div style={{ marginLeft: -132 }}>
-                        <CoherencePagination {...paginationProps} />
+                        <CoherencePagination {...paginationProps}
+                        />
                     </div>
                     {/* <CoherencePageSize {...paginationPageSizeProps} /> */}
                 </Stack>

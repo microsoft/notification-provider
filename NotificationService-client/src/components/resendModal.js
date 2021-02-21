@@ -11,10 +11,11 @@ export default function ResendModal (props) {
     const [resendStatus, setResendStatus] = useState("");
     selectedItems.forEach(e=>notificationIds.push(e.notificationId));
     const resendEmail = (e) => {
-        resendEmailService(notificationIds).then((res)=>{
-            setResendStatus("Success");
-        }).catch(e=>
-            setResendStatus("error"));
+        if(notificationIds.length>0)
+            resendEmailService(notificationIds).then((res)=>{
+                setResendStatus("Success");
+            }).catch(e=>
+                setResendStatus("error"));
     }
     return (
         <Dialog 
@@ -25,7 +26,7 @@ export default function ResendModal (props) {
                     title: 'Resend Emails',
                     subText: 'The following notification ids will be re-queued for resend:'
         }}>
-            {notificationIds}
+            {notificationIds?.join(" , ")}
             {resendStatus}
         <DialogFooter>
             <PrimaryButton onClick={resendEmail} text="Send" />

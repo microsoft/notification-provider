@@ -168,7 +168,7 @@ export default function  MailHistoryFilter (props) {
           key:selectedFilter.key,
           text:selectedFilter.text,
           op : selectedOp.key,
-          value : selectedFilter.selector==="InputBox"? selectedVal.split(",") : selectedComboValue,
+          value : selectedFilter.selector==="InputBox"? selectedVal?.split(",") : selectedComboValue,
           selector : selectedFilter.selector
 
       }
@@ -209,13 +209,14 @@ export default function  MailHistoryFilter (props) {
       ? filterVal.filter(element=>element.key===i)[0].value.length
       : filterVal.filter(element=>element.key===i)[0].value?.split(",").length;
       return (
-      <div key={i} id = {i} style={{padding : 5}}>
+      <div key={i} id = {i} style={{padding : 5,  height:"32px"}}>
           <div key={i} id = {i} className = {`messagebar${i}`}>
               <MessageBar key={i}
                   styles={{
                       root: {
                       background: 'rgba(113, 175, 229, 0.2)',
-                      color: '#00188f'
+                      color: '#00188f',
+                     
                       },
                       icon: {
                           
@@ -315,7 +316,7 @@ export default function  MailHistoryFilter (props) {
                     errorMessage={comboboxErrorMessage}/>)
                     :''
                 } </div><div className={styles.actions}>
-                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:30}}>
+                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:15}}>
                 <PrimaryButton  onClick = {onSelectAddFilter} text="Select" />
                 <DefaultButton  onClick = {toggleIsCalloutVisible} text="Cancel" /> 
                 </Stack>

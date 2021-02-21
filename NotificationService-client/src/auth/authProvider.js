@@ -64,9 +64,8 @@ export async function getToken() {
     const response = await MsalObj.acquireTokenSilent(idTokenLoginRequest);
     if (response && response.idToken && response.idToken.rawIdToken) {
         sessionStorage.setItem('msal.idtoken', response.idToken.rawIdToken);
-    } else {
-        signIn();
-    }
+        configureUserDetails();
+    } 
     Promise.resolve();
     }
     catch (e) {
@@ -76,6 +75,7 @@ export async function getToken() {
 }
 
 instance.interceptors.request.use(config1 => {
+
         if (sessionStorage.getItem('msal.idtoken')) {
             config1.headers.Authorization = `Bearer ${sessionStorage.getItem('msal.idtoken')}`;
         }
