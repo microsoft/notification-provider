@@ -12,7 +12,6 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;

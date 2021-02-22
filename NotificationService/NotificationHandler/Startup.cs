@@ -13,13 +13,11 @@ namespace NotificationHandler
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.BusinessLibrary.Utilities;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
-    using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Common;
 
     /// <summary>

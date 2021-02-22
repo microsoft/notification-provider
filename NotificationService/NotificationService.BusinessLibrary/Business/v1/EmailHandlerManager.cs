@@ -107,7 +107,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
                 IList<EmailNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateNotificationEntities(applicationName, emailNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
                 List<List<EmailNotificationItemEntity>> entitiesToQueue;
-                if (string.Equals(this.configuration?[ConfigConstants.NotificationProviderType], NotificationProviderType.Graph))
+                if (string.Equals(this.configuration?[ConfigConstants.NotificationProviderType], NotificationProviderType.Graph.ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     entitiesToQueue = BusinessUtilities.SplitList<EmailNotificationItemEntity>(notificationItemEntities.ToList(), this.mSGraphSetting.BatchRequestLimit).ToList();
                 }

@@ -10,7 +10,6 @@ namespace NotificationService.BusinessLibrary
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;

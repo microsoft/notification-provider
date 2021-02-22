@@ -11,7 +11,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
     using Moq.Protected;

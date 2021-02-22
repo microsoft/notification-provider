@@ -6,7 +6,6 @@ namespace NotificationService.BusinessLibrary
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using Newtonsoft.Json;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
