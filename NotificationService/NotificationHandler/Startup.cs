@@ -30,7 +30,7 @@ namespace NotificationHandler
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
         public Startup()
-            : base()
+            : base("Handler")
         {
         }
 

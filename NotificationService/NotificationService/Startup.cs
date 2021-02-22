@@ -40,7 +40,7 @@ namespace NotificationService
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
         public Startup()
-            : base()
+            : base("Service")
         {
         }
 

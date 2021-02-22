@@ -43,7 +43,8 @@ namespace NotificationService.SvCommon.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="StartupCommon"/> class.
         /// </summary>
-        public StartupCommon()
+        /// <param name="application">service/application name (Handler, Service).</param>
+        public StartupCommon(string application)
         {
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
@@ -62,8 +63,7 @@ namespace NotificationService.SvCommon.Common
             _ = builder.AddAzureAppConfiguration(options =>
             {
                 var settings = options.Connect(this.Configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]).Select(KeyFilter.Any, "Common")
-                .Select(KeyFilter.Any, "Service")
-                .Select(KeyFilter.Any, "Handler");
+                .Select(KeyFilter.Any, application);
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
                     _ = refreshOptions.Register(key: this.Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
