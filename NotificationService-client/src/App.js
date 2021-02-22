@@ -14,10 +14,9 @@ function App() {
       setIsLoggedIn(true);
    });
   },[]); 
-  return (<><div style={{left:"-10000px",top:"auto",width:"1px",height:"1px",overflow:"hidden"}}>
-    <a href="#main" target="#">Skip to main</a></div> 
+  return (<>
     {isLoggedIn===true ?
-    (<><div id="main">
+    (<main>
         <CoherenceHeader
          headerLabel={'header'}
          appNameSettings={{
@@ -33,7 +32,7 @@ function App() {
           }
          }}/> 
          <MailHistory/>
-    </div></> ): ''}
+    </main>): ''}
   </>);
 }
 
