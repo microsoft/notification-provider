@@ -189,11 +189,6 @@ namespace NotificationService.BusinessLibrary
 
                 if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
-                    /*if (string.IsNullOrEmpty(notification.TemplateData))
-                    {
-                        throw new ArgumentException("TemplateData cannot be null or empty.");
-                    }
-                    */
                     MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
@@ -255,11 +250,6 @@ namespace NotificationService.BusinessLibrary
 
                 if (string.IsNullOrEmpty(notification.Body) && !string.IsNullOrEmpty(notification.TemplateId))
                 {
-                    /*if (string.IsNullOrEmpty(notification.TemplateData))
-                    {
-                        throw new ArgumentException("TemplateData cannot be null or empty.");
-                    }
-                    */
                     MailTemplate template = await this.templateManager.GetMailTemplate(applicationName, notification.TemplateId).ConfigureAwait(false);
                     if (template == null)
                     {
