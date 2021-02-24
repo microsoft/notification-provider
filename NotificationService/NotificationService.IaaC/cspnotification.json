@@ -83,6 +83,12 @@
         "description": "KeyVaultUrl to get the secret."
       }
     },
+    "NotificationQueueName": {
+      "type": "string",
+      "metadata": {
+        "description": "Notification Queue name for function app."
+      }
+    },
     "KeyVaultConfigRefreshDurationSeconds": {
       "type": "string",
       "defaultValue": "120",
@@ -185,6 +191,10 @@
             {
               "name": "KeyVaultUrl",
               "value": "[parameters('KeyVaultUrl')]"
+            },
+            {
+              "name": "NotificationQueueName",
+              "value": "[parameters('NotificationQueueName')]"
             },
             {
               "name": "KeyVaultConfigRefreshDurationSeconds",

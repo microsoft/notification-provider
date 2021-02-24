@@ -159,7 +159,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             bool result = false;
             try
             {
-                this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 if (string.IsNullOrWhiteSpace(applicationName))
                 {
                     throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
@@ -201,7 +201,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
-                this.logger.TraceInformation($"Completed {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                this.logger.TraceInformation($"Completed {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 result = true;
                 return responses;
             }
