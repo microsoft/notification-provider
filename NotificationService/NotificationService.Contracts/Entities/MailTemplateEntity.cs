@@ -15,8 +15,8 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the template name.
         /// </summary>
-        [DataMember(Name = "templateName")]
-        public string TemplateName { get; set; }
+        [DataMember(Name = "TemplateId")]
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the template description.

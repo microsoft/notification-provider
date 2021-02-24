@@ -16,6 +16,8 @@ Notification Provider is an implementation to send Email Notifications using the
 
 _Please find further details in the [WIKI here](https://github.com/microsoft/notification-provider/wiki/Notification-Provider)._
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2Fnotification-provider%2Fmain%2FNotificationService%2FNotificationService.IaaC%2Fcspnotification.json)
+
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us

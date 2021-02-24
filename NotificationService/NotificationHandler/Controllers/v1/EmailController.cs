@@ -188,7 +188,7 @@ namespace NotificationHandler.Controllers
                     this.LogAndThrowArgumentNullException("Mail template param should not be null", nameof(mailTemplate), traceProps);
                 }
 
-                if (string.IsNullOrWhiteSpace(mailTemplate.TemplateName))
+                if (string.IsNullOrWhiteSpace(mailTemplate.TemplateId))
                 {
                     this.LogAndThrowArgumentNullException("Template name should not be empty", nameof(mailTemplate), traceProps);
                 }
