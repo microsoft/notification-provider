@@ -11,6 +11,7 @@ namespace NotificationService.SvCommon
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Contracts;
 
     /// <summary>
@@ -54,8 +55,8 @@ namespace NotificationService.SvCommon
 
             var httpContext = this.httpContextAccessor?.HttpContext;
             var routeValues = httpContext?.Request?.RouteValues;
-            var applicationNameQueryParam = routeValues?.FirstOrDefault(rv => string.Equals(rv.Key, Constants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
-            var applicationAccountsConfiguration = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration["ApplicationAccounts"]);
+            var applicationNameQueryParam = routeValues?.FirstOrDefault(rv => string.Equals(rv.Key, ApplicationConstants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
+            var applicationAccountsConfiguration = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration[ConfigConstants.ApplicationAccountsConfigSectionKey]);
             if (applicationAccountsConfiguration != null && applicationAccountsConfiguration.Exists(a => a.ApplicationName == applicationNameQueryParam))
             {
                 context.Succeed(requirement);

@@ -4,13 +4,11 @@
 namespace NotificationService.BusinessLibrary
 {
     using System.Collections.Generic;
-    using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using NotificationService.BusinessLibrary.Models;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Models.Graph.Invite;
-    using Org.BouncyCastle.Asn1.Ocsp;
 
     /// <summary>
     /// MS Graph Provider interface.

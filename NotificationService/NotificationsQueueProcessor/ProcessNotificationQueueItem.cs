@@ -11,7 +11,6 @@ namespace NotificationsQueueProcessor
     using System.Threading.Tasks;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Newtonsoft.Json;
     using NotificationService.Common.Logger;
@@ -39,6 +38,9 @@ namespace NotificationsQueueProcessor
         /// </summary>
         private readonly IConfiguration configuration;
 
+        /// <summary>
+        /// Instance of HttpClientHelper for making http api calls.
+        /// </summary>
         private readonly IHttpClientHelper httpClientHelper;
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace NotificationsQueueProcessor
         /// <param name="inputQueueItem">Serialized queue item.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         [FunctionName("ProcessNotificationQueueItem")]
-        public async Task Run([QueueTrigger("notifications-queue", Connection = "AzureWebJobsStorage")] CloudQueueMessage inputQueueItem)
+        public async Task Run([QueueTrigger("%NotificationQueueName%", Connection = "AzureWebJobsStorage")] CloudQueueMessage inputQueueItem)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -91,15 +93,15 @@ namespace NotificationsQueueProcessor
 
                 queueNotificationItem = JsonConvert.DeserializeObject<QueueNotificationItem>(notifQueueItem);
 
-                traceProps[NotificationService.Common.Constants.Application] = queueNotificationItem?.Application;
-                traceProps[NotificationService.Common.Constants.CorrelationId] = queueNotificationItem?.CorrelationId;
-                traceProps[NotificationService.Common.Constants.NotificationIds] = string.Join(',', queueNotificationItem?.NotificationIds);
-                traceProps[NotificationService.Common.Constants.EmailNotificationCount] = string.Join(',', queueNotificationItem?.NotificationIds?.Length);
-                traceProps[NotificationService.Common.Constants.NotificationType] = queueNotificationItem?.NotificationType.ToString();
+                traceProps[AIConstants.Application] = queueNotificationItem?.Application;
+                traceProps[AIConstants.CorrelationId] = queueNotificationItem?.CorrelationId;
+                traceProps[AIConstants.NotificationIds] = string.Join(',', queueNotificationItem?.NotificationIds);
+                traceProps[AIConstants.EmailNotificationCount] = string.Join(',', queueNotificationItem?.NotificationIds?.Length);
+                traceProps[AIConstants.NotificationType] = queueNotificationItem?.NotificationType.ToString();
                 this.logger.TraceInformation($"ProcessNotificationQueueItem. Notification Item: {notifQueueItem}", traceProps);
                 this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
 
-                _ = traceProps.Remove(NotificationService.Common.Constants.NotificationIds);
+                _ = traceProps.Remove(AIConstants.NotificationIds);
                 if (queueNotificationItem != null)
                 {
                     var notifType = queueNotificationItem.NotificationType == NotificationType.Mail ? Constants.EmailNotificationType : Constants.MeetingNotificationType;
@@ -151,7 +153,7 @@ namespace NotificationsQueueProcessor
                 stopwatch.Stop();
 
                 var metrics = new Dictionary<string, double>();
-                metrics[NotificationService.Common.Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("QueueEmailNotifications Completed", traceProps, metrics);
             }
         }

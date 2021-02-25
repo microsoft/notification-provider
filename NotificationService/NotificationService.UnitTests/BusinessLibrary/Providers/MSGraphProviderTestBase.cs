@@ -7,12 +7,17 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
-    using NotificationService.BusinessLibrary;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
 
-    public class MSGraphProvideTestBase
+    /// <summary>
+    /// MSGraphProvider Unit Test Class.
+    /// </summary>
+    public class MSGraphProviderTestBase
     {
+        /// <summary>
+        /// sendEmailUrl private field.
+        /// </summary>
         private readonly string sendEmailUrl = "v1/sendEmail";
 
         /// <summary>
@@ -40,9 +45,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// </summary>
         public IConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// Initialize test setup.
+        /// </summary>
         protected void SetupTestBase()
         {
-            this.MsGraphSetting = Options.Create(new MSGraphSetting() { EnableBatching = false, SendMailUrl = this.sendEmailUrl, BatchRequestLimit = 4 });
+            this.MsGraphSetting = Options.Create(new MSGraphSetting() { EnableBatching = false, SendMailUrl = this.sendEmailUrl, BatchRequestLimit = 4, SendInviteUrl= "v1/events", BaseUrl="https://graphtest.com/" });
             this.Logger = new Mock<ILogger>().Object;
             this.MockedHttpClient = new Mock<HttpClient>();
         }

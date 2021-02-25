@@ -15,6 +15,7 @@ namespace NotificationService.SvCommon
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Contracts;
 
     /// <summary>
@@ -62,21 +63,21 @@ namespace NotificationService.SvCommon
             var headers = httpContext?.Request?.Headers;
             var routeValues = httpContext?.Request?.RouteValues;
 
-            if (headers != null && headers.ContainsKey(Constants.AuthorizationHeaderName) && headers[Constants.AuthorizationHeaderName].Count >= 1 &&
-                headers[Constants.AuthorizationHeaderName][0].StartsWith(Constants.BearerAuthenticationScheme, StringComparison.OrdinalIgnoreCase))
+            if (headers != null && headers.ContainsKey(ApplicationConstants.AuthorizationHeaderName) && headers[ApplicationConstants.AuthorizationHeaderName].Count >= 1 &&
+                headers[ApplicationConstants.AuthorizationHeaderName][0].StartsWith(ApplicationConstants.BearerAuthenticationScheme, StringComparison.OrdinalIgnoreCase))
             {
-                var token = headers[Constants.AuthorizationHeaderName][0].Substring("Bearer ".Length);
+                var token = headers[ApplicationConstants.AuthorizationHeaderName][0].Substring($"{ApplicationConstants.BearerAuthenticationScheme} ".Length);
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var claims = tokenHandler.ReadJwtToken(token).Claims;
                 var currentUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                var expiryInToken = int.Parse(claims.FirstOrDefault(c => c.Type == Constants.ExpiryClaimType).Value, CultureInfo.InvariantCulture);
+                var expiryInToken = int.Parse(claims.FirstOrDefault(c => c.Type == ApplicationConstants.ExpiryClaimType).Value, CultureInfo.InvariantCulture);
 
                 // Validate further only if the token is still valid.
                 if (expiryInToken > currentUnixTime)
                 {
-                    var audienceInToken = claims.FirstOrDefault(c => c.Type == Constants.AudienceClaimType).Value;
-                    var applicationName = routeValues.FirstOrDefault(rv => string.Equals(rv.Key, Constants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
-                    var applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration["ApplicationAccounts"]);
+                    var audienceInToken = claims.FirstOrDefault(c => c.Type == ApplicationConstants.AudienceClaimType).Value;
+                    var applicationName = routeValues.FirstOrDefault(rv => string.Equals(rv.Key, ApplicationConstants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
+                    var applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration[ConfigConstants.ApplicationAccountsConfigSectionKey]);
                     var validAppIdsForApplication = applicationAccounts?.Find(a => string.Equals(a.ApplicationName, applicationName, StringComparison.InvariantCultureIgnoreCase))?.ValidAppIdsList;
 
                     if (audienceInToken != null && validAppIdsForApplication != null && validAppIdsForApplication.Contains(audienceInToken))

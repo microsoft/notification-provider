@@ -54,7 +54,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         public async Task TestProcessMeetingInvites_InviteItems_NullOrEmpty()
         {
             Exception ex = null;
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             try
             {
                 await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, null);
@@ -81,7 +81,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 { "RetrySetting", JsonConvert.SerializeObject(this.retrySetting) },
             };
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Sent);
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Failed);
         }
@@ -108,7 +108,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Sent);
         }
@@ -134,7 +134,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Retrying);
         }
@@ -168,7 +168,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             };
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInviteAttachments(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<List<FileAttachment>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(attachmentRes);
 
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Sent);
         }
@@ -196,7 +196,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             inviteEntities.FirstOrDefault().TryCount = 10;
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Failed);
         }
@@ -230,7 +230,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             };
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInviteAttachments(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<List<FileAttachment>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(attachmentRes);
             _ = this.MsGraphProvider.Setup(x => x.DeleteMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ResponseData<string>() { Status = false, StatusCode = HttpStatusCode.OK });
-            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, Options.Create(this.retrySetting), this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
+            var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
             await testClass.ProcessMeetingNotificationEntities(this.ApplicationName, inviteEntities);
             Assert.IsTrue(inviteEntities.FirstOrDefault().Status == NotificationItemStatus.Retrying);
         }

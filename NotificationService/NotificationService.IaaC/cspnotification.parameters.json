@@ -16,6 +16,9 @@
     },
     "configStoreName": {
       "value": "__configStoreName__"
+    },
+    "NotificationQueueName" : {
+      "value": "__notificationQueueName__"
     }
   }
 }

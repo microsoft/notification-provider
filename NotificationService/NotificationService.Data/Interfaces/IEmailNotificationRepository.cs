@@ -5,13 +5,10 @@ namespace NotificationService.Data
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models;
-    using NotificationService.Data.Interfaces;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Repository Interface for Email Notification Items.

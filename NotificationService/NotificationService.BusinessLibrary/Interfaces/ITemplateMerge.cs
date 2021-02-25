@@ -3,10 +3,6 @@
 
 namespace NotificationService.BusinessLibrary.Interfaces
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     /// <summary>
     /// Merge templates with template input tokens.
     /// </summary>

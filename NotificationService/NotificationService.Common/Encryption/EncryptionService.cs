@@ -9,6 +9,7 @@ namespace NotificationService.Common.Encryption
     using Azure.Core.Cryptography;
     using Microsoft.Azure.KeyVault.WebKey;
     using Microsoft.Extensions.Configuration;
+    using NotificationService.Common.Configurations;
 
     /// <summary>
     /// Common service to encrypt/decrypt sensitive data.
@@ -38,8 +39,8 @@ namespace NotificationService.Common.Encryption
             }
 
             this.keyInfo = new KeyInfo(
-                cryptographyClient.UnwrapKey(JsonWebKeyEncryptionAlgorithm.RSA15, Convert.FromBase64String(configuration[Constants.NotificationEncryptionKey])),
-                cryptographyClient.UnwrapKey(JsonWebKeyEncryptionAlgorithm.RSA15, Convert.FromBase64String(configuration[Constants.NotificationEncryptionIntialVector])));
+                cryptographyClient.UnwrapKey(JsonWebKeyEncryptionAlgorithm.RSA15, Convert.FromBase64String(configuration[ConfigConstants.NotificationEncryptionKey])),
+                cryptographyClient.UnwrapKey(JsonWebKeyEncryptionAlgorithm.RSA15, Convert.FromBase64String(configuration[ConfigConstants.NotificationEncryptionIntialVector])));
         }
 
         /// <inheritdoc/>

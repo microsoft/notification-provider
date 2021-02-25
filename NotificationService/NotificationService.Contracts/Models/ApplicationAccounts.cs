@@ -47,7 +47,7 @@ namespace NotificationService.Contracts
 
             if (!string.IsNullOrWhiteSpace(valuesAsSingleString))
             {
-                values.AddRange(valuesAsSingleString.Split(Common.Constants.SplitCharacter).Select(v => v.Trim()));
+                values.AddRange(valuesAsSingleString.Split(Common.ApplicationConstants.SplitCharacter).Select(v => v.Trim()));
             }
 
             return values;

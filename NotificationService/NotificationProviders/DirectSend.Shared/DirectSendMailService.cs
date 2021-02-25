@@ -26,7 +26,6 @@ namespace DirectSend
     /// <seealso cref="IEmailService" />
     public class DirectSendMailService : IEmailService
     {
-        // https://dotnetcoretutorials.com/2017/11/02/using-mailkit-send-receive-email-asp-net-core/
         private readonly ISmtpClientPool clientPool;
         private readonly ILogger logger;
         private readonly SendAccountConfiguration mailConfiguration;

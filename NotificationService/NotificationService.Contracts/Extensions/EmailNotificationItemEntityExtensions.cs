@@ -8,9 +8,7 @@ namespace NotificationService.Contracts
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
-    using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Common.Configurations;
-    using NotificationService.Common.Encryption;
 
     /// <summary>
     /// Extensions of the <see cref="EmailNotificationItemEntity"/> class.
@@ -30,13 +28,13 @@ namespace NotificationService.Contracts
             {
                 Subject = emailNotificationItemEntity?.Subject,
                 Body = body,
-                ToRecipients = emailNotificationItemEntity.To.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                ToRecipients = emailNotificationItemEntity.To.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                     .Select(torecipient => new Recipient { EmailAddress = new EmailAddress { Address = torecipient } }).ToList(),
-                CCRecipients = emailNotificationItemEntity.CC?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                CCRecipients = emailNotificationItemEntity.CC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                     .Select(ccrecipient => new Recipient { EmailAddress = new EmailAddress { Address = ccrecipient } }).ToList(),
-                BCCRecipients = emailNotificationItemEntity.BCC?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                BCCRecipients = emailNotificationItemEntity.BCC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                     .Select(bccrecipient => new Recipient { EmailAddress = new EmailAddress { Address = bccrecipient } }).ToList(),
-                ReplyToRecipients = emailNotificationItemEntity.ReplyTo?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                ReplyToRecipients = emailNotificationItemEntity.ReplyTo?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                     .Select(reploytorecipient => new Recipient { EmailAddress = new EmailAddress { Address = reploytorecipient } }).ToList(),
                 Attachments = emailNotificationItemEntity.Attachments?.Select(attachment => new FileAttachment
                 { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
@@ -86,9 +84,9 @@ namespace NotificationService.Contracts
             {
                 Subject = emailNotificationItemEntity?.Subject,
                 Content = body?.Content,
-                ToAddresses = emailNotificationItemEntity.To?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                ToAddresses = emailNotificationItemEntity.To?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList(),
-                CcAddresses = emailNotificationItemEntity.CC?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                CcAddresses = emailNotificationItemEntity.CC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(ccrecipient => new DirectSend.Models.Mail.EmailAddress { Address = ccrecipient }).ToList(),
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),

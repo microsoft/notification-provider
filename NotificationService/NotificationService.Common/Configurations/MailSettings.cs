@@ -3,10 +3,7 @@
 
 namespace NotificationService.Common.Configurations
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Text;
 
     /// <summary>
     /// MailSettings Configuration Settings.

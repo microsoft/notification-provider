@@ -14,10 +14,12 @@ namespace NotificationService.BusinessLibrary.Business.v1
     using Microsoft.Extensions.Options;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
 
     /// <summary>
@@ -51,6 +53,11 @@ namespace NotificationService.BusinessLibrary.Business.v1
         private readonly IEmailManager emailManager;
 
         /// <summary>
+        /// StorageAccountSetting configuration object.
+        /// </summary>
+        private readonly string notificationQueue;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EmailHandlerManager"/> class.
         /// </summary>
         /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
@@ -70,6 +77,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.cloudStorageClient = cloudStorageClient;
             this.logger = logger;
             this.emailManager = emailManager;
+            this.notificationQueue = this.configuration?[$"{ConfigConstants.StorageAccountConfigSectionKey}:{ConfigConstants.StorageAccNotificationQueueName}"];
         }
 
         /// <inheritdoc/>
@@ -92,16 +100,14 @@ namespace NotificationService.BusinessLibrary.Business.v1
                     throw new ArgumentNullException(nameof(emailNotificationItems));
                 }
 
-                traceProps[Constants.Application] = applicationName;
-                traceProps[Constants.EmailNotificationCount] = emailNotificationItems.Length.ToString();
+                traceProps[AIConstants.Application] = applicationName;
+                traceProps[AIConstants.EmailNotificationCount] = emailNotificationItems.Length.ToString(CultureInfo.InvariantCulture);
 
                 this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
                 IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
-                this.logger.TraceVerbose($"Started {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 IList<EmailNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateNotificationEntities(applicationName, emailNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 List<List<EmailNotificationItemEntity>> entitiesToQueue;
-                if (string.Equals(this.configuration?[Constants.NotificationProviderType], NotificationProviderType.Graph))
+                if (string.Equals(this.configuration?[ConfigConstants.NotificationProviderType], NotificationProviderType.Graph.ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     entitiesToQueue = BusinessUtilities.SplitList<EmailNotificationItemEntity>(notificationItemEntities.ToList(), this.mSGraphSetting.BatchRequestLimit).ToList();
                 }
@@ -111,7 +117,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue("notifications-queue");
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
 
                 foreach (var item in entitiesToQueue)
                 {
@@ -138,9 +144,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
             finally
             {
                 stopwatch.Stop();
-                traceProps[Constants.Result] = result.ToString();
+                traceProps[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
-                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("QueueEmailNotifications Completed", traceProps, metrics);
             }
         }
@@ -153,7 +159,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             bool result = false;
             try
             {
-                this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 if (string.IsNullOrWhiteSpace(applicationName))
                 {
                     throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
@@ -164,16 +170,14 @@ namespace NotificationService.BusinessLibrary.Business.v1
                     throw new ArgumentNullException(nameof(meetingNotificationItems));
                 }
 
-                traceProps[Constants.Application] = applicationName;
-                traceProps[Constants.MeetingNotificationCount] = meetingNotificationItems.Length.ToString(CultureInfo.InvariantCulture);
+                traceProps[AIConstants.Application] = applicationName;
+                traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItems.Length.ToString(CultureInfo.InvariantCulture);
 
                 this.logger.WriteCustomEvent("QueueEmailNotifications Started", traceProps);
                 IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
-                this.logger.TraceVerbose($"Started {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 IList<MeetingNotificationItemEntity> notificationItemEntities = await this.emailManager.CreateMeetingNotificationEntities(applicationName, meetingNotificationItems, NotificationItemStatus.Queued).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailManager.CreateNotificationEntities)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 List<List<MeetingNotificationItemEntity>> entitiesToQueue;
-                if (string.Equals(this.configuration?[Constants.NotificationProviderType], NotificationProviderType.Graph))
+                if (string.Equals(this.configuration?[ConfigConstants.NotificationProviderType], NotificationProviderType.Graph.ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     entitiesToQueue = BusinessUtilities.SplitList<MeetingNotificationItemEntity>(notificationItemEntities.ToList(), this.mSGraphSetting.BatchRequestLimit).ToList();
                 }
@@ -183,7 +187,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 // Queue a single cloud message for all entities created to enable parallel processing.
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
+                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
 
                 foreach (var item in entitiesToQueue)
                 {
@@ -197,7 +201,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                 }
 
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
-                this.logger.TraceInformation($"Completed {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
+                this.logger.TraceInformation($"Completed {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 result = true;
                 return responses;
             }
@@ -210,9 +214,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
             finally
             {
                 stopwatch.Stop();
-                traceProps[Constants.Result] = result.ToString();
+                traceProps[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
-                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent("QueueEmailNotifications Completed", traceProps, metrics);
             }
         }
@@ -234,7 +238,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
 
             // Queue a single cloud message for all entities created to enable parallel processing.
-            var cloudQueue = this.cloudStorageClient.GetCloudQueue(Constants.NotificationsQueue);
+            var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
             IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, ignoreAlreadySent);
             await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
 
@@ -254,7 +258,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
         public async Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
         {
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
-            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), Constants.AllowedMaxResendDurationInDays);
+            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), ConfigConstants.AllowedMaxResendDurationInDays);
             if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= allowedMaxResendDurationInDays)
             {
                 throw new DataException($"Date-range must not be less or equal to {allowedMaxResendDurationInDays}");

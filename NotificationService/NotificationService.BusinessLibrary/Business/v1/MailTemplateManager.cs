@@ -8,7 +8,6 @@ namespace NotificationService.BusinessLibrary
     using System.Diagnostics;
     using System.Globalization;
     using System.Threading.Tasks;
-    using NotificationService.Common;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -55,8 +54,8 @@ namespace NotificationService.BusinessLibrary
             }
 
             var traceprops = new Dictionary<string, string>();
-            traceprops[Constants.Application] = applicationName;
-            traceprops[Constants.MailTemplateName] = templateName;
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MailTemplateName] = templateName;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             bool result = false;
@@ -80,9 +79,9 @@ namespace NotificationService.BusinessLibrary
             finally
             {
                 stopwatch.Stop();
-                traceprops[Constants.Result] = result.ToString();
+                traceprops[AIConstants.Result] = result.ToString();
                 var metrics = new Dictionary<string, double>();
-                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent($"{nameof(this.GetMailTemplate)} Completed", traceprops, metrics);
             }
         }
@@ -103,8 +102,8 @@ namespace NotificationService.BusinessLibrary
             bool response = false;
             bool result = false;
             var traceprops = new Dictionary<string, string>();
-            traceprops[Constants.Application] = applicationName;
-            traceprops[Constants.MailTemplateName] = mailTempalte.TemplateId;
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MailTemplateId] = mailTempalte.TemplateId;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             this.logger.WriteCustomEvent($"{nameof(this.SaveEmailTemplate)} Started", traceprops);
@@ -127,9 +126,9 @@ namespace NotificationService.BusinessLibrary
             finally
             {
                 stopwatch.Stop();
-                traceprops[Constants.Result] = result.ToString();
+                traceprops[AIConstants.Result] = result.ToString();
                 var metrics = new Dictionary<string, double>();
-                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent($"{nameof(this.SaveEmailTemplate)} Completed", traceprops, metrics);
             }
         }
@@ -153,8 +152,8 @@ namespace NotificationService.BusinessLibrary
             }
 
             var traceprops = new Dictionary<string, string>();
-            traceprops[Constants.Application] = applicationName;
-            traceprops[Constants.MailTemplateName] = templateName;
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MailTemplateName] = templateName;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             bool result = false;
@@ -176,9 +175,9 @@ namespace NotificationService.BusinessLibrary
             {
                 stopwatch.Stop();
                 CultureInfo provider = new CultureInfo("en-us");
-                traceprops[Constants.Result] = result.ToString(provider);
+                traceprops[AIConstants.Result] = result.ToString(provider);
                 var metrics = new Dictionary<string, double>();
-                metrics[Constants.Duration] = stopwatch.ElapsedMilliseconds;
+                metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent($"{nameof(this.DeleteMailTemplate)} Completed", traceprops, metrics);
             }
         }

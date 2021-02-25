@@ -10,6 +10,7 @@ namespace NotificationService.UnitTests.Common.Encryption
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.UnitTests.Mocks;
     using NUnit.Framework;
@@ -38,8 +39,8 @@ namespace NotificationService.UnitTests.Common.Encryption
             this.mockedCryptographyClient = new Mock<IKeyEncryptionKey>();
             this.mockedConfiguration = new Mock<IConfiguration>();
             Aes myAes = Aes.Create();
-            _ = this.mockedConfiguration.Setup(x => x[Constants.NotificationEncryptionKey]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedKey")));
-            _ = this.mockedConfiguration.Setup(x => x[Constants.NotificationEncryptionIntialVector]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedIV")));
+            _ = this.mockedConfiguration.Setup(x => x[ConfigConstants.NotificationEncryptionKey]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedKey")));
+            _ = this.mockedConfiguration.Setup(x => x[ConfigConstants.NotificationEncryptionIntialVector]).Returns(Convert.ToBase64String(Encoding.UTF8.GetBytes("EncryptedIV")));
         }
 
         /// <summary>

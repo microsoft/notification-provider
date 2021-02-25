@@ -11,7 +11,6 @@ namespace NotificationService.BusinessLibrary.Providers
     using System.Threading.Tasks;
     using DirectSend;
     using Microsoft.Extensions.Configuration;
-    using MimeKit;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Business;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -76,9 +75,10 @@ namespace NotificationService.BusinessLibrary.Providers
             this.configuration = configuration;
             this.mailService = mailService;
             this.logger = logger;
-            if (this.configuration?["MailSettings"] != null)
+            if (this.configuration?[ConfigConstants.MailSettingsConfigKey] != null)
             {
-                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?["MailSettings"]);
+                this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?[ConfigConstants
+                    .MailSettingsConfigKey]);
             }
 
             this.emailManager = emailManager;
@@ -88,7 +88,11 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <inheritdoc/>
         public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MeetingNotificationCount] = notificationEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -108,17 +112,17 @@ namespace NotificationService.BusinessLibrary.Providers
                     message.FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = this.directSendSetting?.FromAddressDisplayName, Address = this.directSendSetting?.FromAddress } };
                     if (!sendForReal)
                     {
-                        message.ToAddresses = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        message.ToAddresses = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         message.CcAddresses = null;
                     }
                     else
                     {
-                        var toAddress = item.RequiredAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        var toAddress = item.RequiredAttendees.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         if (item.OptionalAttendees?.Length > 0)
                         {
-                            toAddress.AddRange(item.OptionalAttendees.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)?
+                            toAddress.AddRange(item.OptionalAttendees.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)?
                                      .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList());
                         }
 
@@ -138,13 +142,19 @@ namespace NotificationService.BusinessLibrary.Providers
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }
+
+                this.logger.TraceInformation($"Finished {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             }
         }
 
         /// <inheritdoc/>
         public async Task ProcessNotificationEntities(string applicationName, IList<EmailNotificationItemEntity> notificationEntities)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.MeetingNotificationCount] = notificationEntities?.Count.ToString(CultureInfo.InvariantCulture);
+
+            this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -163,7 +173,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     DirectSend.Models.Mail.EmailMessage message = item.ToDirectSendEmailMessage(body, this.directSendSetting);
                     if (!sendForReal)
                     {
-                        message.ToAddresses = toOverride.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                        message.ToAddresses = toOverride.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList();
                         message.CcAddresses = null;
                     }
@@ -180,7 +190,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 }
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(DirectSendNotificationProvider)}.", traceprops);
         }
 
         private static DayOfTheWeek[] GetDaysOfWeek(string daysOfWeek)
@@ -266,14 +276,14 @@ namespace NotificationService.BusinessLibrary.Providers
                 str.AppendLine("CLASS:PRIVATE");
             }
 
-            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
             {
                 str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", to));
             }
 
             if (!string.IsNullOrEmpty(meetingNotificationItem.OptionalAttendees))
             {
-                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.Constants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
                 {
                     str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", cc));
                 }

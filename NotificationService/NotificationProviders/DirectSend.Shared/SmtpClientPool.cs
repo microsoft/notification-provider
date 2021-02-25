@@ -128,7 +128,7 @@ namespace DirectSend
             }
             finally
             {
-                SemaphoreSlim.Release();
+                _ = SemaphoreSlim.Release();
             }
         }
 
@@ -176,7 +176,7 @@ namespace DirectSend
             }
             finally
             {
-                SemaphoreSlim.Release();
+                _ = SemaphoreSlim.Release();
             }
         }
     }

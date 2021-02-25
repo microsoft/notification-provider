@@ -58,12 +58,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.EncryptionService = new Mock<IEncryptionService>();
             var notificationId = Guid.NewGuid().ToString();
             var notifications = new List<EmailNotificationItemEntity> { new EmailNotificationItemEntity { NotificationId = notificationId } };
-            _ = this.MockedCloudStorageClient.Setup(x => x.UploadBlobAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}", "TestString")).ReturnsAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}");
+            _ = this.MockedCloudStorageClient.Setup(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}", "TestString")).ReturnsAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}");
             _ = this.EncryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns("TestString");
             var repo = new MailAttachmentRepository(this.Logger, this.MockedCloudStorageClient.Object, this.EncryptionService.Object);
             var updatednotifications = await repo.UploadEmail(notifications, NotificationType.Mail.ToString(), "TestApp").ConfigureAwait(false);
             Assert.IsTrue(updatednotifications.Count == 1);
-            this.MockedCloudStorageClient.Verify(x => x.UploadBlobAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}", "TestString"), Times.Once);
+            this.MockedCloudStorageClient.Verify(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}", "TestString"), Times.Once);
             this.EncryptionService.Verify(x => x.Encrypt(It.IsAny<string>()), Times.Once);
         }
 
@@ -78,12 +78,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.EncryptionService = new Mock<IEncryptionService>();
             var notificationId = Guid.NewGuid().ToString();
             var notifications = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = notificationId } };
-            _ = this.MockedCloudStorageClient.Setup(x => x.UploadBlobAsync($"TestApp/{Constants.MeetingNotificationsFolderName}/{notificationId}", "TestString")).ReturnsAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}");
+            _ = this.MockedCloudStorageClient.Setup(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}", "TestString")).ReturnsAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}");
             _ = this.EncryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns("TestString");
             var repo = new MailAttachmentRepository(this.Logger, this.MockedCloudStorageClient.Object, this.EncryptionService.Object);
             var updatednotifications = await repo.UploadMeetingInvite(notifications, NotificationType.Mail.ToString(), "TestApp").ConfigureAwait(false);
             Assert.IsTrue(updatednotifications.Count == 1);
-            this.MockedCloudStorageClient.Verify(x => x.UploadBlobAsync($"TestApp/{Constants.MeetingNotificationsFolderName}/{notificationId}", "TestString"), Times.Once);
+            this.MockedCloudStorageClient.Verify(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}", "TestString"), Times.Once);
             this.EncryptionService.Verify(x => x.Encrypt(It.IsAny<string>()), Times.Once);
         }
 
@@ -104,7 +104,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 Attachments = new List<NotificationAttachmentEntity> { new NotificationAttachmentEntity { FileBase64 = "VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==", FileName = "Test.txt", IsInline = true } },
             };
 
-            _ = this.MockedCloudStorageClient.Setup(x => x.DownloadBlobAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}")).ReturnsAsync("Test Encrypted String");
+            _ = this.MockedCloudStorageClient.Setup(x => x.DownloadBlobAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}")).ReturnsAsync("Test Encrypted String");
             _ = this.EncryptionService.Setup(x => x.Decrypt(It.Is<string>(x => x == "Test Encrypted String"))).Returns(JsonConvert.SerializeObject(blobEmailData));
             var repo = new MailAttachmentRepository(this.Logger, this.MockedCloudStorageClient.Object, this.EncryptionService.Object);
             var updatednotifications = await repo.DownloadEmail(notifications, "TestApp").ConfigureAwait(false);
@@ -113,7 +113,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.FileBase64.Equals("VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==")));
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.FileName.Equals("Test.txt")));
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.IsInline));
-            this.MockedCloudStorageClient.Verify(x => x.DownloadBlobAsync($"TestApp/{Constants.EmailNotificationsFolderName}/{notificationId}"), Times.Once);
+            this.MockedCloudStorageClient.Verify(x => x.DownloadBlobAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}"), Times.Once);
             this.EncryptionService.Verify(x => x.Decrypt(It.Is<string>(x => x == "Test Encrypted String")), Times.Once);
         }
 
@@ -134,7 +134,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 Attachments = new List<NotificationAttachmentEntity> { new NotificationAttachmentEntity { FileBase64 = "VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==", FileName = "Test.txt", IsInline = true } },
             };
 
-            _ = this.MockedCloudStorageClient.Setup(x => x.DownloadBlobAsync($"TestApp/{Constants.MeetingNotificationsFolderName}/{notificationId}")).ReturnsAsync("Test Encrypted String");
+            _ = this.MockedCloudStorageClient.Setup(x => x.DownloadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}")).ReturnsAsync("Test Encrypted String");
             _ = this.EncryptionService.Setup(x => x.Decrypt(It.Is<string>(x => x == "Test Encrypted String"))).Returns(JsonConvert.SerializeObject(blobEmailData));
             var repo = new MailAttachmentRepository(this.Logger, this.MockedCloudStorageClient.Object, this.EncryptionService.Object);
             var updatednotifications = await repo.DownloadMeetingInvite(notifications, "TestApp").ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.FileBase64.Equals("VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==")));
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.FileName.Equals("Test.txt")));
             Assert.IsTrue(updatednotifications.First().Attachments.Any(x => x.IsInline));
-            this.MockedCloudStorageClient.Verify(x => x.DownloadBlobAsync($"TestApp/{Constants.MeetingNotificationsFolderName}/{notificationId}"), Times.Once);
+            this.MockedCloudStorageClient.Verify(x => x.DownloadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}"), Times.Once);
             this.EncryptionService.Verify(x => x.Decrypt(It.Is<string>(x => x == "Test Encrypted String")), Times.Once);
         }
     }

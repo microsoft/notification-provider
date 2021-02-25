@@ -5,12 +5,13 @@ namespace NotificationService.SvCommon.Common
 {
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.AspNetCore.Authorization;
+    using NotificationService.Common;
 
     /// <summary>
     /// The base class for controllers requiring bearer token authorization.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
     public class WebAPIAuthenticatedController : WebAPICommonController
     {
         /// <summary>
