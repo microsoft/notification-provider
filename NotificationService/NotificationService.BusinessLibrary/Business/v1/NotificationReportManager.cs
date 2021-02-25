@@ -5,15 +5,12 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Azure.Storage.Shared.Protocol;
     using Microsoft.Extensions.Configuration;
     using NotificationService.BusinessLibrary.Interfaces;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
-    using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
@@ -71,7 +68,7 @@ namespace NotificationService.BusinessLibrary
         {
             this.logger = logger;
             this.configuration = configuration;
-            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[NotificationService.Common.Constants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
+            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
             this.emailManager = emailManager;
             this.mailTemplateRepository = mailTemplateRepository ?? throw new System.ArgumentNullException(nameof(mailTemplateRepository));
         }
@@ -100,17 +97,18 @@ namespace NotificationService.BusinessLibrary
         /// <inheritdoc/>
         public async Task<EmailMessage> GetNotificationMessage(string applicationName, string notificationId)
         {
-            this.logger.TraceVerbose($"Started {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.");
+            var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.NotificationIds] = notificationId;
+            this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.", traceprops);
             try
             {
-                this.logger.TraceVerbose($"Started {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntity)} method in {nameof(NotificationReportManager)}.");
                 EmailNotificationItemEntity notification = await this.emailNotificationRepository.GetEmailNotificationItemEntity(notificationId).ConfigureAwait(false);
-                this.logger.TraceVerbose($"Completed {nameof(this.emailNotificationRepository.GetEmailNotificationItemEntity)} method in {nameof(NotificationReportManager)}.");
 
                 if (notification != null)
                 {
                     MessageBody body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, notification).ConfigureAwait(false);
-                    this.logger.TraceVerbose($"Completed {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.");
+                    this.logger.TraceInformation($"Completed {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.", traceprops);
 
                     return notification.ToGraphEmailMessage(body);
                 }
@@ -131,7 +129,7 @@ namespace NotificationService.BusinessLibrary
         {
             try
             {
-                this.logger.TraceVerbose($"Started {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
+                this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method in {nameof(NotificationReportManager)}.");
                 IList<MailTemplateEntity> mailTemplateEntities = await this.mailTemplateRepository.GetAllTemplateEntities(applicationName).ConfigureAwait(false);
                 IList<MailTemplateInfo> mailTemplatesInfo = new List<MailTemplateInfo>();
                 foreach (var item in mailTemplateEntities)

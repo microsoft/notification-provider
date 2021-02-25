@@ -1,28 +1,28 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using MailKit;
-using MailKit.Net.Smtp;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MimeKit;
-using Moq;
-using DirectSend.Models.Configurations;
-using DirectSend.Models.Mail;
-using NotificationProviders.Common.Logger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace DirectSend.Tests
 {
+    using MailKit;
+    using MailKit.Net.Smtp;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using MimeKit;
+    using Moq;
+    using DirectSend.Models.Configurations;
+    using DirectSend.Models.Mail;
+    using NotificationProviders.Common.Logger;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     [TestClass()]
     public class DirectSendMailServiceTests
     {
-        Mock<ISmtpClientPool> mockedClientPool = new Mock<ISmtpClientPool>();
-        Mock<ILogger> mockedLogger = new Mock<ILogger>();
-        Mock<IDSSmtpClient> mockedClient = new Mock<IDSSmtpClient>();
+        readonly Mock<ISmtpClientPool> mockedClientPool = new Mock<ISmtpClientPool>();
+        readonly Mock<ILogger> mockedLogger = new Mock<ILogger>();
+        readonly Mock<IDSSmtpClient> mockedClient = new Mock<IDSSmtpClient>();
         [TestMethod()]
         public async Task SendAsyncTest()
         {
@@ -37,7 +37,7 @@ namespace DirectSend.Tests
             };
             var smtpConfig = new SmtpConfiguration { SmtpServer = "Test", SmtpPort = 25 };
 
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendEmailAsync(emailMessage);
 
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
@@ -59,7 +59,7 @@ namespace DirectSend.Tests
             };
             var smtpConfig = new SmtpConfiguration { SmtpServer = "Test", SmtpPort = 25 };
 
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendMeetingInviteAsync(emailMessage);
 
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
@@ -83,7 +83,7 @@ namespace DirectSend.Tests
             };
             var smtpConfig = new SmtpConfiguration { SmtpServer = "Test", SmtpPort = 25 };
 
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendEmailAsync(emailMessage);
 
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
@@ -104,46 +104,46 @@ namespace DirectSend.Tests
                 Subject = "emailSubject",
             };
             var smtpConfig = new SmtpConfiguration { SmtpServer = "Test", SmtpPort = 25 };
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new Exception("test exception"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new Exception("test exception"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             var ex = await Assert.ThrowsExceptionAsync<Exception>(() =>  directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("test exception", ex.Message);
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.MessageNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.MessageNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             var ex1 = await Assert.ThrowsExceptionAsync<SmtpCommandException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test", ex1.Message);
             Assert.IsTrue(ex1.ErrorCode == SmtpErrorCode.MessageNotAccepted);
 
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.RecipientNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.RecipientNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             ex1 = await Assert.ThrowsExceptionAsync<SmtpCommandException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test", ex1.Message);
             Assert.IsTrue(ex1.ErrorCode == SmtpErrorCode.RecipientNotAccepted);
 
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.SenderNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.SenderNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             ex1 = await Assert.ThrowsExceptionAsync<SmtpCommandException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test", ex1.Message);
             Assert.IsTrue(ex1.ErrorCode == SmtpErrorCode.SenderNotAccepted);
 
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpProtocolException("Test M"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpProtocolException("Test M"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             var ex2 = await Assert.ThrowsExceptionAsync<SmtpProtocolException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test M", ex2.Message);
 
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new IOException("Test IO"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new IOException("Test IO"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             var ex3 = await Assert.ThrowsExceptionAsync<IOException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test IO", ex3.Message);
 
-            this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new ServiceNotConnectedException("Test IO"));
-            this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
+            _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new ServiceNotConnectedException("Test IO"));
+            _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             var ex4 = await Assert.ThrowsExceptionAsync<ServiceNotConnectedException>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("Test IO", ex4.Message);

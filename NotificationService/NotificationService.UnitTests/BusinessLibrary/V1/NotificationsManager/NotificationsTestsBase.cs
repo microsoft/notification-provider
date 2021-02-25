@@ -7,14 +7,13 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.NotificationsManager_
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using Microsoft.Extensions.Logging;
     using Moq;
     using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities.Web;
     using NotificationService.Contracts.Models.Graph;
     using NotificationService.Data.Interfaces;
-    using NUnit.Framework;
+    using NotificationService.Common.Logger;
 
     /// <summary>
     /// Test class.
@@ -32,7 +31,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.NotificationsManager_
         /// <summary>
         /// The logger mock.
         /// </summary>
-        protected Mock<ILogger<NotificationsManager>> loggerMock;
+        protected Mock<ILogger> loggerMock;
 
         /// <summary>
         /// Gets or sets the notifications repository mock.
@@ -157,7 +156,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.NotificationsManager_
         /// </summary>
         public virtual void SetupBase()
         {
-            this.loggerMock = new Mock<ILogger<NotificationsManager>>();
+            this.loggerMock = new Mock<ILogger>();
             this.notificationsRepositoryMock = new Mock<IRepository<WebNotificationItemEntity>>();
             this.NotificationManager = new NotificationsManager(this.notificationsRepositoryMock.Object, this.loggerMock.Object);
         }

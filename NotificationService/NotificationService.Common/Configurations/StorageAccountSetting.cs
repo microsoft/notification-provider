@@ -22,5 +22,20 @@ namespace NotificationService.Common
         /// Gets or sets the Mail template table name.
         /// </summary>
         public string MailTemplateTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Email History table name.
+        /// </summary>
+        public string EmailHistoryTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Meeting History table name.
+        /// </summary>
+        public string MeetingHistoryTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Notification queue name.
+        /// </summary>
+        public string NotificationQueueName { get; set; }
     }
 }

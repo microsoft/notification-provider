@@ -36,7 +36,7 @@ namespace WebNotifications
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
         public Startup()
-            : base()
+            : base("WebNotification")
         {
         }
 

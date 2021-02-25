@@ -5,7 +5,6 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -81,8 +80,8 @@ namespace NotificationService.BusinessLibrary
             var requestPayLoad = JsonConvert.SerializeObject(graphBatchRequest, this.jsonSerializerSettings);
             HttpResponseMessage response = null;
             response = await this.httpClient.PostAsync(
-            $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.BatchRequestUrl}",
-            new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+            $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.BatchRequestUrl}",
+            new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
             this.logger.TraceInformation($"Method {nameof(this.ProcessEmailRequestBatch)}:Completed Graph Batch Call");
             var traceProps = new Dictionary<string, string>();
@@ -133,8 +132,8 @@ namespace NotificationService.BusinessLibrary
             HttpResponseMessage response = null;
             bool isSuccess = false;
             response = await this.httpClient.PostAsync(
-                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendMailUrl}",
-                    new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+                    $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendMailUrl}",
+                    new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
             this.logger.TraceInformation($"Method {nameof(this.SendEmailNotification)}: Completed Graph Send Email Call.");
             var responseHeaders = response.Headers.ToString();
@@ -172,8 +171,8 @@ namespace NotificationService.BusinessLibrary
             var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
             HttpResponseMessage response = null;
             response = await this.httpClient.PostAsync(
-                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}",
-                    new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+                    $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}",
+                    new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
             this.logger.TraceInformation($"Method {nameof(this.SendMeetingInvite)}: Completed Graph Send Meeting Invite Call for notificationId {notificationId}");
 
@@ -196,8 +195,8 @@ namespace NotificationService.BusinessLibrary
             var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
             HttpResponseMessage response = null;
             response = await this.httpClient.PatchAsync(
-                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}",
-                    new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+                    $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}",
+                    new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
             this.logger.TraceInformation($"Method {nameof(this.UpdateMeetingInvite)}: Completed Graph Update Meeting Invite Call for notificationId {notificationId}");
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
@@ -218,7 +217,7 @@ namespace NotificationService.BusinessLibrary
             this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
             HttpResponseMessage response = null;
             response = await this.httpClient.DeleteAsync(
-                    $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}").ConfigureAwait(false);
+                    $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}").ConfigureAwait(false);
             this.logger.TraceInformation($"Method {nameof(this.DeleteMeetingInvite)}: Completed Graph Delete Meeting Invite Call for NotificationId {notificationId}");
 
             var responseData = await GetResponseData(response).ConfigureAwait(false);
@@ -281,8 +280,8 @@ namespace NotificationService.BusinessLibrary
 
             HttpResponseMessage response = null;
             response = await this.httpClient.PostAsync(
-               $"{BusinessConstants.GraphBaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}/attachments",
-               new StringContent(requestPayLoad, Encoding.UTF8, Constants.JsonMIMEType)).ConfigureAwait(false);
+               $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendInviteUrl}/{eventId}/attachments",
+               new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
             this.logger.TraceInformation($"Method {nameof(this.DeleteMeetingInvite)}: Completed Graph Send Attachment to invite/Event for notificationId {notificationId}");
             var responseData = await GetResponseData(response).ConfigureAwait(false);

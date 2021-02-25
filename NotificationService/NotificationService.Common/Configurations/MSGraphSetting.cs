@@ -70,5 +70,10 @@ namespace NotificationService.Common
         /// Gets or sets the Graph url to send meeting invite.
         /// </summary>
         public string SendInviteUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Graph Base Url.
+        /// </summary>
+        public string BaseUrl { get; set; }
     }
 }

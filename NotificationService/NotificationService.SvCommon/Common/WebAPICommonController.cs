@@ -4,6 +4,7 @@
 namespace NotificationService.SvCommon.Common
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using Microsoft.AspNetCore.Mvc;
     using NotificationService.Common;
 
@@ -19,8 +20,8 @@ namespace NotificationService.SvCommon.Common
         /// <returns>Token passed to the request.</returns>
         protected string GetTokenFromRequest()
         {
-            var authorizationToken = this.Request?.Headers?[Constants.AuthorizationHeaderName].Count > 0 ? this.Request.Headers[Constants.AuthorizationHeaderName][0] : null;
-            if (!string.IsNullOrEmpty(authorizationToken) && authorizationToken.StartsWith("bearer ", System.StringComparison.InvariantCultureIgnoreCase))
+            var authorizationToken = this.Request?.Headers?[ApplicationConstants.AuthorizationHeaderName].Count > 0 ? this.Request.Headers[ApplicationConstants.AuthorizationHeaderName][0] : null;
+            if (!string.IsNullOrEmpty(authorizationToken) && authorizationToken.StartsWith($"{ApplicationConstants.BearerAuthenticationScheme.ToLower(CultureInfo.InvariantCulture)} ", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 authorizationToken = authorizationToken.Remove(0, 7);
             }

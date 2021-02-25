@@ -5,13 +5,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.Common;
+    using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -38,7 +37,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.Configuration = new Mock<IConfiguration>();
             this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
             this.RepositoryFactory = new Mock<IRepositoryFactory>();
-            _ = this.Configuration.Setup(x => x[Constants.StorageType]).Returns("StorageAccount");
+            _ = this.Configuration.Setup(x => x[ConfigConstants.StorageType]).Returns("StorageAccount");
             _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
         }
 

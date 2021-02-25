@@ -4,7 +4,6 @@
 namespace NotificationService.Contracts
 {
     using System;
-    using System.Collections.Generic;
     using System.Runtime.Serialization;
     using Microsoft.Azure.Cosmos.Table;
 

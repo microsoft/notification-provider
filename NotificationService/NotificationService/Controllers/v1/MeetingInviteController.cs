@@ -22,7 +22,7 @@ namespace NotificationService.Controllers
     /// Controller to handle email notifications.
     /// </summary>
     [Route("v1/meetinginvite")]
-    [Authorize(Policy = Constants.AppNameAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class MeetingInviteController : WebAPICommonController
     {
@@ -55,7 +55,7 @@ namespace NotificationService.Controllers
         /// <param name="queueNotificationItem">Queue Notification item.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(AuthenticationSchemes = Constants.BearerAuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Route("process/{applicationName}")]
         public async Task<IList<NotificationResponse>> ProcessQueuedMeetingNotifications(string applicationName, [FromBody] QueueNotificationItem queueNotificationItem)
         {
@@ -75,9 +75,9 @@ namespace NotificationService.Controllers
                 throw new ArgumentException("Notification IDs list should not be empty.", nameof(queueNotificationItem));
             }
 
-            traceprops[Constants.Application] = applicationName;
-            traceprops[Constants.NotificationIds] = string.Join(',', queueNotificationItem.NotificationIds);
-            traceprops[Constants.MeetingNotificationCount] = queueNotificationItem.NotificationIds.Length.ToString(CultureInfo.InvariantCulture);
+            traceprops[AIConstants.Application] = applicationName;
+            traceprops[AIConstants.NotificationIds] = string.Join(',', queueNotificationItem.NotificationIds);
+            traceprops[AIConstants.MeetingNotificationCount] = queueNotificationItem.NotificationIds.Length.ToString(CultureInfo.InvariantCulture);
 
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ProcessQueuedMeetingNotifications)} method of {nameof(EmailController)}.", traceprops);
@@ -93,7 +93,7 @@ namespace NotificationService.Controllers
         /// <param name="meetingInviteItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = Constants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
         [Route("send/{applicationName}")]
         public async Task<IList<NotificationResponse>> SendMeetingInvites(string applicationName, [FromBody] MeetingNotificationItem[] meetingInviteItems)
         {

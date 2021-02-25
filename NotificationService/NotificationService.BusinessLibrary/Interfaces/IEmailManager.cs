@@ -8,6 +8,7 @@ namespace NotificationService.BusinessLibrary
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Interface for Email Manager Common functions.

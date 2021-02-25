@@ -220,14 +220,21 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                     SaveToSent = true,
                 },
             };
+
+            var storageAccountSettings = new StorageAccountSetting()
+            {
+                NotificationQueueName = "test-queue",
+            };
+
             Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
             {
                 { "ApplicationAccounts", JsonConvert.SerializeObject(applicationAccounts) },
                 { "RetrySetting:MaxRetries", "10" },
                 { "RetrySetting:TransientRetryCount", "3" },
-                { Constants.StorageType, StorageType.StorageAccount.ToString() },
+                { ConfigConstants.StorageType, StorageType.StorageAccount.ToString() },
                 { "MailSettings", JsonConvert.SerializeObject(mailSettings) },
-                { Constants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(storageAccountSettings) },
+                { ConfigConstants.NotificationProviderType, NotificationProviderType.Graph.ToString() },
             };
 
             string mergedTemplate = "Testing Html template";
@@ -250,7 +257,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             _ = this.TokenHelper
                 .Setup(th => th.GetAuthenticationHeaderFromToken(It.IsAny<string>()))
-                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this.TestToken)));
+                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, this.TestToken)));
 
             _ = this.MsGraphProvider
                 .Setup(gp => gp.ProcessEmailRequestBatch(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<GraphBatchRequest>()))
@@ -298,7 +305,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 this.EmailAccountManager.Object,
                 this.Logger,
                 this.MsGraphSetting,
-                Options.Create(retrySetting),
                 this.TokenHelper.Object,
                 this.MsGraphProvider.Object,
                 this.EmailManager);

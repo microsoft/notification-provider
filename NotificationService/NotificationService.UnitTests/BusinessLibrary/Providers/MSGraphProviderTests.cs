@@ -11,7 +11,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
     using Moq.Protected;
@@ -25,7 +24,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     /// <summary>
     /// MSGraphProviderTests.
     /// </summary>
-    public class MSGraphProviderTests : MSGraphProvideTestBase
+    public class MSGraphProviderTests : MSGraphProviderTestBase
     {
         /// <summary>
         /// RetrySetting Object.
@@ -44,7 +43,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         /// <summary>
         /// Gets Test User Token value.
         /// </summary>
-        public AuthenticationHeaderValue TestTokenHeader => new AuthenticationHeaderValue("Bearer", this.TestToken);
+        public AuthenticationHeaderValue TestTokenHeader => new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, this.TestToken);
 
         /// <summary>
         /// Initialization for the tests.

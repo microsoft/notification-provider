@@ -13,6 +13,7 @@ namespace WebNotifications.Hubs
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using NotificationService.BusinessLibrary.Trackers;
+    using NotificationService.Common.Configurations;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Models.Trackers;
     using NotificationService.Contracts.Models.Web.Response;
@@ -62,7 +63,7 @@ namespace WebNotifications.Hubs
             }
 
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            webApplicationAccounts = JsonSerializer.Deserialize<List<ApplicationAccounts>>(configuration["ApplicationAccounts"]);
+            webApplicationAccounts = JsonSerializer.Deserialize<List<ApplicationAccounts>>(configuration[ConfigConstants.ApplicationAccountsConfigSectionKey]);
             this.applications = webApplicationAccounts.Select(wa => wa.ApplicationName);
         }
 

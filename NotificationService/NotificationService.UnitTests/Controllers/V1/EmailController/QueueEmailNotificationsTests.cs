@@ -88,7 +88,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public async Task QueueMeetingNotificationsTestValidInput()
         {
             _ = this.emailHandlerManager.Setup(x => x.QueueMeetingNotifications(It.IsAny<string>(), It.IsAny<MeetingNotificationItem[]>())).ReturnsAsync(new List<NotificationResponse> { new NotificationResponse { NotificationId = "NotificationId" } });
-            MeetingInviteController meetinginviteController = new MeetingInviteController(this.emailHandlerManager.Object, this.mailTemplateManager.Object, this.logger);
+            MeetingInviteController meetinginviteController = new MeetingInviteController(this.emailHandlerManager.Object, this.logger);
             IList<NotificationResponse> responses = new List<NotificationResponse>();
             var result = await meetinginviteController.QueueMeetingNotifications(this.applicationName, this.meetingNotificationItems);
             Assert.NotNull(result);

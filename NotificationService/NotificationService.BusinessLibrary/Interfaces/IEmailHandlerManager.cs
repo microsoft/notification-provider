@@ -7,6 +7,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
     using System.Threading.Tasks;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
 
     /// <summary>
     /// Interface for Notification Handler Manager.

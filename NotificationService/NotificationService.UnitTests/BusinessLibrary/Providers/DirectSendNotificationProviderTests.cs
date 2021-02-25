@@ -18,18 +18,24 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
     using NotificationService.Contracts.Entities;
     using NUnit.Framework;
 
+    /// <summary>
+    /// DirectSendNotificationProvider Unit Test class.
+    /// </summary>
     public class DirectSendNotificationProviderTests
     {
         /// <summary>
         /// The mocked email service.
         /// </summary>
-        private Mock<IEmailService> mockedEmailService;
+        private readonly Mock<IEmailService> mockedEmailService;
 
         /// <summary>
         /// The mocked email manager.
         /// </summary>
-        private Mock<IEmailManager> mockedEmailManager;
+        private readonly Mock<IEmailManager> mockedEmailManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DirectSendNotificationProviderTests"/> class.
+        /// </summary>
         public DirectSendNotificationProviderTests()
         {
             this.Configuration = new Mock<IConfiguration>();

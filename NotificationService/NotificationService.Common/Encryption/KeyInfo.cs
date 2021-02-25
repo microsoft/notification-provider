@@ -4,9 +4,7 @@
 namespace NotificationService.Common.Encryption
 {
     using System;
-    using System.Collections.Generic;
     using System.Security.Cryptography;
-    using System.Text;
 
     /// <summary>
     /// Key information used by Encryption Service.
