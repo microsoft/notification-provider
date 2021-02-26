@@ -4,6 +4,7 @@
 namespace NotificationService.Contracts
 {
     using System.Runtime.Serialization;
+    using System.Text.Json.Serialization;
 
     /// <summary>
     /// Response to the Send Notification Requests.
@@ -27,6 +28,7 @@ namespace NotificationService.Contracts
         /// Gets or sets Status.
         /// </summary>
         [DataMember(Name = "Status")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public NotificationItemStatus Status { get; set; }
 
         /// <summary>
