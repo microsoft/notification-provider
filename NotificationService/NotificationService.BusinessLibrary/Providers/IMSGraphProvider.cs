@@ -22,7 +22,7 @@ namespace NotificationService.BusinessLibrary
         /// <param name="emailMessage">Email message to be sent.</param>
         /// <param name="notificationId">Internal identifier of the email message to be sent.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task<bool> SendEmailNotification(AuthenticationHeaderValue authenticationHeaderValue, EmailMessagePayload emailMessage, string notificationId);
+        Task<ResponseData<string>> SendEmailNotification(AuthenticationHeaderValue authenticationHeaderValue, EmailMessagePayload emailMessage, string notificationId);
 
         /// <summary>
         /// Sends a batch of graph request to Graph API.
