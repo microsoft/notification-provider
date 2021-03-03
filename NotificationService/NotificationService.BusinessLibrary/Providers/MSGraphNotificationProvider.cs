@@ -201,7 +201,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     {
                         item.Status = NotificationItemStatus.Retrying;
                         item.ErrorMessage = response.Result;
-                        _ = this.LogMailBoxExhaustedTelemetry(response.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
+                        _ = this.IsMailboxLimitExchausted(response.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
                     }
                     else
                     {
@@ -317,7 +317,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     // Mark these items as queued and Queue them
                     item.Status = NotificationItemStatus.Retrying;
                     item.ErrorMessage = itemResponse?.Error;
-                    isAccountIndexIncremented = this.LogMailBoxExhaustedTelemetry(itemResponse?.Error, item.NotificationId, item.EmailAccountUsed, isAccountIndexIncremented, traceProps);
+                    isAccountIndexIncremented = this.IsMailboxLimitExchausted(itemResponse?.Error, item.NotificationId, item.EmailAccountUsed, isAccountIndexIncremented, traceProps);
                 }
                 else
                 {
@@ -441,7 +441,7 @@ namespace NotificationService.BusinessLibrary.Providers
                         if (item.TryCount <= this.maxTryCount && (result.StatusCode == HttpStatusCode.TooManyRequests || result.StatusCode == HttpStatusCode.RequestTimeout))
                         {
                             item.Status = NotificationItemStatus.Retrying;
-                            _ = this.LogMailBoxExhaustedTelemetry(result.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
+                            _ = this.IsMailboxLimitExchausted(result.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
                         }
                         else
                         {
@@ -565,7 +565,7 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <param name="isAccountIndexIncremented">to track the index of already exchausted mailbox.</param>
         /// <param name="traceProps">telemetry properties to be logged.</param>
         /// <returns>return the update status of already incremented index.</returns>
-        private bool LogMailBoxExhaustedTelemetry(string errorMessage, string notificationId, string mailboxUsed, bool isAccountIndexIncremented = false, IDictionary<string, string> traceProps = null)
+        private bool IsMailboxLimitExchausted(string errorMessage, string notificationId, string mailboxUsed, bool isAccountIndexIncremented = false, IDictionary<string, string> traceProps = null)
         {
             if (errorMessage?.Contains("quota was exceeded", StringComparison.InvariantCultureIgnoreCase) ?? false)
             {
