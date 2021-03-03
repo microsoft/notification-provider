@@ -143,7 +143,7 @@ namespace NotificationService.BusinessLibrary
                 throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData?.Result}");
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvite)} method of {nameof(MSGraphProvider)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.SendEmailNotification)} method of {nameof(MSGraphProvider)}.");
             return responseData;
         }
 
