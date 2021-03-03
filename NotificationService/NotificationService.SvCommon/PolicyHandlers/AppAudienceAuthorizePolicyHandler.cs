@@ -75,12 +75,12 @@ namespace NotificationService.SvCommon
                 // Validate further only if the token is still valid.
                 if (expiryInToken > currentUnixTime)
                 {
-                    var audienceInToken = claims.FirstOrDefault(c => c.Type == ApplicationConstants.AudienceClaimType).Value;
+                    var appIdInToken = claims.FirstOrDefault(c => c.Type == ApplicationConstants.AppIdClaimType).Value;
                     var applicationName = routeValues.FirstOrDefault(rv => string.Equals(rv.Key, ApplicationConstants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
                     var applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration[ConfigConstants.ApplicationAccountsConfigSectionKey]);
                     var validAppIdsForApplication = applicationAccounts?.Find(a => string.Equals(a.ApplicationName, applicationName, StringComparison.InvariantCultureIgnoreCase))?.ValidAppIdsList;
 
-                    if (audienceInToken != null && validAppIdsForApplication != null && validAppIdsForApplication.Contains(audienceInToken))
+                    if (appIdInToken != null && validAppIdsForApplication != null && validAppIdsForApplication.Contains(appIdInToken))
                     {
                         context.Succeed(requirement);
                     }

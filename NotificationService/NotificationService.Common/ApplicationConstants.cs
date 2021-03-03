@@ -26,6 +26,11 @@ namespace NotificationService.Common
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
         /// </summary>
+        public const string AppIdClaimType = "appid";
+
+        /// <summary>
+        /// Claim Type for the Audience Claim in JWT token.
+        /// </summary>
         public const string ExpiryClaimType = "exp";
 
         /// <summary>
