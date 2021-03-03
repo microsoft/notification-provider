@@ -93,7 +93,7 @@ namespace NotificationService.Controllers
         /// <param name="meetingInviteItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("send/{applicationName}")]
         public async Task<IList<NotificationResponse>> SendMeetingInvites(string applicationName, [FromBody] MeetingNotificationItem[] meetingInviteItems)
         {

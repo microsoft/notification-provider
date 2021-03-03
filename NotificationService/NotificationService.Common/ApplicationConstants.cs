@@ -21,7 +21,7 @@ namespace NotificationService.Common
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
         /// </summary>
-        public const string AudienceClaimType = "aud";
+        //public const string AudienceClaimType = "aud";
 
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
@@ -43,10 +43,10 @@ namespace NotificationService.Common
         /// </summary>
         public const string AppNameAuthorizePolicy = "AppNameAuthorize";
 
-        /// <summary>
+        /// <summary>s
         /// Name of Authorization policy to validate if the caller is valid audience of the Application.
         /// </summary>
-        public const string AppAudienceAuthorizePolicy = "AppAudienceAuthorize";
+        public const string AppIdAuthorizePolicy = "AppIdAuthorize";
 
         /// <summary>
         /// Authentication scheme to validate the input token.

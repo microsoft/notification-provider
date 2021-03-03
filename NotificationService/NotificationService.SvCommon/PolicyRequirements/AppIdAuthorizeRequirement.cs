@@ -8,7 +8,7 @@ namespace NotificationService.SvCommon
     /// <summary>
     /// Authorization Requirement to validate the request with Application Valid Audiences.
     /// </summary>
-    public class AppAudienceAuthorizeRequirement : IAuthorizationRequirement
+    public class AppIdAuthorizeRequirement : IAuthorizationRequirement
     {
     }
 }
