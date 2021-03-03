@@ -103,7 +103,7 @@
         /// <summary>
         /// Custom Event MailBox Exhausted.
         /// </summary>
-        public const string CustomEventMailBoxExhausted = "Mail Box Exhausted";
+        public const string CustomEventMailBoxExhausted = "Mail Box Limit Exhausted";
 
         /// <summary>
         /// Custom Event for send email notificaiton failure.
