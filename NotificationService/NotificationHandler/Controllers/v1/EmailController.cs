@@ -57,6 +57,7 @@ namespace NotificationHandler.Controllers
         /// <param name="notificationIds">Array of email notification ids.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("resend/{applicationName}")]
         public async Task<IActionResult> ResendEmailNotifications(string applicationName, [FromBody] string[] notificationIds)
@@ -97,6 +98,7 @@ namespace NotificationHandler.Controllers
         /// <param name="dateRange">Date Range to resubmit the notifications.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("resend/{applicationName}/bydaterange")]
         public async Task<IActionResult> ResendEmailNotificationsByDateRange(string applicationName, [FromBody] DateTimeRange dateRange)
@@ -133,6 +135,7 @@ namespace NotificationHandler.Controllers
         /// <param name="emailNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("queue/{applicationName}")]
         public async Task<IActionResult> QueueEmailNotifications(string applicationName, [FromBody] EmailNotificationItem[] emailNotificationItems)
@@ -170,6 +173,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplate"><see cref="MailTemplate"/>.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("mailTemplate/{applicationName}")]
         public async Task<IActionResult> SaveMailTemplate(string applicationName, [FromBody] MailTemplate mailTemplate)
@@ -242,6 +246,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplateName">Template name.</param>
         /// <returns><see cref="MailTemplate"/>.</returns>
         [HttpGet]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("mailTemplate/{applicationName}/{mailTemplateName}")]
         public async Task<IActionResult> GetMailTemplate(string applicationName, string mailTemplateName)
@@ -289,6 +294,7 @@ namespace NotificationHandler.Controllers
         /// <param name="mailTemplateName">Template name.</param>
         /// <returns>status of delete operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("deleteTemplate/{applicationName}/{mailTemplateName}")]
         public async Task<IActionResult> DeleteMailTemplate(string applicationName, string mailTemplateName)

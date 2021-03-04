@@ -53,6 +53,7 @@ namespace NotificationService.Controllers
         /// <param name="emailNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
         [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("send/{applicationName}")]
         public async Task<IList<NotificationResponse>> SendEmailNotifications(string applicationName, [FromBody] EmailNotificationItem[] emailNotificationItems)
