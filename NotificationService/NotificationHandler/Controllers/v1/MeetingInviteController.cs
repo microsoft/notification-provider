@@ -56,7 +56,8 @@ namespace NotificationHandler.Controllers
         /// <param name="meetingNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
-        [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("queue/{applicationName}")]
         public async Task<IActionResult> QueueMeetingNotifications(string applicationName, [FromBody] MeetingNotificationItem[] meetingNotificationItems)
         {
