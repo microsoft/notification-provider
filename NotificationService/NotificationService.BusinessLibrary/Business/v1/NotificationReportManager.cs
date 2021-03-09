@@ -103,7 +103,7 @@ namespace NotificationService.BusinessLibrary
             this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessage)} method in {nameof(NotificationReportManager)}.", traceprops);
             try
             {
-                EmailNotificationItemEntity notification = await this.emailNotificationRepository.GetEmailNotificationItemEntity(notificationId).ConfigureAwait(false);
+                EmailNotificationItemEntity notification = await this.emailNotificationRepository.GetEmailNotificationItemEntity(notificationId, applicationName).ConfigureAwait(false);
 
                 if (notification != null)
                 {

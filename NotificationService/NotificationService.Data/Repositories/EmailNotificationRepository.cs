@@ -154,7 +154,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public async Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId)
+        public async Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId, string applicationName = null)
         {
             if (notificationId is null)
             {
@@ -176,12 +176,18 @@ namespace NotificationService.Data
                 }
             }
 
-            if (emailNotificationItemEntities.Count == 1)
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = emailNotificationItemEntities;
+            if (applicationName != null)
+            {
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(emailNotificationItemEntities, applicationName).ConfigureAwait(false);
+            }
+
+            if (updatedNotificationEntities.Count == 1)
             {
                 this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(EmailNotificationRepository)}.");
-                return emailNotificationItemEntities.FirstOrDefault();
+                return updatedNotificationEntities.FirstOrDefault();
             }
-            else if (emailNotificationItemEntities.Count > 1)
+            else if (updatedNotificationEntities.Count > 1)
             {
                 throw new ArgumentException("More than one entity found for the input notification id: ", notificationId);
             }

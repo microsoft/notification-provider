@@ -27,8 +27,9 @@ namespace NotificationService.Data
         /// Gets the email notification item from database for the input id.
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
+        /// <param name="applicationName">The Application Name (Optional).</param>
         /// <returns>notitication item corresponding to input id.</returns>
-        Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId);
+        Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId, string applicationName = null);
 
         /// <summary>
         /// Creates entities in database for the input email notification items.
