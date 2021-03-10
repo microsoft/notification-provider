@@ -148,7 +148,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId)
+        public async Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId, string applicationName = null)
         {
             if (notificationId is null)
             {
@@ -156,6 +156,7 @@ namespace NotificationService.Data.Repositories
             }
 
             var traceprops = new Dictionary<string, string>();
+            traceprops[AIConstants.Application] = applicationName;
             traceprops[AIConstants.NotificationIds] = notificationId;
             string filterExpression = TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, notificationId);
 
@@ -164,12 +165,18 @@ namespace NotificationService.Data.Repositories
             var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
             emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
             List<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => this.ConvertToEmailNotificationItemEntity(e)).ToList();
-            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceprops);
-            if (emailNotificationItemEntities.Count == 1)
+            IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
+            if (applicationName != null)
             {
-                return Task.FromResult(notificationEntities.FirstOrDefault());
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadEmail(notificationEntities, applicationName).ConfigureAwait(false);
             }
-            else if (emailNotificationItemEntities.Count > 1)
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceprops);
+            if (updatedNotificationEntities.Count == 1)
+            {
+                return updatedNotificationEntities.FirstOrDefault();
+            }
+            else if (updatedNotificationEntities.Count > 1)
             {
                 throw new ArgumentException("More than one entity found for the input notification id: ", notificationId);
             }
@@ -641,6 +648,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
             emailNotificationItemEntity.Subject = emailNotificationItemTableEntity.Subject;
             emailNotificationItemEntity.TemplateId = emailNotificationItemTableEntity.TemplateId;
+            //emailNotificationItemEntity.TemplateData = emailNotificationItemTableEntity.TemplateData;
             emailNotificationItemEntity.Timestamp = emailNotificationItemTableEntity.Timestamp;
             emailNotificationItemEntity.To = emailNotificationItemTableEntity.To;
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;

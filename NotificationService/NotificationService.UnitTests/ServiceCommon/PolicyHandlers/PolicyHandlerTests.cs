@@ -24,7 +24,7 @@ namespace NotificationService.UnitTests.SvCommon.PolicyHandlers
     public class PolicyHandlerTests
     {
         private AppNameAuthorizePolicyHandler appNameAuthorizePolicyHandler;
-        private AppAudienceAuthorizePolicyHandler appAudienceAuthorizePolicyHandler;
+        private AppIdAuthorizePolicyHandler appIdAuthorizePolicyHandler;
         private Mock<IHttpContextAccessor> contextAccessor;
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace NotificationService.UnitTests.SvCommon.PolicyHandlers
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
             this.appNameAuthorizePolicyHandler = new AppNameAuthorizePolicyHandler(this.contextAccessor.Object, this.Configuration);
-            this.appAudienceAuthorizePolicyHandler = new AppAudienceAuthorizePolicyHandler(this.contextAccessor.Object, this.Configuration);
+            this.appIdAuthorizePolicyHandler = new AppIdAuthorizePolicyHandler(this.contextAccessor.Object, this.Configuration);
         }
 
         /// <summary>
@@ -91,12 +91,12 @@ namespace NotificationService.UnitTests.SvCommon.PolicyHandlers
         }
 
         /// <summary>
-        /// Tests for the AppAudienceAuthorizeRequirement.
+        /// Tests for the AppIdAuthorizeRequirement.
         /// </summary>
         [Test]
-        public void AppAudienceAuthorizeRequirementTests()
+        public void AppIdAuthorizeRequirementTests()
         {
-            var requirements = new[] { new AppAudienceAuthorizeRequirement() };
+            var requirements = new[] { new AppIdAuthorizeRequirement() };
             var appUser = "user";
             var user = new ClaimsPrincipal(
                 new ClaimsIdentity(
@@ -106,7 +106,7 @@ namespace NotificationService.UnitTests.SvCommon.PolicyHandlers
                     },
                     "Basic"));
             var authzContext = new AuthorizationHandlerContext(requirements, user, new object());
-            Task result = this.appAudienceAuthorizePolicyHandler.HandleAsync(authzContext);
+            Task result = this.appIdAuthorizePolicyHandler.HandleAsync(authzContext);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             Assert.IsFalse(authzContext.HasSucceeded);
         }

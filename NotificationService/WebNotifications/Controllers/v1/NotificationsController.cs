@@ -24,7 +24,7 @@ namespace WebNotifications.Controllers.V1
     /// <seealso cref="ControllerBase" />
     [Route("v1/notifications")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
-    [Authorize(Policy = ApplicationConstants.AppAudienceAuthorizePolicy)]
+    [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
     public class NotificationsController : ControllerBase
     {

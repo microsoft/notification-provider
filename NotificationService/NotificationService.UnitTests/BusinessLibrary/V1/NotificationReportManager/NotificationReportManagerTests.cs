@@ -147,7 +147,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
             var managerResult = this.NotificationReportManager.GetAllTemplateEntities(applicationName);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
-            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateName), results.Select(x => x.TemplateId));
+            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateId), results.Select(x => x.TemplateId));
 
             this.MailTemplateRepository.Verify(repo => repo.GetAllTemplateEntities(applicationName));
         }
@@ -187,7 +187,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             string notificationId = Guid.NewGuid().ToString();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetEmailNotificationItemEntity(notificationId))
+                .Setup(repository => repository.GetEmailNotificationItemEntity(notificationId, notificationItemEntity.Application))
                 .ReturnsAsync(notificationItemEntity);
 
             _ = this.EmailNotificationRepositoryFactory
@@ -204,7 +204,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
             Assert.AreEqual(managerResult.Result.Body, body);
 
-            this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId));
+            this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId, applicationName));
             this.EmailManager.Verify(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity));
         }
     }
