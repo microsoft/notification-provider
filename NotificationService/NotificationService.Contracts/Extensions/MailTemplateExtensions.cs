@@ -81,7 +81,7 @@ namespace NotificationService.Contracts.Extensions
             {
                 return new MailTemplateInfo
                 {
-                    TemplateName = mailTemplateEntity.TemplateId,
+                    TemplateId = mailTemplateEntity.TemplateId,
                     Description = mailTemplateEntity.Description,
                     TemplateType = mailTemplateEntity.TemplateType,
                 };

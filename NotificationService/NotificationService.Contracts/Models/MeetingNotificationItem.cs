@@ -183,7 +183,7 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or sets the TemplateId.
         /// </summary>
-        public string TemplateName { get; set; }
+        public string TemplateId { get; set; }
 
         /// <summary>
         /// Gets or sets the Template Content Arguments.
