@@ -18,6 +18,6 @@ export var config = {
         mailHistoryEndpoint: window.app.env.serviceEndpoints.mailHistoryEndpoint,
         viewMailBodyEndpoint: window.app.env.serviceEndpoints.viewMailBodyEndpoint,
         resendEmailEndpoint: window.app.env.serviceEndpoints.resendEmailEndpoint
-    }
-
+    },
+    applicationName: window.app.env.defaultApplication
 }

@@ -673,12 +673,12 @@ namespace NotificationService.Data.Repositories
 
             if (DateTime.TryParse(notificationReportRequest.SendOnUtcDateStart, out DateTime sentTimeStart))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDateStart", QueryComparisons.GreaterThanOrEqual, sentTimeStart) : filterExpression + TableQuery.GenerateFilterConditionForDate("SendOnUtcDateStart", QueryComparisons.GreaterThanOrEqual, sentTimeStart);
+                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, sentTimeStart) : filterExpression + " and " + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, sentTimeStart);
             }
 
             if (DateTime.TryParse(notificationReportRequest.SendOnUtcDateEnd, out DateTime sentTimeEnd))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDateEnd", QueryComparisons.LessThanOrEqual, sentTimeEnd) : filterExpression + TableQuery.GenerateFilterConditionForDate("SendOnUtcDateEnd", QueryComparisons.LessThanOrEqual, sentTimeEnd);
+                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThanOrEqual, sentTimeEnd) : filterExpression + " and " + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThanOrEqual, sentTimeEnd);
             }
 
             if (DateTime.TryParse(notificationReportRequest.UpdatedDateTimeStart, out DateTime updatedTimeStart))

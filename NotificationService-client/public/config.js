@@ -8,3 +8,5 @@ const serviceEndpoints = {
     viewMailBodyEndpoint: "__ViewMailBodyEndpoint__",
     resendEmailEndpoint: "__ResendEmailEndpoint__",
 };
+
+const defaultApplication = "__DefaultApplication__";

@@ -88,7 +88,7 @@ namespace NotificationService.Contracts
         /// <summary>
         /// Gets or sets SendOnUtcDateStart.
         /// </summary>
-        [DataMember(Name = "SendOnUtcDateStart")]
+        [DataMember(Name = "SendOnUtcDateEnd")]
         public string SendOnUtcDateEnd { get; set; }
 
         /// <summary>

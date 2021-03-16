@@ -4,6 +4,7 @@
 import {Dialog,DialogFooter,DialogType,PrimaryButton,DefaultButton} from 'office-ui-fabric-react';
 import {resendEmailService} from "../services";
 import React, {useState} from 'react';
+import {config} from '../configuration/config';
 
 export default function ResendModal (props) {
     var selectedItems = props.selectedItem?props.selectedItem:[];
@@ -12,7 +13,7 @@ export default function ResendModal (props) {
     selectedItems.forEach(e=>notificationIds.push(e.notificationId));
     const resendEmail = (e) => {
         if(notificationIds.length>0)
-            resendEmailService(notificationIds).then((res)=>{
+            resendEmailService(config.applicationName, notificationIds).then((res)=>{
                 setResendStatus("Success");
             }).catch(e=>
                 setResendStatus("error"));

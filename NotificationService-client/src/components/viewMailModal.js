@@ -12,12 +12,11 @@ export default function ViewMailModal (props) {
             dialogContentProps={{
                     type: DialogType.largeHeader,
                     title: 'Mail Body'
-        }}>
+            }}>
             {props.showLoader===true?<ProgressIndicator/>:""}
-            {mailBody}
-        <DialogFooter>
-            <DefaultButton onClick={props.toggleMailDialog} text="Close" />
-           
-        </DialogFooter>
+            <div dangerouslySetInnerHTML={{__html: mailBody}} />
+            <DialogFooter>
+                <DefaultButton onClick={props.toggleMailDialog} text="Close" />
+            </DialogFooter>
     </Dialog>)
 }
