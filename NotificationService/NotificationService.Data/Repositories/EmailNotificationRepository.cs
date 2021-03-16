@@ -353,7 +353,7 @@ namespace NotificationService.Data
         public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId) => throw new NotImplementedException();
+        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName) => throw new NotImplementedException();
