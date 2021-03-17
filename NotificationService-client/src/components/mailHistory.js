@@ -182,6 +182,10 @@ export default function MailHistory() {
     const operatorItems = [{ key: 0, text: "==" }];
 
     const onApplyFilter = (obj) => {
+        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key)).concat(obj.filter(a => !filter.some(b => b.key === a.key)));
+        if(diff.length === 0){
+            return;
+        }
         setFilter(obj);
         selectedPage.current = 1;
         fetchMailHistory(obj, null, defaultPageSize.current);
@@ -191,8 +195,12 @@ export default function MailHistory() {
     const onSelectFilter = (index, value) => { }
     const onFilterDismiss = (o) => { }
     const onResetFilter = () => {
+        if(filter.length === 0){
+            return;
+        }
+
         selectedPage.current = 1;
-        setFilter(undefined);
+        setFilter([]);
         fetchMailHistory(null, null, null);
     }
     const onActiveItemChanged = (i, indx, e) => {
@@ -268,6 +276,7 @@ export default function MailHistory() {
                     toggleHideDialog={toggleHideDialog}
                     hideDialog={hideDialog}
                     selectedItem={selectedItem}
+                    applicationName={applicationName}
                 />
                 <ViewMailModal
                     toggleMailDialog={toggleViewMailDialog}

@@ -8,12 +8,13 @@ import {config} from '../configuration/config';
 
 export default function ResendModal (props) {
     var selectedItems = props.selectedItem?props.selectedItem:[];
+    var applicationName = props.applicationName;
     var notificationIds = [];
     const [resendStatus, setResendStatus] = useState("");
     selectedItems.forEach(e=>notificationIds.push(e.notificationId));
     const resendEmail = (e) => {
         if(notificationIds.length>0)
-            resendEmailService(config.applicationName, notificationIds).then((res)=>{
+            resendEmailService(applicationName, notificationIds).then((res)=>{
                 setResendStatus("Success");
             }).catch(e=>
                 setResendStatus("error"));
