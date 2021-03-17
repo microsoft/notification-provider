@@ -25,12 +25,16 @@ export function viewMailBody(applicationName, notificationId) {
 const prepareReqBody = (applicationName,token,filter) => {
     var notificationIdsFilter = filter?.filter(e=>(e.key===0))?.map(e=>e.value)?.[0];
     var notificationStatusFilter = (filter?.filter(e=>(e.key===1))?.map(e=>e.value.map(e=>parseInt(e))))?.[0];
+    var sentOnStart = (filter?.filter(e=>(e.key===2))?.map(e=>e.value))?.[0];
+    var sentonEnd = (filter?.filter(e=>(e.key===3))?.map(e=>e.value))?.[0];
     var appName = [applicationName];
     var reqBody = {
         "applicationFilter":appName,
         "notificationIdsFilter": notificationIdsFilter?.length>0?notificationIdsFilter:[],
         "notificationStatusFilter":notificationStatusFilter?.length>0?notificationStatusFilter:[],
-          take:100,
+        "SendOnUtcDateStart":sentOnStart? sentOnStart: null,
+        "SendOnUtcDateEnd": sentonEnd? sentonEnd: null, 
+          take: config.recordsPerPage,
           token:token
     }
     return reqBody;
