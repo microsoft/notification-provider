@@ -413,7 +413,6 @@ namespace NotificationService.Data.Repositories
         {
             var filterSet = new HashSet<string>();
             string filterExpression = null;
-           
             string applicationFilter = null;
             string accountFilter = null;
             string notificationFilter = null;
@@ -422,10 +421,10 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in notificationReportRequest.ApplicationFilter)
                 {
-                    applicationFilter = applicationFilter == null ? TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item) : applicationFilter + " or " + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, item);
+                    applicationFilter = applicationFilter == null ? TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item) : applicationFilter + " or " + TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add(applicationFilter);
+                filterSet.Add("(" + applicationFilter + ")");
             }
 
             if (notificationReportRequest.AccountsUsedFilter?.Count > 0)
@@ -436,7 +435,7 @@ namespace NotificationService.Data.Repositories
                     accountFilter = accountFilter == null ? TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item) : accountFilter + " or " + TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add(accountFilter);
+                filterSet.Add("(" + accountFilter + ")");
             }
 
             if (notificationReportRequest.NotificationIdsFilter?.Count > 0)
@@ -447,7 +446,7 @@ namespace NotificationService.Data.Repositories
                     notificationFilter = notificationFilter == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : notificationFilter + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add(notificationFilter);
+                filterSet.Add("(" + notificationFilter + ")");
             }
 
             if (notificationReportRequest.NotificationStatusFilter?.Count > 0)
@@ -481,7 +480,7 @@ namespace NotificationService.Data.Repositories
                     statusFilter = statusFilter == null ? TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status) : statusFilter + " or " + TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status);
                 }
 
-                filterSet.Add(statusFilter);
+                filterSet.Add("(" + statusFilter + ")");
             }
 
             filterExpression = PrepareFilterExp(filterSet);

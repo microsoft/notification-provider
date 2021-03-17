@@ -280,7 +280,7 @@ export default function  MailHistoryFilter (props) {
                  errorMessage={comboboxErrorMessage}/>}
             </div> 
             <div className={styles.actions}>
-                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:30}}>
+                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:30, padding:5}}>
                     <PrimaryButton  onClick = {()=>onSelectFilter(calloutSelected)} text="Select" />
                 </Stack>
             </div>

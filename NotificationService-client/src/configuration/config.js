@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { WindowUtils } from "msal";
+
 export var config = {
     msalConfig : {
         "clientId": window.app.env.clientID,
@@ -19,5 +21,6 @@ export var config = {
         viewMailBodyEndpoint: window.app.env.serviceEndpoints.viewMailBodyEndpoint,
         resendEmailEndpoint: window.app.env.serviceEndpoints.resendEmailEndpoint
     },
-    applicationName: window.app.env.defaultApplication
+    applicationName: window.app.env.defaultApplication,
+    recordsPerPage: window.app.env.recordsPerPage
 }

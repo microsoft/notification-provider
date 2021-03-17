@@ -182,7 +182,7 @@ export default function MailHistory() {
     const operatorItems = [{ key: 0, text: "==" }];
 
     const onApplyFilter = (obj) => {
-        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key)).concat(obj.filter(a => !filter.some(b => b.key === a.key)));
+        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key && a.value == b.value)).concat(obj.filter(a => !filter.some(b => b.key === a.key && a.value == b.value)));
         if(diff.length === 0){
             return;
         }
