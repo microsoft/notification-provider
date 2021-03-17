@@ -258,7 +258,7 @@ namespace NotificationService.BusinessLibrary
                         this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
                     }
                 }
-                while (!response.Status && count < maxRetryCount);
+                while ((response == null || !response.Status) && count < maxRetryCount);
             });
 
             return result;

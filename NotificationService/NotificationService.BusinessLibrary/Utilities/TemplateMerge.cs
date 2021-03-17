@@ -62,19 +62,21 @@ namespace NotificationService.BusinessLibrary.Utilities
         private string ConvertXSLT(string notificationTemplate, string notificationXml)
         {
             this.logger.TraceInformation($"Started {nameof(this.ConvertXSLT)} method of {nameof(TemplateMerge)}.");
-            MemoryStream stream = new MemoryStream(System.Text.Encoding.Unicode.GetBytes(notificationXml));
-
-            XmlReaderSettings xmlReaderSettings = new XmlReaderSettings();
-            xmlReaderSettings.DtdProcessing = DtdProcessing.Prohibit;
-
-            XmlReader reader = XmlReader.Create(stream, xmlReaderSettings);
 
             // Initialize object
             var xmlData = new XmlDocument();
-            var xslTemplate = new XslCompiledTransform();
 
-            // Load message data into xmlDocument
-            xmlData.Load(reader);
+            if (!string.IsNullOrEmpty(notificationXml))
+            {
+                MemoryStream stream = new MemoryStream(System.Text.Encoding.Unicode.GetBytes(notificationXml));
+                XmlReaderSettings xmlReaderSettings = new XmlReaderSettings();
+                xmlReaderSettings.DtdProcessing = DtdProcessing.Prohibit;
+                XmlReader reader = XmlReader.Create(stream, xmlReaderSettings);
+                // Load message data into xmlDocument
+                xmlData.Load(reader);
+            }
+
+            var xslTemplate = new XslCompiledTransform();
 
             // Create the XsltSettings object with script disabled.
             XsltSettings xsltSettings = new XsltSettings(false, false);
@@ -117,7 +119,11 @@ namespace NotificationService.BusinessLibrary.Utilities
         private string ConvertText(string notificationTemplate, string notificationText)
         {
             this.logger.TraceInformation($"Started {nameof(this.ConvertText)} method of {nameof(TemplateMerge)}.");
-            var stringBuilder = new StringBuilder();
+            if (string.IsNullOrEmpty(notificationText))
+            {
+                return notificationTemplate;
+            }
+
             Dictionary<string, string> tokens = null;
             tokens = JsonConvert.DeserializeObject<Dictionary<string, string>>(notificationText);
 

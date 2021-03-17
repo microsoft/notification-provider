@@ -269,7 +269,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId)
+        public async Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName)
         {
             if (notificationId is null)
             {
@@ -285,12 +285,13 @@ namespace NotificationService.Data.Repositories
             var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
             meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery).Select(ent => ent).ToList();
             List<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
+            IList<MeetingNotificationItemEntity> updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-            if (meetingNotificationItemEntities.Count == 1)
+            if (updatedNotificationEntities.Count == 1)
             {
-                return Task.FromResult(notificationEntities.FirstOrDefault());
+                return updatedNotificationEntities.FirstOrDefault();
             }
-            else if (meetingNotificationItemEntities.Count > 1)
+            else if (updatedNotificationEntities.Count > 1)
             {
                 throw new ArgumentException("More than one entity found for the input notification id: ", notificationId);
             }
