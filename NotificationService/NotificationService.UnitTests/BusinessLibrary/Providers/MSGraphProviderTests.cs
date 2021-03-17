@@ -544,7 +544,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         {
             var eventId = Guid.NewGuid().ToString();
             var id = Guid.NewGuid().ToString();
-            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, null);
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.Accepted, null);
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
                .Protected()

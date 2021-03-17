@@ -66,7 +66,7 @@ namespace NotificationService.Data
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
         /// <returns>notitication item corresponding to input id.</returns>
-        Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId);
+        Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName);
 
         /// <summary>
         /// Creates entities in database for the input meeting notification items.
