@@ -139,7 +139,7 @@ namespace NotificationService
         {
             _ = services.AddSingleton<SendAccountConfiguration>(new SendAccountConfiguration()
             {
-                DisplayName = this.Configuration[ConfigConstants.DirectSendDisplayNameConfigKey],
+                FromAddressDisplayName = this.Configuration[ConfigConstants.DirectSendFromAddressDisplayNameConfigKey],
             });
 
             if (int.TryParse(this.Configuration[ConfigConstants.DirectSendSMTPPortConfigKey], out int port))
