@@ -12,10 +12,10 @@ namespace NotificationService.Contracts.Models.Graph.Invite
     public enum ImportanceType
     {
         /// <summary>
-        /// ImportanceType High.
+        /// ImportanceType Low.
         /// </summary>
-        [EnumMember(Value = "high")]
-        High,
+        [EnumMember(Value = "low")]
+        Low,
 
         /// <summary>
         /// ImportanceType Normal.
@@ -24,9 +24,9 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         Normal,
 
         /// <summary>
-        /// ImportanceType Low.
+        /// ImportanceType High.
         /// </summary>
-        [EnumMember(Value = "low")]
-        Low,
+        [EnumMember(Value = "high")]
+        High,
     }
 }

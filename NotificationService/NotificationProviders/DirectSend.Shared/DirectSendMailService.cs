@@ -164,6 +164,7 @@ namespace DirectSend
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
 
             message.Subject = emailMessage.Subject;
+            message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
 
             var ical = new TextPart("calendar")
             {
