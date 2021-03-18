@@ -65,5 +65,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "SingleValueExtendedProperties", IsRequired = false)]
         public List<SingleValueExtendedProperty> SingleValueExtendedProperties { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Importance of the notification.
+        /// </summary>
+        [DataMember(Name = "importance")]
+        public NotificationPriority Importance { get; set; }
     }
 }

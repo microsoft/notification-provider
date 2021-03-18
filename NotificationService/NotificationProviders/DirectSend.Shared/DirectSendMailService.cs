@@ -82,7 +82,7 @@ namespace DirectSend
             }
 
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
-            message.Importance = MessageImportance.High;
+            message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
 
             message.Subject = emailMessage.Subject;
 
