@@ -6,7 +6,7 @@ import { WindowUtils } from "msal";
 export var config = {
     msalConfig : {
         "clientId": window.app.env.clientID,
-        "authority":"https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47",
+        "authority": window.app.env.authority,
         "postLogoutRedirectUri":`${window.location.origin}`,
         "redirectUri":`${window.location.origin}`,
         "scopes":""
