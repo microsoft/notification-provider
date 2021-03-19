@@ -18,6 +18,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using static DirectSend.Models.Mail.EmailMessage;
 
     /// <summary>
     /// Direct Send Notification Provider.
@@ -132,7 +133,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     message.FileName = item.Attachments?.Select(e => e.FileName);
                     message.FileContent = item.Attachments?.Select(e => e.FileBase64);
                     message.Content = this.ConvertMeetingInviteToBody(item, body.Content);
-                    message.Importance = (DirectSend.Models.Mail.EmailMessage.NotificationPriority)item.Priority;
+                    message.Importance = (ImportanceType)Enum.Parse(typeof(ImportanceType), item.Priority.ToString());
                     await this.mailService.SendMeetingInviteAsync(message).ConfigureAwait(false);
                     item.Status = NotificationItemStatus.Sent;
                 }

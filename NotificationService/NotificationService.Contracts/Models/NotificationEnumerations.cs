@@ -30,6 +30,11 @@ namespace NotificationService.Contracts
     public enum NotificationPriority
     {
         /// <summary>
+        /// High
+        /// </summary>
+        High,
+
+        /// <summary>
         /// Log
         /// </summary>
         Low,
@@ -39,10 +44,6 @@ namespace NotificationService.Contracts
         /// </summary>
         Normal,
 
-        /// <summary>
-        /// High
-        /// </summary>
-        High,
     }
 
     /// <summary>

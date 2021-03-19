@@ -23,7 +23,7 @@ namespace DirectSend.Models.Mail
         /// <summary>
         /// Priority of the notification item.
         /// </summary>
-        public enum NotificationPriority
+        public enum ImportanceType
         {
             /// <summary>
             /// Low
@@ -100,7 +100,7 @@ namespace DirectSend.Models.Mail
         /// <summary>
         /// Gets or Sets Importance of the notification.
         /// </summary>
-        public NotificationPriority Importance { get; set; }
+        public ImportanceType Importance { get; set; }
 
     }
 }

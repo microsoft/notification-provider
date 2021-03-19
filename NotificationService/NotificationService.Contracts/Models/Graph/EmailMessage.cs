@@ -3,6 +3,7 @@
 
 namespace NotificationService.Contracts
 {
+    using NotificationService.Contracts.Models.Graph;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
@@ -70,6 +71,6 @@ namespace NotificationService.Contracts
         /// Gets or Sets Importance of the notification.
         /// </summary>
         [DataMember(Name = "importance")]
-        public NotificationPriority Importance { get; set; }
+        public ImportanceType Importance { get; set; }
     }
 }

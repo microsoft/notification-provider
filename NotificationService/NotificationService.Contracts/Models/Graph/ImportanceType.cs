@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.Contracts.Models.Graph.Invite
+namespace NotificationService.Contracts.Models.Graph
 {
     using System.Runtime.Serialization;
 
