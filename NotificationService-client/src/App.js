@@ -10,7 +10,6 @@ function App() {
   if (loading) {
     return <div>Loading...</div>;
   }
-  console.log("isauth : " + isAuthenticated);
   return (<>
     {isAuthenticated ?
     (<main>
@@ -27,8 +26,8 @@ function App() {
             logOutLink: '#',
             onLogOut: () => signOut()
           }
-         }}/> 
-         <MailHistory/>
+         }}/>
+         <MailHistory/> 
     </main>): ''}
   </>);
 }

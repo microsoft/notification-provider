@@ -5,8 +5,8 @@ export var config = {
     serviceEndpoints :{
         mailHistoryEndpoint: window.app.env.serviceEndpoints.mailHistoryEndpoint,
         viewMailBodyEndpoint: window.app.env.serviceEndpoints.viewMailBodyEndpoint,
-        resendEmailEndpoint: window.app.env.serviceEndpoints.resendEmailEndpoint
+        resendEmailEndpoint: window.app.env.serviceEndpoints.resendEmailEndpoint,
+        applicationsEndpoint: window.app.env.serviceEndpoints.applicationsEndpoint
     },
-    applicationName: window.app.env.defaultApplication,
     recordsPerPage: window.app.env.recordsPerPage
 }

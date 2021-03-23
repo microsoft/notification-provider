@@ -20,7 +20,7 @@ export const MsalProvider = ({
             config1.headers.Authorization = `Bearer ${sessionStorage.getItem('msal.idtoken')}`;
         }
         else {
-            signIn();
+            getToken();
         }
         return Promise.resolve(config1);       
     });
@@ -28,17 +28,15 @@ export const MsalProvider = ({
     instance.interceptors.response.use(response => {
         return Promise.resolve(response);
     },error => {
-        //signIn();
+        signIn();
     });
 
-    let accountId = "";
     const myMSALObj = new PublicClientApplication(config); 
     useEffect(() => {
         myMSALObj.handleRedirectPromise().then((resp) => {
             if (resp !== null) {
-                console.log("AccessToken : " + resp.accessToken);
+                myMSALObj.setActiveAccount(resp.account);
                 sessionStorage.setItem('msal.idtoken', resp.idToken);
-                accountId = resp.account.homeAccountId;
                 setIsAuthenticated(true);
                 setUser(resp.account);
                 myMSALObj.setActiveAccount(resp.account);
@@ -60,29 +58,29 @@ export const MsalProvider = ({
 
     const signOut = async() => {
         const logoutRequest = {
-            account: myMSALObj.getAccountByHomeId(accountId)
+            account: GetAccount()
         };
         myMSALObj.logout(logoutRequest);
     };
 
     const GetAccount = () => {
         const account = myMSALObj.getActiveAccount();
-        if (account) {
-            accountId = account.homeAccountId;
-        }
         return account;
     };
 
     const getToken = async () => {
         const account = GetAccount();
         const request = {...loginRequest, account: account};
-        return await myMSALObj.acquireTokenSilent(request).catch(async (error) => {
-        console.log("silent token acquisition fails. :: " + error);
+        const response =  await myMSALObj.acquireTokenSilent(request).catch(async (error) => {
             if(error instanceof InteractionRequiredAuthError){
-                console.log("acquiring token using redirect");
                 return myMSALObj.acquireTokenRedirect({...loginRequest});
             }
         });
+        if(response && response.idToken){
+            setIsAuthenticated(true);
+            sessionStorage.setItem('msal.idtoken', response.idToken);
+        }
+        return response;
     };
 
     return (

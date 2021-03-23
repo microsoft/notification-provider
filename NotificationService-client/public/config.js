@@ -9,5 +9,4 @@ const serviceEndpoints = {
     resendEmailEndpoint: "__ResendEmailEndpoint__",
 };
 
-const defaultApplication = "__DefaultApplication__";
 const recordsPerPage = "__RecordsPerPage__";

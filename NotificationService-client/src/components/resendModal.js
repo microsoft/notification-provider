@@ -12,16 +12,15 @@ const resendStyles = new mergeStyleSets({
     redText:{
         color:'red'
     }
-
 });
+
 export default function ResendModal (props) {
     var selectedItems = props.selectedItem?props.selectedItem:[];
-    var applicationName = props.applicationName;
     var notificationIds = [];
     const [loader, setLoader] = useState(false);
     const [resendStatus, setResendStatus] = useState("");
     selectedItems.forEach(e=>notificationIds.push(e.notificationId));
-
+    const applicationName = props.application;
     const toggleResendDialog = () => {
         props.toggleHideDialog();
         setResendStatus("");
