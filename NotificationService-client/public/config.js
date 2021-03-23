@@ -7,6 +7,7 @@ const serviceEndpoints = {
     mailHistoryEndpoint: "__MailHistoryEndpoint__",
     viewMailBodyEndpoint: "__ViewMailBodyEndpoint__",
     resendEmailEndpoint: "__ResendEmailEndpoint__",
+    applicationsEndpoint: "__ApplicationsEndpoint__"
 };
 
 const recordsPerPage = "__RecordsPerPage__";
