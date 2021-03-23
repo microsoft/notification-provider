@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "https://cspnotificationarmcd-notificationservice.azurewebsites.net/",
   "dependencies": {
+    "@azure/msal-browser": "^2.12.1",
     "@cseo/controls": "^2.7.0",
     "axios": "^0.21.1",
     "immer": "^8.0.1",
