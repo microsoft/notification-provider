@@ -83,6 +83,7 @@ namespace NotificationService.Controllers
         /// <param name="notificationId">notificationId of the email notification.</param>
         /// <returns>A <see cref="EmailMessage"/> returns the notification Message.</returns>
         [HttpGet]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("notificationMessage/{applicationName}/{notificationId}")]
         public async Task<IActionResult> GetNotificationMessage(string applicationName, string notificationId)
         {
@@ -127,6 +128,7 @@ namespace NotificationService.Controllers
         /// <param name="applicationName">Application Name.</param>
         /// <returns>a list of template entities <see cref="MailTemplate"/>.</returns>
         [HttpGet]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("templates/{applicationName}")]
         public async Task<IActionResult> GetAllTemplateEntities(string applicationName)
         {

@@ -83,6 +83,7 @@ namespace NotificationHandler
                         s.GetService<ICloudStorageClient>(),
                         s.GetService<ILogger>(),
                         s.GetService<IEmailManager>()));
+            _ = services.AddSingleton<INotificationClientManager, NotificationClientManager>();
         }
     }
 }

@@ -91,6 +91,7 @@ namespace NotificationService.Controllers
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
         [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("process/{applicationName}")]
         public async Task<IList<NotificationResponse>> ProcessQueuedEmailNotifications(string applicationName, [FromBody] QueueNotificationItem queueNotificationItem)
         {
