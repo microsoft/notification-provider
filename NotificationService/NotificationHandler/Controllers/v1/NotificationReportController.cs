@@ -80,6 +80,7 @@ namespace NotificationHandler.Controllers
             string nextRowKey = notificationResponses.Item2?.NextRowKey;
             if (nextPartitionKey != null && nextRowKey != null)
             {
+                this.Response.Headers.Add("Access-Control-Expose-Headers", "X-NextPartitionKey, X-NextRowKey");
                 this.Response.Headers.Add("X-NextPartitionKey", nextPartitionKey);
                 this.Response.Headers.Add("X-NextRowKey", nextRowKey);
             }
