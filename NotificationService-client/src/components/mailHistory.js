@@ -202,7 +202,7 @@ export default function MailHistory() {
         if(diff.length === 0){
             return;
         }
-        var appsFromFilter = obj.filter(a=> a.key === 4)?.[0].value;
+        var appsFromFilter = obj.filter(a=> a.key === 4)?.[0]?.value;
         setApplicationName(appsFromFilter?.length > 0? appsFromFilter[0] : applications[0]);
         setFilter(obj);
         selectedPage.current = 1;
