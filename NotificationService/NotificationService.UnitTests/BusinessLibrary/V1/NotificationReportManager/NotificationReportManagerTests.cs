@@ -215,8 +215,8 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
             var managerResult = this.NotificationReportManager.GetNotificationMessage(applicationName, notificationId);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
-            Assert.AreEqual(managerResult.Result.Body, body);
-
+            Assert.AreEqual(managerResult.Result.Body.Content, body.Content);
+ 
             this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId, applicationName));
         }
     }
