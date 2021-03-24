@@ -11,3 +11,4 @@ const serviceEndpoints = {
 };
 
 const recordsPerPage = "__RecordsPerPage__";
+const apiScope = ["__ApiScope__"];

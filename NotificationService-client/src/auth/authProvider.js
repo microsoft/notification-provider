@@ -36,7 +36,7 @@ export const MsalProvider = ({
         myMSALObj.handleRedirectPromise().then((resp) => {
             if (resp !== null) {
                 myMSALObj.setActiveAccount(resp.account);
-                sessionStorage.setItem('msal.idtoken', resp.idToken);
+                sessionStorage.setItem('msal.idtoken', resp.accessToken);
                 setIsAuthenticated(true);
                 setUser(resp.account);
                 myMSALObj.setActiveAccount(resp.account);
@@ -74,7 +74,7 @@ export const MsalProvider = ({
         });
         if(response && response.idToken){
             setIsAuthenticated(true);
-            sessionStorage.setItem('msal.idtoken', response.idToken);
+            sessionStorage.setItem('msal.idtoken', response.accessToken);
         }
         return response;
     };

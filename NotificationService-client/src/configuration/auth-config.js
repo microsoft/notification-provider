@@ -15,7 +15,7 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-    scopes: [""],
+    scopes: window.app.env.apiScope,
     forceRefresh: false
 };
 
