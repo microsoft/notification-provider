@@ -232,9 +232,9 @@ namespace NotificationService.BusinessLibrary
         /// or
         /// Template cannot be found, please provide a valid template and application name.
         /// </exception>
-        public async Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification)
+        public async Task<MessageBody> GetMeetingInviteBodyAsync(string applicationName, MeetingNotificationItemEntity notification)
         {
-            this.logger.TraceInformation($"Started {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.GetMeetingInviteBodyAsync)} method of {nameof(EmailManager)}.");
             string notificationBody = null;
             try
             {
@@ -273,7 +273,7 @@ namespace NotificationService.BusinessLibrary
             }
 
             MessageBody messageBody = new MessageBody { Content = notificationBody, ContentType = Common.ApplicationConstants.EmailBodyContentType };
-            this.logger.TraceInformation($"Finished {nameof(this.GetNotificationMessageBodyAsync)} method of {nameof(EmailManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.GetMeetingInviteBodyAsync)} method of {nameof(EmailManager)}.");
             return messageBody;
         }
 
