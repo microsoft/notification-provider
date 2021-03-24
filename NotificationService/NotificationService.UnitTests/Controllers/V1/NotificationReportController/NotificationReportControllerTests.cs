@@ -7,13 +7,12 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Cosmos.Table;
     using Moq;
+    using NotificationHandler.Controllers;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using NotificationService.Controllers;
     using NUnit.Framework;
 
     /// <summary>

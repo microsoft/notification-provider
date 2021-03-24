@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.Controllers
+namespace NotificationHandler.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace NotificationService.Controllers
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
-    /// Controller to handle Reporting of notifications.
+    /// Controller to handle notification client configs.
     /// </summary>
     [Route("v1/report")]
     [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
@@ -45,6 +45,18 @@ namespace NotificationService.Controllers
         {
             this.notificationReportManager = notificationReportManager ?? throw new System.ArgumentNullException(nameof(notificationReportManager));
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+        }
+
+        /// <summary>
+        /// API to get Applications.
+        /// </summary>
+        /// <returns>Returns list of applications.</returns>
+        [HttpGet]
+        [Route("applications")]
+        public IActionResult GetApplications()
+        {
+            var result = this.notificationReportManager.GetApplications();
+            return this.Accepted(result);
         }
 
         /// <summary>
