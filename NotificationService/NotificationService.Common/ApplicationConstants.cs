@@ -96,6 +96,6 @@ namespace NotificationService.Common
         /// <summary>
         /// A constact for appId in AADV2 claim type.
         /// </summary>
-        public const string AppIdV2ClaimType = "azp";
+        public const string AppIdV2ClaimType = "aud";
     }
 }

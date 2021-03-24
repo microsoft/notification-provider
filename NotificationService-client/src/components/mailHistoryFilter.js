@@ -165,7 +165,7 @@ export default function  MailHistoryFilter (props) {
       }
     }
     if(selectedFilter.selector === 'ComboBox'){
-      if(selectedComboValue.length == 0){
+      if(selectedComboValue.length === 0){
         setComboboxErrorMessage("Select value(s)");
         return false;
       }

@@ -41,7 +41,7 @@ const prepareReqBody = (token,filter) => {
         "notificationStatusFilter":notificationStatusFilter?.length>0?notificationStatusFilter:[],
         "SendOnUtcDateStart":sentOnStartFilter? sentOnStartFilter: undefined,
         "SendOnUtcDateEnd": sentonEndFilter? sentonEndFilter: undefined, 
-          take: config.recordsPerPage,
+          take: parseInt(config.recordsPerPage),
           token:token
     }
     return reqBody;

@@ -13,8 +13,8 @@ ReactDOM.render(
   <MsalProvider
   config={msalConfig}
   scopes={loginRequest}
->
-  <App />
-</MsalProvider>,
+  >
+    <App />
+  </MsalProvider>,
   document.getElementById('root')
 );

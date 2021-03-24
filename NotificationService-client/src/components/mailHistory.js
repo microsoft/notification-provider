@@ -198,11 +198,11 @@ export default function MailHistory() {
     const operatorItems = [{ key: 0, text: "==" }];
 
     const onApplyFilter = (obj) => {
-        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key && a.value == b.value)).concat(obj.filter(a => !filter.some(b => b.key === a.key && a.value == b.value)));
+        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key && a.value === b.value)).concat(obj.filter(a => !filter.some(b => b.key === a.key && a.value === b.value)));
         if(diff.length === 0){
             return;
         }
-        var appsFromFilter = obj.filter(a=> a.key == 4)?.[0].value;
+        var appsFromFilter = obj.filter(a=> a.key === 4)?.[0].value;
         setApplicationName(appsFromFilter?.length > 0? appsFromFilter[0] : applications[0]);
         setFilter(obj);
         selectedPage.current = 1;

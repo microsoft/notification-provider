@@ -41,7 +41,7 @@ export const MsalProvider = ({
                 setUser(resp.account);
                 myMSALObj.setActiveAccount(resp.account);
             } else {
-                const currentAccount = GetAccount();
+                const currentAccount = myMSALObj.getActiveAccount();
                 if(!currentAccount){
                     signIn();
                 }
@@ -58,18 +58,14 @@ export const MsalProvider = ({
 
     const signOut = async() => {
         const logoutRequest = {
-            account: GetAccount()
+            account: myMSALObj.getActiveAccount()
         };
         myMSALObj.logout(logoutRequest);
-    };
-
-    const GetAccount = () => {
-        const account = myMSALObj.getActiveAccount();
-        return account;
+        setIsAuthenticated(false);
     };
 
     const getToken = async () => {
-        const account = GetAccount();
+        const account = myMSALObj.getActiveAccount();
         const request = {...loginRequest, account: account};
         const response =  await myMSALObj.acquireTokenSilent(request).catch(async (error) => {
             if(error instanceof InteractionRequiredAuthError){
