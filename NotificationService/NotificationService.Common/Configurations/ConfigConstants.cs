@@ -173,7 +173,7 @@
         /// <summary>
         /// A constant for DirectSend DisplayName config key from appsetting.json.
         /// </summary>
-        public static string DirectSendDisplayNameConfigKey = $"{DirectSendSettingConfigSectionKey}:DisplayName";
+        public static string DirectSendFromAddressDisplayNameConfigKey = $"{DirectSendSettingConfigSectionKey}:FromAddressDisplayName";
 
         /// <summary>
         /// A constant for DirectSend SMTPPort config key from appsetting.json.

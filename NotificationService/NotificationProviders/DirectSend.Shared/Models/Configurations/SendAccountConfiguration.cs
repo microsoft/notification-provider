@@ -22,6 +22,6 @@ namespace DirectSend.Models.Configurations
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public string FromAddressDisplayName { get; set; }
     }
 }
