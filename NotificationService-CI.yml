@@ -98,7 +98,7 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
-        projects: '**/*.FunctionalTests.csproj'
+        projects: NotificationService/NotificationService/NotificationService.FunctionalTests.csproj
         arguments: --no-build --configuration Release --output FunctionalTests
         zipAfterPublish: false
     - task: PublishBuildArtifacts@1
