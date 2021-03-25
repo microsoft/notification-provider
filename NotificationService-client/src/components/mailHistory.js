@@ -7,11 +7,12 @@ import {
     SelectionMode, ShimmeredDetailsList, ConstrainMode, Link, ScrollablePane, ScrollbarVisibility, ActionButton,
     Sticky, StickyPositionType, Selection, MarqueeSelection, mergeStyleSets, Stack
 } from 'office-ui-fabric-react';
-import { getMailHistory, viewMailBody } from "../services";
+import { getMailHistory, viewMailBody, getApplications } from "../services";
 import ResendModal from './resendModal';
-import { CoherencePageSize, CoherencePagination } from '@cseo/controls';
+import { CoherencePagination } from '@cseo/controls';
 import ViewMailModal from './viewMailModal';
 import MailHistoryFilter from './mailHistoryFilter';
+
 const DEFAULT_PAGE_SIZE = 100;
 const TOTAL_RECORDS = 10000;
 export default function MailHistory() {
@@ -41,6 +42,14 @@ export default function MailHistory() {
     const selectedPage = React.useRef(1);
 
     const defaultPageSize = React.useRef(DEFAULT_PAGE_SIZE);
+
+    const [disableResend, setDisableResend] = useState(true);
+
+    const [filterProps, setFilterProps] = useState([]);
+
+    const [applicationName, setApplicationName] = useState("");
+
+    let applications = [];
 
     const onPageChange = (newPageNumber) => {
         if (newPageNumber !== selectedPage.current) {
@@ -78,8 +87,21 @@ export default function MailHistory() {
     };
 
     useEffect(() => {
-        fetchMailHistory(null, null, null);
+        fetchApplicationNames();
     },[]);
+
+    const fetchApplicationNames = () => {
+        getApplications().then(res => {
+            var apps = res?.data.map((o,i)=> {return {key:o, text: o};});
+            filterProperties.push({ key: 4, text: "Application", selector:"ComboBox", value: apps, placeholder: "Select value", isList: true})
+            setFilterProps(filterProperties);
+            applications = res?.data;
+            setApplicationName(applications?.[0]);
+            fetchMailHistory(null, null, null);
+          }).catch((error) =>  {
+              console.log("aplication fetch error:  " + error)
+        });
+    }
 
     const fetchMailHistory = (filter, token, pageSize) => {
         setShowShimmer(true);
@@ -104,13 +126,19 @@ export default function MailHistory() {
 
     const selection = new Selection({
         onSelectionChanged: () => {
-            setSelectedItem(selection.getSelection())
+            setSelectedItem(selection.getSelection());
+            if(selection.count > 0){
+                setDisableResend(false);
+            }
+            else {
+                setDisableResend(true);
+            }
         }
     });
 
-    const columnNames = ["ID", "Subject", "To", "From", "Status", "SentOn", "Error"];
+    const columnNames = ["ID", "Application", "Subject", "To", "From", "Status", "SentOn", "Error"];
 
-    const fieldNames = ["notificationId", "subject", "to", "from", "status", "sendOnUtcDate", "errorMessage"];
+    const fieldNames = ["notificationId", "application", "subject", "to", "from", "status", "sendOnUtcDate", "errorMessage"];
 
     const columns = columnNames.map((item, index) => (
         {
@@ -158,17 +186,24 @@ export default function MailHistory() {
         );
     }
 
-    const filterProps = [
-        { key: 0, text: "NotificationId", selector: "InputBox", value: [] },
-        {key: 1, text: "Status", selector: "ComboBox", value: [{ key: 0, text: "Queued" }, { key: 1, text: "Processing" },
-            { key: 2, text: "Retrying" }, { key: 3, text: "Failed" }, { key: 4, text: "Sent" },]
+    const filterProperties = [
+        { key: 0, text: "NotificationId", selector: "InputBox", value: [], placeholder: "Type comma separated values", isList:true},
+        { key: 1, text: "Status", selector: "ComboBox", value: [{ key: 0, text: "Queued" }, { key: 1, text: "Processing" },
+            { key: 2, text: "Retrying" }, { key: 3, text: "Failed" }, { key: 4, text: "Sent" },], placeholder: "Select values", isList:true
         },
-        { key: 2, text: "SentOn", selector: "InputBox", value: [] }
+        { key: 2, text: "SentOnStart", selector: "InputBox", value: [], placeholder: "YYYY-MM-DDTHH:MM:SS", isList:false},
+        { key: 3, text: "SentOnEnd", selector: "InputBox", value: [], placeholder: "YYYY-MM-DDTHH:MM:SS", isList:false}
     ];
 
     const operatorItems = [{ key: 0, text: "==" }];
 
     const onApplyFilter = (obj) => {
+        var diff = filter.filter(a =>  !obj.some(b =>  a.key === b.key && a.value === b.value)).concat(obj.filter(a => !filter.some(b => b.key === a.key && a.value === b.value)));
+        if(diff.length === 0){
+            return;
+        }
+        var appsFromFilter = obj.filter(a=> a.key === 4)?.[0]?.value;
+        setApplicationName(appsFromFilter?.length > 0? appsFromFilter[0] : applications[0]);
         setFilter(obj);
         selectedPage.current = 1;
         fetchMailHistory(obj, null, defaultPageSize.current);
@@ -178,8 +213,12 @@ export default function MailHistory() {
     const onSelectFilter = (index, value) => { }
     const onFilterDismiss = (o) => { }
     const onResetFilter = () => {
+        if(filter.length === 0){
+            return;
+        }
+
         selectedPage.current = 1;
-        setFilter(undefined);
+        setFilter([]);
         fetchMailHistory(null, null, null);
     }
     const onActiveItemChanged = (i, indx, e) => {
@@ -191,7 +230,7 @@ export default function MailHistory() {
         setMailBody(undefined);
         setMailDialog(!mailDialog);
         if (mailDialog === true && activeItem.status === "Sent") {
-            viewMailBody(activeItem?.notificationId).then((response) => {
+            viewMailBody(activeItem?.application, activeItem?.notificationId).then((response) => {
                 setMailBody(response.data.body.content);
                 setLoader(false);
             }).catch(error => {
@@ -207,10 +246,11 @@ export default function MailHistory() {
             <Sticky >
 
                 <Stack horizontal horizontalAlign="space-between">
-                    <span style={{ textAlignLast: "left", paddingLeft: 10 }}>
+                    <span style={{ textAlignLast: "left", paddingRight: 10 }}>
                         <ActionButton
                             iconProps={{ iconName: 'MailRepeat' }}
                             allowDisabledFocus
+                            disabled={disableResend}
                             onClick={toggleHideDialog}>
                             Resend
                         </ActionButton>
@@ -254,6 +294,7 @@ export default function MailHistory() {
                     toggleHideDialog={toggleHideDialog}
                     hideDialog={hideDialog}
                     selectedItem={selectedItem}
+                    application = {applicationName}
                 />
                 <ViewMailModal
                     toggleMailDialog={toggleViewMailDialog}

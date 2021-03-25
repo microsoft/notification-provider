@@ -157,11 +157,11 @@ namespace NotificationService.SvCommon.Common
 
             _ = services.AddAuthentication(ApplicationConstants.BearerAuthenticationScheme).AddJwtBearer(options =>
             {
-                options.Authority = this.Configuration[ConfigConstants.AuthorityConfigKey];
+                options.Authority = this.Configuration[ConfigConstants.BearerTokenIssuerConfigKey];
                 options.ClaimsIssuer = this.Configuration[ConfigConstants.BearerTokenIssuerConfigKey];
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                 {
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidAudiences = this.Configuration[ConfigConstants.BearerTokenValidAudiencesConfigKey].Split(ApplicationConstants.SplitCharacter),
                 };
             });

@@ -3,19 +3,15 @@
 
 import {CoherenceHeader} from "@cseo/controls";
 import MailHistory from "./components/mailHistory";
-import {signOut,getToken} from "./auth/authProvider";
-import {config} from "./configuration/config";
-import { useEffect,useState } from "react";
+import { useMsal } from "./auth/authProvider";
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  useEffect(()=>{
-   getToken().then(()=>{
-     if(sessionStorage.getItem('msal.idtoken')!==null) 
-      setIsLoggedIn(true);
-   });
-  },[]); 
+  const { loading, isAuthenticated, user, signOut } = useMsal()
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (<>
-    {isLoggedIn===true ?
+    {isAuthenticated ?
     (<main>
         <CoherenceHeader
          headerLabel={'header'}
@@ -24,14 +20,14 @@ function App() {
          }}
          farRightSettings={{
           profileSettings: {
-            fullName: config.userProfile.fullName,
-            emailAddress: config.userProfile.email,
+            fullName: user?.name,
+            emailAddress: user?.username,
             imageUrl: undefined,
             logOutLink: '#',
             onLogOut: () => signOut()
           }
-         }}/> 
-         <MailHistory/>
+         }}/>
+         <MailHistory/> 
     </main>): ''}
   </>);
 }

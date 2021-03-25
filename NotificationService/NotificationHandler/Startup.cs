@@ -13,6 +13,7 @@ namespace NotificationHandler
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
+    using NotificationService.BusinessLibrary.Utilities;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
@@ -83,6 +84,8 @@ namespace NotificationHandler
                         s.GetService<ICloudStorageClient>(),
                         s.GetService<ILogger>(),
                         s.GetService<IEmailManager>()));
+            _ = services.AddScoped<ITemplateMerge, TemplateMerge>()
+                .AddScoped<INotificationReportManager, NotificationReportManager>();
         }
     }
 }

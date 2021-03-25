@@ -89,8 +89,7 @@ namespace NotificationService
 
             _ = services.AddSingleton<NotificationProviders.Common.Logger.ILogger>(_ => new NotificationProviders.Common.Logger.AILogger(loggingConfiguration, tconfig, itm));
 
-            _ = services.AddScoped<INotificationReportManager, NotificationReportManager>()
-                .AddScoped<IEmailManager, EmailManager>(s =>
+            _ = services.AddScoped<IEmailManager, EmailManager>(s =>
                     new EmailManager(
                         this.Configuration,
                         s.GetService<IRepositoryFactory>(),
