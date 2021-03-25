@@ -7,23 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="appsettings - Copy.json" />
-    <None Remove="appsettings.Development.json" />
-    <None Remove="appsettings.json" />
-    <None Remove="BaseTests - Copy" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="appsettings - Copy.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
