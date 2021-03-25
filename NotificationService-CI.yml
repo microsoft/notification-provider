@@ -95,13 +95,3 @@ stages:
       inputs:
         PathtoPublish: $(System.DefaultWorkingDirectory)/NotificationService.zip
         artifactName: drop
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)/NotificationService/NotificationService.FunctionalTests'
-        Contents: '**'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/Funcationaltests'
-    - task: PublishBuildArtifacts@1
-      displayName: Publish FunctionalTests Build Artifacts
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)/Funcationaltests'
-        ArtifactName: drop
