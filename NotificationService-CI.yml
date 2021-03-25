@@ -96,6 +96,7 @@ stages:
         PathtoPublish: $(System.DefaultWorkingDirectory)/NotificationService.zip
         artifactName: drop
     - task: DotNetCoreCLI@2
+      displayName: Package FunctionalTests 
       inputs:
         command: 'publish'
         projects: NotificationService/NotificationService/NotificationService.FunctionalTests.csproj
