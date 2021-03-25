@@ -37,17 +37,12 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.1.0" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj" />
-    <ProjectReference Include="..\NotificationService.BusinessLibrary\NotificationService.BusinessLibrary.csproj" />
-    <ProjectReference Include="..\NotificationService\NotificationService.csproj" />
-    <ProjectReference Include="..\NotificationService.Common\NotificationService.Common.csproj" />
     <ProjectReference Include="..\NotificationService.Contracts\NotificationService.Contracts.csproj" />
-    <ProjectReference Include="..\NotificationService.Data\NotificationService.Data.csproj" />
-    <ProjectReference Include="..\NotificationService.SvCommon\NotificationService.SvCommon.csproj" />
   </ItemGroup>
   
 </Project>

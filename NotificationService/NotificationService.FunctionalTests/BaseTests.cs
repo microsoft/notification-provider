@@ -43,29 +43,9 @@ namespace NotificationService.FunctionalTests
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json");
 
-            var config = builder.Build();
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config[ConfigConstants.KeyVaultUrlConfigKey])
-            {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[ConfigConstants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
-            };
-            _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
-
             IConfiguration Configuration = builder.Build();
 
-            _ = builder.AddAzureAppConfiguration(options =>
-            {
-                var settings = options.Connect(Configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]).Select(KeyFilter.Any, "Common")
-                .Select(KeyFilter.Any, "Handler")
-                .Select(KeyFilter.Any, "Service")
-                .Select(KeyFilter.Any, "QueueProcessor");
-                _ = settings.ConfigureRefresh(refreshOptions =>
-                {
-                    _ = refreshOptions.Register(key: Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
-                });
-            });
 
-            Configuration = builder.Build();
             return Configuration;
         }
 

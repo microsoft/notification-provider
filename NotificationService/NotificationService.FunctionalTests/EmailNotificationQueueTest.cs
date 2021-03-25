@@ -17,7 +17,7 @@ namespace NotificationService.FunctionalTests
     {
 
         [Test]
-        public async Task QueueEmailTest()
+        public async Task QueueEmailGetNotificationMessageGetNotificationReportTest()
         {
             var emailNotificationItems = new EmailNotificationItem[]
             {
@@ -62,8 +62,9 @@ namespace NotificationService.FunctionalTests
                             Assert.Fail();
                         }
 
-                        int retryCount = 2;
-                        _ = int.TryParse(Configuration[FunctionalConstants.RetryCount], out retryCount);
+                        int retryCount = int.TryParse(Configuration[FunctionalConstants.RetryCount], out retryCount) ? retryCount : 2;
+                        int delayTime = int.TryParse(Configuration[FunctionalConstants.DelayTimeInMilliSeconds], out delayTime) ? delayTime : 5000;
+
 
                         for (int i = 0; i < retryCount; i++) {
                             NotificationReportResponse notificationReportResponse = await GetNotificationReportTest(notificationId, httpClient);
@@ -88,7 +89,11 @@ namespace NotificationService.FunctionalTests
                                     case NotificationItemStatus.Retrying:
                                         {
                                             if (i == retryCount - 1)
+                                            {
                                                 Assert.Fail();
+                                                break;
+                                            }
+                                            await Task.Delay(delayTime);
                                             continue;
                                         }
                                 }
@@ -107,7 +112,6 @@ namespace NotificationService.FunctionalTests
                 }
 
             }
-            Assert.Pass();
         }
 
         private async Task<NotificationReportResponse> GetNotificationReportTest(string notificationId, HttpClient httpClient)
@@ -151,7 +155,7 @@ namespace NotificationService.FunctionalTests
         }
 
         [Test]
-        public async Task QueueEmailAttachmentTest()
+        public async Task QueueEmailAttachmentGetNotificationTest()
         {
             var emailNotificationItems = new EmailNotificationItem[]
             {
@@ -214,7 +218,7 @@ namespace NotificationService.FunctionalTests
                 }
 
             }
-            Assert.Pass();
+
         }
 
     }

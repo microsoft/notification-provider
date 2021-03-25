@@ -5,7 +5,6 @@ namespace NotificationService.FunctionalTests
 {
     public static class FunctionalConstants
     {
-        public const string StorageType = "StorageType";
         public const string ToAddress = "ToAddress";
         public const string ContentType = "application/json";
         public const string Bearer = "Bearer";
@@ -16,5 +15,6 @@ namespace NotificationService.FunctionalTests
         public const string Authority = "Authority";
         public const string ClientId = "ClientId";
         public const string ClientSecret = "ClientSecret";
+        public const string DelayTimeInMilliSeconds = "DelayTimeInMilliSeconds";
     }
 }

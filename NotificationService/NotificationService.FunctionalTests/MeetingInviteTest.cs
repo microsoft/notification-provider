@@ -31,13 +31,12 @@ namespace NotificationService.FunctionalTests
                     Start = date,
                     End = date.AddHours(1),
                     Priority = NotificationPriority.Normal,
-                    Attachments = new List<NotificationAttachment>()
+                    Attachments = new NotificationAttachment[]
                     {
                         new NotificationAttachment()
                         {
                             FileBase64 = "VEhpcyBpcyBhIHRlc3QgYXR0YWNobWVudCBmaWxlLg==",
-                            FileName = "Test.txt",
-                            IsInline = false,
+                            FileName = "Test.txt"
                         },
                     },
                 }
@@ -77,7 +76,7 @@ namespace NotificationService.FunctionalTests
         }
 
         [Test]
-        public async Task SendMeetingInvitesTest()
+        public async Task SendMeetingInvitesWithAttachmentsTest()
         {
             var date = DateTime.UtcNow;
             var meetingInviteItems = new MeetingNotificationItem[]
