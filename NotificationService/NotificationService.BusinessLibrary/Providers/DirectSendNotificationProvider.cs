@@ -109,7 +109,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     var toOverride = this.mailSettings.Find(a => a.ApplicationName == applicationName).ToOverride;
                     DirectSend.Models.Mail.EmailMessage message = new DirectSend.Models.Mail.EmailMessage();
                     message.Subject = item.Subject;
-                    MessageBody body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, item).ConfigureAwait(false);
+                    MessageBody body = await this.emailManager.GetMeetingInviteBodyAsync(applicationName, item).ConfigureAwait(false);
                     message.FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = this.directSendSetting?.FromAddressDisplayName, Address = this.directSendSetting?.FromAddress } };
                     if (!sendForReal)
                     {
