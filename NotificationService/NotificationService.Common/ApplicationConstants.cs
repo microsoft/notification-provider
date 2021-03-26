@@ -92,5 +92,10 @@ namespace NotificationService.Common
         /// A constant for ResendDateRange logging.
         /// </summary>
         public const string ResendDateRange = "ResendDateRange";
+
+        /// <summary>
+        /// A constact for appId in AADV2 claim type.
+        /// </summary>
+        public const string AppIdV2ClaimType = "azp";
     }
 }

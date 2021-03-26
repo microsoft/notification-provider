@@ -21,6 +21,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Graph;
     using NotificationService.Contracts.Models.Graph.Invite;
 
     /// <summary>

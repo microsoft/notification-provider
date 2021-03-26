@@ -35,5 +35,11 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// <param name="applicationName">.</param>
         /// <returns>list of MailTemplateInfo <see cref="MailTemplateInfo"/>.</returns>
         Task<IList<MailTemplateInfo>> GetAllTemplateEntities(string applicationName);
+
+        /// <summary>
+        /// Gets the applications configured in notification service.
+        /// </summary>
+        /// <returns>List of applications.</returns>
+        IList<string> GetApplications();
     }
 }

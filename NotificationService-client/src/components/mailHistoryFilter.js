@@ -83,11 +83,12 @@ export default function  MailHistoryFilter (props) {
     setSelectedComboValue([]);
     setSelectedVal(undefined);
     setSelectedOp(undefined);
-    
   }
   const resetErrorMessage =()=>{
     setOpErrorMessage(undefined);
     setFilterErrorMessage(undefined);
+    setInputBoxErrorMessage(undefined);
+    setComboboxErrorMessage(undefined);
   }
   const toggleIsCalloutVisible = (i)=> {
         reset();
@@ -157,6 +158,18 @@ export default function  MailHistoryFilter (props) {
         setOpErrorMessage("Select an Operator");
         return false;
     }
+    if(selectedFilter.selector === 'InputBox'){
+      if(selectedVal === undefined){
+        setInputBoxErrorMessage("Enter value");
+        return false;
+      }
+    }
+    if(selectedFilter.selector === 'ComboBox'){
+      if(selectedComboValue.length === 0){
+        setComboboxErrorMessage("Select value(s)");
+        return false;
+      }
+    }
     return true;
   }
   const onApplyFilter = () => {
@@ -168,7 +181,7 @@ export default function  MailHistoryFilter (props) {
           key:selectedFilter.key,
           text:selectedFilter.text,
           op : selectedOp.key,
-          value : selectedFilter.selector==="InputBox"? selectedVal?.split(",") : selectedComboValue,
+          value : selectedFilter.selector==="InputBox"? selectedFilter.isList ? selectedVal?.split(",") : selectedVal : selectedComboValue,
           selector : selectedFilter.selector
 
       }
@@ -267,7 +280,7 @@ export default function  MailHistoryFilter (props) {
                  errorMessage={comboboxErrorMessage}/>}
             </div> 
             <div className={styles.actions}>
-                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:30}}>
+                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:30, padding:5}}>
                     <PrimaryButton  onClick = {()=>onSelectFilter(calloutSelected)} text="Select" />
                 </Stack>
             </div>
@@ -295,7 +308,7 @@ export default function  MailHistoryFilter (props) {
                 <Dropdown 
                 label="Filter" 
                 placeholder="Select Filter" 
-                options={options}
+                options={options.filter(e =>  !filterVal.some(o => o.key === e.key))}
                 //selectedKey={selectedFilter==undefined?undefined:selectedFilter.key}
                 onChange={filterOnChange}
                 errorMessage={filterErrorMessage}
@@ -307,7 +320,7 @@ export default function  MailHistoryFilter (props) {
                 errorMessage={opErrorMessage}/>
                 {selectedFilter?.key!==undefined
                     ?(options[selectedFilter.key].selector==="InputBox"
-                    ?<TextField placeholder="Type Comma Separated Values" label="Value"
+                    ?<TextField placeholder={options[selectedFilter.key].placeholder} label="Value"
                      onChange = {inputboxOnChange} errorMessage={inputBoxErrorMessage}/>
                     :<Dropdown placeholder="Select Values" multiSelect label="Value" 
                     selectedKeys = {selectedComboValue} 
@@ -316,7 +329,7 @@ export default function  MailHistoryFilter (props) {
                     errorMessage={comboboxErrorMessage}/>)
                     :''
                 } </div><div className={styles.actions}>
-                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:15}}>
+                <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={{childrenGap:15, padding:5}}>
                 <PrimaryButton  onClick = {onSelectAddFilter} text="Select" />
                 <DefaultButton  onClick = {toggleIsCalloutVisible} text="Cancel" /> 
                 </Stack>

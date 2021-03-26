@@ -3,6 +3,7 @@
 
 namespace NotificationService.Contracts
 {
+    using NotificationService.Contracts.Models.Graph;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
@@ -65,5 +66,11 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "SingleValueExtendedProperties", IsRequired = false)]
         public List<SingleValueExtendedProperty> SingleValueExtendedProperties { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Importance of the notification.
+        /// </summary>
+        [DataMember(Name = "importance")]
+        public ImportanceType Importance { get; set; }
     }
 }

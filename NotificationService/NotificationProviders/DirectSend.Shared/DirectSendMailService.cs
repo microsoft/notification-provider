@@ -81,8 +81,8 @@ namespace DirectSend
                 message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
             }
 
-            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
-            message.Importance = MessageImportance.High;
+            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
+            message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
 
             message.Subject = emailMessage.Subject;
 
@@ -161,9 +161,10 @@ namespace DirectSend
                 message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
             }
 
-            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.DisplayName, x.Address)));
+            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
 
             message.Subject = emailMessage.Subject;
+            message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
 
             var ical = new TextPart("calendar")
             {

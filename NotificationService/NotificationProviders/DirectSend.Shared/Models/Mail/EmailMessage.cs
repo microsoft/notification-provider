@@ -3,6 +3,7 @@
 
 namespace DirectSend.Models.Mail
 {
+    using MimeKit;
     using System.Collections.Generic;
 
     /// <summary>
@@ -17,6 +18,27 @@ namespace DirectSend.Models.Mail
         {
             this.ToAddresses = new List<EmailAddress>();
             this.FromAddresses = new List<EmailAddress>();
+        }
+
+        /// <summary>
+        /// Priority of the notification item.
+        /// </summary>
+        public enum ImportanceType
+        {
+            /// <summary>
+            /// Low
+            /// </summary>
+            Low,
+
+            /// <summary>
+            /// Normal
+            /// </summary>
+            Normal,
+
+            /// <summary>
+            /// High
+            /// </summary>
+            High,
         }
 
         /// <summary>
@@ -74,5 +96,11 @@ namespace DirectSend.Models.Mail
         /// The File Content in Base64 format.
         /// </value>
         public IEnumerable<string> FileContent { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Importance of the notification.
+        /// </summary>
+        public ImportanceType Importance { get; set; }
+
     }
 }
