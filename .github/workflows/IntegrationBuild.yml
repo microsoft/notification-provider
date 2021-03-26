@@ -20,4 +20,4 @@ jobs:
     - name: Build Solution
       run: dotnet build NotificationService/NotificationService.sln --configuration Release --no-restore
     - name: Execute Unit Tests
-      run: dotnet test NotificationService/NotificationService.sln --no-build  --configuration Release
+      run: dotnet test NotificationService/NotificationService.UnitTests/NotificationService.UnitTests.csproj --no-build  --configuration Release
