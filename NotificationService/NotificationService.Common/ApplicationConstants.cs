@@ -97,10 +97,5 @@ namespace NotificationService.Common
         /// A constact for appId in AADV2 claim type.
         /// </summary>
         public const string AppIdV2ClaimType = "azp";
-
-        /// <summary>
-        /// A constant used to store these many items at once to storage.
-        /// </summary>
-        public const int BatchSizeToStore = 100;
     }
 }

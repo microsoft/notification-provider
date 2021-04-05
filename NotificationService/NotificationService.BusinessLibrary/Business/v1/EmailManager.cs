@@ -10,7 +10,6 @@ namespace NotificationService.BusinessLibrary
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -117,7 +116,7 @@ namespace NotificationService.BusinessLibrary
             traceProps[AIConstants.EmailNotificationCount] = emailNotificationItems?.Length.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
-            List<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
+            IList<EmailNotificationItemEntity> notificationEntities = new List<EmailNotificationItemEntity>();
 
             foreach (var item in emailNotificationItems)
             {
@@ -130,13 +129,7 @@ namespace NotificationService.BusinessLibrary
                 notificationEntities.Add(notificationEntity);
             }
 
-            var batchesToCreate = BusinessUtilities.SplitList<EmailNotificationItemEntity>(notificationEntities, ApplicationConstants.BatchSizeToStore).ToList();
-
-            foreach (var batch in batchesToCreate)
-            {
-                await this.emailNotificationRepository.CreateEmailNotificationItemEntities(batch, applicationName).ConfigureAwait(false);
-            }
-
+            await this.emailNotificationRepository.CreateEmailNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
         }
@@ -297,7 +290,7 @@ namespace NotificationService.BusinessLibrary
             traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItems?.Length.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
-            List<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
+            IList<MeetingNotificationItemEntity> notificationEntities = new List<MeetingNotificationItemEntity>();
 
             foreach (var item in meetingNotificationItems)
             {
@@ -310,13 +303,7 @@ namespace NotificationService.BusinessLibrary
                 notificationEntities.Add(notificationEntity);
             }
 
-            var batchesToCreate = BusinessUtilities.SplitList<MeetingNotificationItemEntity>(notificationEntities, ApplicationConstants.BatchSizeToStore).ToList();
-
-            foreach (var batch in batchesToCreate)
-            {
-                await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(batch, applicationName).ConfigureAwait(false);
-            }
-
+            await this.emailNotificationRepository.CreateMeetingNotificationItemEntities(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Completed {nameof(this.CreateNotificationEntities)} method of {nameof(EmailManager)}.", traceProps);
             return notificationEntities;
         }
