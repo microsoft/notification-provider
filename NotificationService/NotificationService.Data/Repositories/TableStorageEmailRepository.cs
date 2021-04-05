@@ -101,13 +101,18 @@ namespace NotificationService.Data.Repositories
                 updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadEmail(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).ConfigureAwait(false);
             }
 
-            TableBatchOperation batchOperation = new TableBatchOperation();
-            foreach (var item in updatedEmailNotificationItemEntities)
-            {
-                batchOperation.Insert(this.ConvertToEmailNotificationItemTableEntity(item));
-            }
+            var batchesToCreate = this.SplitList<EmailNotificationItemEntity>((List<EmailNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
 
-            Task.WaitAll(this.emailHistoryTable.ExecuteBatchAsync(batchOperation));
+            foreach (var batch in batchesToCreate)
+            {
+                TableBatchOperation batchOperation = new TableBatchOperation();
+                foreach (var item in batch)
+                {
+                    batchOperation.Insert(this.ConvertToEmailNotificationItemTableEntity(item));
+                }
+
+                Task.WaitAll(this.emailHistoryTable.ExecuteBatchAsync(batchOperation));
+            }
 
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
 
@@ -321,13 +326,20 @@ namespace NotificationService.Data.Repositories
 
             this.logger.TraceInformation($"Started {nameof(this.CreateMeetingNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
             IList<MeetingNotificationItemEntity> updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadMeetingInvite(meetingNotificationItemEntities, NotificationType.Meet.ToString(), applicationName).ConfigureAwait(false);
-            TableBatchOperation batchOperation = new TableBatchOperation();
-            foreach (var item in updatedEmailNotificationItemEntities)
+
+            var batchesToCreate = this.SplitList<MeetingNotificationItemEntity>((List<MeetingNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
+
+            foreach (var batch in batchesToCreate)
             {
-                batchOperation.Insert(this.ConvertToMeetingNotificationItemTableEntity(item));
+                TableBatchOperation batchOperation = new TableBatchOperation();
+                foreach (var item in batch)
+                {
+                    batchOperation.Insert(this.ConvertToMeetingNotificationItemTableEntity(item));
+                }
+
+                Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
             }
 
-            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
             return;
         }
@@ -692,6 +704,26 @@ namespace NotificationService.Data.Repositories
             }
 
             return filterExpression;
+        }
+
+        /// <summary>
+        /// Breaks the input list to multiple chunks each of size provided as input.
+        /// </summary>
+        /// <typeparam name="T">Type of object in the List.</typeparam>
+        /// <param name="listItems">List of objects.</param>
+        /// <param name="nSize">Chunk size.</param>
+        /// <returns>An enumerable collection of chunks.</returns>
+        private IEnumerable<IList<T>> SplitList<T>(List<T> listItems, int nSize = 4)
+        {
+            if (listItems is null)
+            {
+                throw new ArgumentNullException(nameof(listItems));
+            }
+
+            for (int i = 0; i < listItems.Count; i += nSize)
+            {
+                yield return listItems.GetRange(i, Math.Min(nSize, listItems.Count - i));
+            }
         }
     }
 }
