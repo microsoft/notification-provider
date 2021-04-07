@@ -41,5 +41,12 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <returns>List of applications.</returns>
         IList<string> GetApplications();
+
+        /// <summary>
+        /// Gets the report notifications for meeting invites depending on the input.
+        /// </summary>
+        /// <param name="notificationReportRequest"> notification filter request. </param>
+        /// <returns> notifications filtered based on input.</returns>
+        Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest);
     }
 }

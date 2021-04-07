@@ -136,6 +136,36 @@ namespace NotificationHandler.Controllers
         }
 
         /// <summary>
+        /// Returns all filtered meeting invite Notification Entities for reporting.
+        /// </summary>
+        /// <param name="notificationFilterRequest">Request with filter parameters to get meeting invite notifications for reporting.</param>
+        /// <returns> list of MeetingInviteReportResponse.</returns>
+        [HttpPost]
+        [Route("meetingInvites")]
+        public async Task<IActionResult> GetMeetingInviteReportNotifications([FromBody] NotificationReportRequest notificationFilterRequest)
+        {
+            if (notificationFilterRequest is null)
+            {
+                throw new System.ArgumentException("Notification Filter Request cannot be null");
+            }
+
+            Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken> notificationResponses;
+            this.logger.TraceInformation($"Started {nameof(this.GetMeetingInviteReportNotifications)} method of {nameof(NotificationReportController)}.");
+            notificationResponses = await this.notificationReportManager.GetMeetingInviteReportNotifications(notificationFilterRequest).ConfigureAwait(false);
+            string nextPartitionKey = notificationResponses.Item2?.NextPartitionKey;
+            string nextRowKey = notificationResponses.Item2?.NextRowKey;
+            if (nextPartitionKey != null && nextRowKey != null)
+            {
+                this.Response.Headers.Add("Access-Control-Expose-Headers", "X-NextPartitionKey, X-NextRowKey");
+                this.Response.Headers.Add("X-NextPartitionKey", nextPartitionKey);
+                this.Response.Headers.Add("X-NextRowKey", nextRowKey);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetMeetingInviteReportNotifications)} method of {nameof(NotificationReportController)}.");
+            return new OkObjectResult(notificationResponses.Item1);
+        }
+
+        /// <summary>
         /// Gets All Template Entities for the input application.
         /// </summary>
         /// <param name="applicationName">Application Name.</param>

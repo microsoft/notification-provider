@@ -135,6 +135,28 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
+        public async Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest)
+        {
+            // Map the request object to filters
+            if (notificationReportRequest == null)
+            {
+                throw new ArgumentNullException($"The Notification Report Request cannot be null");
+            }
+
+            var meetingNotificationItemEntities = await this.emailNotificationRepository.GetMeetingInviteNotifications(notificationReportRequest).ConfigureAwait(false);
+            TableContinuationToken token = meetingNotificationItemEntities.Item2;
+            List<MeetingInviteReportResponse> responseList = new List<MeetingInviteReportResponse>();
+            foreach (var item in meetingNotificationItemEntities.Item1)
+            {
+                responseList.Add(MeetingNotificationItemEntityExtensions.ToMeetingInviteReportResponse(item));
+            }
+
+            Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken> tuple = new Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>(responseList, token);
+            return tuple;
+        }
+
+
+        /// <inheritdoc/>
         public async Task<IList<MailTemplateInfo>> GetAllTemplateEntities(string applicationName)
         {
             try
