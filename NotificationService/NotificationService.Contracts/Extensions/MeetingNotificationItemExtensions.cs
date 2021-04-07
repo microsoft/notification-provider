@@ -56,6 +56,7 @@ namespace NotificationService.Contracts.Extensions
                     TemplateId = meetingNotificationItem.TemplateId,
                     TemplateData = meetingNotificationItem.TemplateData,
                     Application = applicationName,
+                    TrackingId = meetingNotificationItem.TrackingId,
                     Action = meetingNotificationItem.Action,
                 };
             }
