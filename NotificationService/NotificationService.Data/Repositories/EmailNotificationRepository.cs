@@ -303,6 +303,11 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationStatusFilter.Contains(notification.Status));
             }
 
+            if (notificationReportRequest.TrackingIdsFilter?.Count > 0)
+            {
+                filterExpression = filterExpression.And(notification => notificationReportRequest.TrackingIdsFilter.Contains(notification.TrackingId));
+            }
+
             return filterExpression;
         }
 
