@@ -429,6 +429,8 @@ namespace NotificationService.Data.Repositories
             string accountFilter = null;
             string notificationFilter = null;
             string statusFilter = null;
+            string trackingIdFilter = null;
+
             if (notificationReportRequest.ApplicationFilter?.Count > 0)
             {
                 foreach (var item in notificationReportRequest.ApplicationFilter)
@@ -436,63 +438,48 @@ namespace NotificationService.Data.Repositories
                     applicationFilter = applicationFilter == null ? TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item) : applicationFilter + " or " + TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add("(" + applicationFilter + ")");
+                _ = filterSet.Add("(" + applicationFilter + ")");
             }
 
             if (notificationReportRequest.AccountsUsedFilter?.Count > 0)
             {
-
                 foreach (var item in notificationReportRequest.AccountsUsedFilter)
                 {
                     accountFilter = accountFilter == null ? TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item) : accountFilter + " or " + TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add("(" + accountFilter + ")");
+                _ = filterSet.Add("(" + accountFilter + ")");
             }
 
             if (notificationReportRequest.NotificationIdsFilter?.Count > 0)
             {
-
                 foreach (var item in notificationReportRequest.NotificationIdsFilter)
                 {
                     notificationFilter = notificationFilter == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : notificationFilter + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
                 }
 
-                filterSet.Add("(" + notificationFilter + ")");
+                _ = filterSet.Add("(" + notificationFilter + ")");
+            }
+
+            if (notificationReportRequest.TrackingIdsFilter?.Count > 0)
+            {
+                foreach (var item in notificationReportRequest.TrackingIdsFilter)
+                {
+                    trackingIdFilter = trackingIdFilter == null ? TableQuery.GenerateFilterCondition("TrackingId", QueryComparisons.Equal, item) : trackingIdFilter + " or " + TableQuery.GenerateFilterCondition("TrackingId", QueryComparisons.Equal, item);
+                }
+
+                _ = filterSet.Add("(" + trackingIdFilter + ")");
             }
 
             if (notificationReportRequest.NotificationStatusFilter?.Count > 0)
             {
-
                 foreach (int item in notificationReportRequest.NotificationStatusFilter)
                 {
-                    string status = "Queued";
-                    switch (item)
-                    {
-                        case 0:
-                            status = "Queued";
-                            break;
-                        case 1:
-                            status = "Processing";
-                            break;
-                        case 2:
-                            status = "Retrying";
-                            break;
-                        case 3:
-                            status = "Failed";
-                            break;
-                        case 4:
-                            status = "Sent";
-                            break;
-                        case 5:
-                            status = "FakeMail";
-                            break;
-                    }
-
+                    string status = GetStatus(item);
                     statusFilter = statusFilter == null ? TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status) : statusFilter + " or " + TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status);
                 }
 
-                filterSet.Add("(" + statusFilter + ")");
+                _ = filterSet.Add("(" + statusFilter + ")");
             }
 
             filterExpression = PrepareFilterExp(filterSet);
@@ -503,6 +490,39 @@ namespace NotificationService.Data.Repositories
                 string filterExp = String.Join(" and ", filterSet.ToArray());
                 return filterExp;
             }
+        }
+
+        /// <summary>
+        /// Get notification status string.
+        /// </summary>
+        /// <param name="status">notification status int format.</param>
+        /// <returns>returns notification status string. </returns>
+        private static string GetStatus(int status)
+        {
+            string statusStr = "Queued";
+            switch (status)
+            {
+                case 0:
+                    statusStr = "Queued";
+                    break;
+                case 1:
+                    statusStr = "Processing";
+                    break;
+                case 2:
+                    statusStr = "Retrying";
+                    break;
+                case 3:
+                    statusStr = "Failed";
+                    break;
+                case 4:
+                    statusStr = "Sent";
+                    break;
+                case 5:
+                    statusStr = "FakeMail";
+                    break;
+            }
+
+            return statusStr;
         }
 
         private EmailNotificationItemTableEntity ConvertToEmailNotificationItemTableEntity(EmailNotificationItemEntity emailNotificationItemEntity)
