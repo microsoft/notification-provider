@@ -278,11 +278,6 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => notification.UpdatedDateTime <= updatedTimeEnd);
             }
 
-            if (notificationReportRequest.NotificationTypeFilter?.Count > 0)
-            {
-                filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationTypeFilter.Contains(notification.NotifyType));
-            }
-
             if (notificationReportRequest.NotificationPriorityFilter?.Count > 0)
             {
                 filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationPriorityFilter.Contains(notification.Priority));
@@ -306,11 +301,6 @@ namespace NotificationService.Data
             if (notificationReportRequest.NotificationStatusFilter?.Count > 0)
             {
                 filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationStatusFilter.Contains(notification.Status));
-            }
-
-            if (notificationReportRequest.MailSensitivityFilter?.Count > 0)
-            {
-                filterExpression = filterExpression.And(notification => notificationReportRequest.MailSensitivityFilter.Contains(notification.Sensitivity));
             }
 
             return filterExpression;

@@ -24,9 +24,7 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
         private readonly NotificationReportRequest request = new NotificationReportRequest()
         {
             NotificationStatusFilter = new List<NotificationItemStatus> { NotificationItemStatus.Sent, NotificationItemStatus.Processing },
-            MailSensitivityFilter = new List<MailSensitivity> { MailSensitivity.Normal },
             NotificationPriorityFilter = new List<NotificationPriority> { NotificationPriority.High },
-            NotificationTypeFilter = new List<NotificationType> { NotificationType.Mail },
             NotificationIdsFilter = new List<string> { "1" },
             AccountsUsedFilter = new List<string> { "gtauser" },
             ApplicationFilter = new List<string>() { "test", "app1", },
