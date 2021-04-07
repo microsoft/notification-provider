@@ -84,6 +84,13 @@ namespace NotificationService.Data
         Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity);
 
         /// <summary>
+        /// Gets the list of Meeting Invite Notification Items based on query expression.
+        /// </summary>
+        /// <param name="meetingInviteReportRequest">NotificationReportRequest param.</param>
+        /// <returns>Returns list of Notification Responses.</returns>
+        Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest);
+
+        /// <summary>
         /// Get EMailNotification Entities for given data range.
         /// Maximum range allowed is 10 hours. It will return data for 10 hours at a time.
         /// </summary>

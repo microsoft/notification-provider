@@ -367,6 +367,37 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
+        public Task<Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest)
+        {
+            if (meetingInviteReportRequest == null)
+            {
+                throw new ArgumentNullException(nameof(meetingInviteReportRequest));
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.GetMeetingInviteNotifications)} method of {nameof(TableStorageEmailRepository)}.");
+            var entities = new List<MeetingNotificationItemTableEntity>();
+            var notificationEntities = new List<MeetingNotificationItemEntity>();
+            string filterDateExpression = this.GetDateFilterExpression(meetingInviteReportRequest);
+            string filterExpression = this.GetFilterExpression(meetingInviteReportRequest);
+            string finalFilter = filterDateExpression != null && filterDateExpression.Length > 0 ? filterDateExpression : filterExpression;
+            if (filterDateExpression != null && filterDateExpression.Length > 0 && filterExpression != null && filterExpression.Length > 0)
+            {
+                finalFilter = TableQuery.CombineFilters(filterDateExpression, TableOperators.And, filterExpression);
+            }
+
+            var tableQuery = new TableQuery<MeetingNotificationItemTableEntity>()
+                     .Where(finalFilter)
+                     .OrderByDesc(meetingInviteReportRequest.SendOnUtcDateStart)
+                     .Take(meetingInviteReportRequest.Take == 0 ? 100 : meetingInviteReportRequest.Take);
+            var queryResult = this.meetingHistoryTable.ExecuteQuerySegmented(tableQuery, meetingInviteReportRequest.Token);
+            entities.AddRange(queryResult.Results);
+            notificationEntities = entities.Select(e => this.ConvertToMeetingNotificationItemEntity(e)).ToList();
+            var token = queryResult.ContinuationToken;
+            Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>(notificationEntities, token);
+            return Task.FromResult(tuple);
+        }
+
+        /// <inheritdoc/>
         public async Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
         {
             if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
