@@ -202,6 +202,52 @@ namespace NotificationHandler.Controllers
         }
 
         /// <summary>
+        /// Returns Meeting Invite Message for reporting.
+        /// </summary>
+        /// <param name="applicationName">Application.</param>
+        /// <param name="notificationId">notificationId of the email notification.</param>
+        /// <returns>A <see cref="EmailMessage"/> returns the notification Message.</returns>
+        [HttpGet]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
+        [Route("meetingMessage/{applicationName}/{notificationId}")]
+        public async Task<IActionResult> GetMeetingNotificationMessage(string applicationName, string notificationId)
+        {
+            try
+            {
+                var traceProps = new Dictionary<string, string>();
+                if (string.IsNullOrWhiteSpace(applicationName))
+                {
+                    this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
+                }
+
+                traceProps[AIConstants.Application] = applicationName;
+                if (string.IsNullOrWhiteSpace(notificationId))
+                {
+                    this.LogAndThrowArgumentNullException("notificationId should not be empty", nameof(notificationId), traceProps);
+                }
+
+                this.logger.TraceInformation($"Started {nameof(this.GetMeetingNotificationMessage)} method of {nameof(NotificationReportController)}.");
+                var emailMessage = await this.notificationReportManager.GetMeetingNotificationMessage(applicationName, notificationId).ConfigureAwait(false);
+
+                this.logger.TraceInformation($"Finished {nameof(this.GetMeetingNotificationMessage)} method of {nameof(NotificationReportController)}.");
+                return new OkObjectResult(emailMessage);
+            }
+            catch (ArgumentNullException agNullEx)
+            {
+                return this.BadRequest(agNullEx.Message);
+            }
+            catch (ArgumentException agEx)
+            {
+                return this.BadRequest(agEx.Message);
+            }
+            catch (Exception ex)
+            {
+                this.logger.WriteException(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Logs and rethrow the exception.
         /// </summary>
         /// <param name="message">Error message.</param>
