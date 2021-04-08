@@ -27,15 +27,19 @@ export default function ResendModal (props) {
     };
     
     const resendEmail = (e) => {
-        if(notificationIds.length>0)
+        setResendStatus("");
+        if(notificationIds.length > 0){
             setLoader(true);
             resendEmailService(applicationName, notificationIds).then((res)=>{
                 setResendStatus(res ? "Success": "failed");
                 setLoader(false);
-            }).catch(e=>
-                setResendStatus("failed"));
+            }).catch(e=> {
+                setResendStatus("failed");
                 setLoader(false);
-            }
+            });
+        }
+    }
+
     return (
         <Dialog 
             hidden={props.hideDialog} 
@@ -49,10 +53,10 @@ export default function ResendModal (props) {
             <br/>
             <br/>
             {resendStatus.length >0 ? resendStatus === 'Success' ? <div className={resendStyles.greenText}>Resend Successful</div> : <div className={resendStyles.redText}>Resend Failed</div> : ""}
+            {loader === true ? <ProgressIndicator/> : ""}
             <DialogFooter>
                 <PrimaryButton onClick={resendEmail} text="Send" />
-                <DefaultButton onClick={toggleResendDialog} text="Don't send" />
-                {loader ?<ProgressIndicator/>:""}
+                <DefaultButton onClick={toggleResendDialog} text="Close" />
             </DialogFooter>
         </Dialog>
     )

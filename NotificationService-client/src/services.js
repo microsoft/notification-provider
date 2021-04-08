@@ -46,3 +46,14 @@ const prepareReqBody = (token,filter) => {
     }
     return reqBody;
 }
+
+export  function getMeetingHistory(applicationName, token, filter) {
+    var reqBody = prepareReqBody(applicationName,token,filter);
+    return instance.post(config.serviceEndpoints.mailHistoryEndpoint,reqBody,{headers:{Authorization:""}});
+};
+
+export function getMeetingBody(applicationName, notificationId){
+    const params = {"applicationName":applicationName, "notificationId":notificationId}
+    const url = formatString(config.serviceEndpoints.viewMailBodyEndpoint, params);
+    return instance.get(url);
+}

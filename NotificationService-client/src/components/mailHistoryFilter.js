@@ -274,7 +274,6 @@ export default function  MailHistoryFilter (props) {
                 {options[calloutSelected].selector==="InputBox"
                 ?<TextField label="Value" value = {selectedVal} onChange = {inputboxOnChange} errorMessage={inputBoxErrorMessage}/> 
                 :<Dropdown multiSelect label="Value"
-                  
                  selectedKeys = {selectedComboValue}
                  options={options[calloutSelected].value}  onChange = {comboboxOnChange}
                  errorMessage={comboboxErrorMessage}/>}
@@ -309,7 +308,6 @@ export default function  MailHistoryFilter (props) {
                 label="Filter" 
                 placeholder="Select Filter" 
                 options={options.filter(e =>  !filterVal.some(o => o.key === e.key))}
-                //selectedKey={selectedFilter==undefined?undefined:selectedFilter.key}
                 onChange={filterOnChange}
                 errorMessage={filterErrorMessage}
                 /> 

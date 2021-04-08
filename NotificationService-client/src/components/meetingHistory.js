@@ -7,7 +7,7 @@ import {
     SelectionMode, ShimmeredDetailsList, ConstrainMode, Link, ScrollablePane, ScrollbarVisibility, ActionButton,
     Sticky, StickyPositionType, Selection, mergeStyleSets, Stack
 } from 'office-ui-fabric-react';
-import { getMailHistory, viewMailBody, getApplications } from "../services";
+import { getMeetingHistory, getMeetingBody, getApplications } from "../services";
 import ResendModal from './resendModal';
 import { CoherencePagination } from '@cseo/controls';
 import ViewMailModal from './viewMailModal';
@@ -17,10 +17,9 @@ import {copyToClipboard} from './utility';
 import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const DEFAULT_PAGE_SIZE = 100;
 const TOTAL_RECORDS = 10000;
-export default function MailHistory(propertis) {
+export default function MeetingHistory(propertis) {
 
     const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
 
@@ -28,7 +27,7 @@ export default function MailHistory(propertis) {
 
     const [showShimmer, setShowShimmer] = useState(true);
 
-    const [mailHistoryData, setMailHistoryData] = useState([]);
+    const [meetingHistoryData, setMeetingHistoryData] = useState([]);
 
     const [nextRecord, setNextRecord] = useState([]);
 
@@ -60,15 +59,10 @@ export default function MailHistory(propertis) {
         if (newPageNumber !== selectedPage.current) {
             selectedPage.current = newPageNumber;
             const token = selectedPage.current > 1 ? nextRecord[selectedPage.current - 2] : null;
-            fetchMailHistory(filter, token, null);
+            fetchMeetingHistory(filter, token, null);
         }
     };
 
-    const onPageSizeChange = (newPageSize) => {
-        defaultPageSize.current = newPageSize;
-        selectedPage.current = 1;
-        fetchMailHistory(filter, null, defaultPageSize.current);
-    }
     const paginationProps = {
         pageCount: pageCount.current,
         selectedPage: selectedPage.current,
@@ -77,18 +71,6 @@ export default function MailHistory(propertis) {
         inputFieldAriaLabel: 'page number',
         
         onPageChange: onPageChange
-    };
-    const paginationPageSizeProps = {
-        pageSize: defaultPageSize.current,
-        pageSizeList: [
-            { key: 100, text: '1000' },
-            { key: 200, text: '2000' },
-            { key: 300, text: '3000' },
-            { key: 400, text: '4000' },
-            { key: 500, text: '5000' }
-        ],
-        comboBoxAriaLabel: 'page size',
-        onPageSizeChange: onPageSizeChange
     };
 
     useEffect(() => {
@@ -102,17 +84,17 @@ export default function MailHistory(propertis) {
             setFilterProps(filterProperties);
             applications = res?.data;
             setApplicationName(applications?.[0]);
-            fetchMailHistory(null, null, null);
+            fetchMeetingHistory(null, null, null);
           }).catch((error) =>  {
               console.log("aplication fetch error:  " + error)
         });
     }
 
-    const fetchMailHistory = (filter, token, pageSize) => {
+    const fetchMeetingHistory = (filter, token) => {
         setShowShimmer(true);
-        getMailHistory(token, filter).then(res => {
+        getMeetingHistory(token, filter).then(res => {
             setShowShimmer(false);
-            setMailHistoryData(res.data);
+            setMeetingHistoryData(res.data);
             nextRecord.push({
                 "nextPartitionKey": res.headers['x-nextpartitionkey'],
                 "nextRowKey": res.headers['x-nextrowkey']
@@ -166,10 +148,10 @@ export default function MailHistory(propertis) {
         isResizable: true,
         onRender: () => {
             return <Link
-                title="view email"
-                aria-label="view email"
-                label="View Email"
-                onClick={toggleViewMailDialog}
+                title="view meeting"
+                aria-label="view meeting"
+                label="View Meeting"
+                onClick={toggleViewMeetingDialog}
             >View Mail Body</Link>
         },
     };
@@ -211,7 +193,7 @@ export default function MailHistory(propertis) {
         setApplicationName(appsFromFilter?.length > 0? appsFromFilter[0] : applications[0]);
         setFilter(obj);
         selectedPage.current = 1;
-        fetchMailHistory(obj, null, defaultPageSize.current);
+        fetchMeetingHistory(obj, null, defaultPageSize.current);
     }
 
     const onSelectAddFilter = (obj) => { }
@@ -224,18 +206,18 @@ export default function MailHistory(propertis) {
 
         selectedPage.current = 1;
         setFilter([]);
-        fetchMailHistory(null, null, null);
+        fetchMeetingHistory(null, null, null);
     }
     const onActiveItemChanged = (i, indx, e) => {
         setActiveItem(i);
     }
 
-    const toggleViewMailDialog = () => {
+    const toggleViewMeetingDialog = () => {
         setLoader(true);
         setMailBody(undefined);
         setMailDialog(!mailDialog);
         if (mailDialog === true && activeItem.status === "Sent") {
-            viewMailBody(activeItem?.application, activeItem?.notificationId).then((response) => {
+            getMeetingBody(activeItem?.application, activeItem?.notificationId).then((response) => {
                 setMailBody(response.data.body.content);
                 setLoader(false);
             }).catch(error => {
@@ -285,7 +267,7 @@ export default function MailHistory(propertis) {
                             enableShimmer={showShimmer}
                             columns={columns}
                             constrainMode={ConstrainMode.unconstrained}
-                            items={mailHistoryData ? mailHistoryData : []}
+                            items={meetingHistoryData ? meetingHistoryData : []}
                             isHeaderVisible={true}
                             checkButtonAriaLabel="checkButton"
                             ariaLabelForSelectAllCheckbox="selectallcheckbutton"
@@ -303,7 +285,7 @@ export default function MailHistory(propertis) {
                     application = {applicationName}
                 />
                 <ViewMailModal
-                    toggleMailDialog={toggleViewMailDialog}
+                    toggleMailDialog={toggleViewMeetingDialog}
                     hideDialog={mailDialog}
                     selectedItem={activeItem}
                     mailBody={mailBody}
