@@ -52,7 +52,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest);
 
         /// <summary>
-        /// Gets the Notification Message corresponding to the NotificationId.
+        /// Gets the Meeting Notification Message corresponding to the NotificationId.
         /// </summary>
         /// <param name="applicationName">Application sourcing the email notification.</param>
         /// <param name="notificationId">notificationId.</param>
