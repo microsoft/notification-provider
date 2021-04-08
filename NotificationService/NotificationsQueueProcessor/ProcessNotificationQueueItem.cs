@@ -116,7 +116,7 @@ namespace NotificationsQueueProcessor
                     if (!response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
-                        this.logger.WriteException(new Exception($"An error occurred while processing {notifQueueItem} in ProcessNotificationQueueItem. Details: {content}."), traceProps);
+                        this.logger.WriteException(new Exception($"An error occurred while processing {notifQueueItem} in ProcessNotificationQueueItem. Details: [StatusCode = {response.StatusCode}, Content = {content}]."), traceProps);
                     }
                 }
                 else

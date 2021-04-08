@@ -129,7 +129,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             var res = new ResponseData<string>()
             {
                 Status = false,
-                StatusCode = HttpStatusCode.BadRequest,
+                StatusCode = HttpStatusCode.TooManyRequests,
             };
             _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);

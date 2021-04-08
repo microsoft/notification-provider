@@ -141,6 +141,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                 {
+                    this.logger.WriteCustomEvent($"{AIConstants.CustomEventInviteSendFailed} for notificationId:  {item.NotificationId} ");
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }
@@ -187,6 +188,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                 {
+                    this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailSendFailed} for notificationId:  {item.NotificationId} ");
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }

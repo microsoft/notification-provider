@@ -6,6 +6,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
@@ -17,6 +18,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;
     using NotificationService.BusinessLibrary.Interfaces;
+    using NotificationService.BusinessLibrary.Models;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
@@ -26,6 +28,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
     using NotificationService.UnitTests.Mocks;
+    using Org.BouncyCastle.Asn1.Ocsp;
 
     /// <summary>
     /// Base class for Email Manager class tests.
@@ -154,6 +157,11 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         public MSGraphNotificationProvider MSGraphNotificationProvider { get; set; }
 
         /// <summary>
+        /// Mocked response data.
+        /// </summary>
+        protected ResponseData<string> response;
+
+        /// <summary>
         /// Initialization for all Email Manager Tests.
         /// </summary>
         protected void SetupTestBase()
@@ -247,6 +255,12 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 TemplateType = "Text",
             };
 
+            this.response = new ResponseData<string>() {
+                 Status = true,
+                 Result = "successful",
+                 StatusCode = HttpStatusCode.OK,
+            };
+
             this.Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
@@ -265,7 +279,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             _ = this.MsGraphProvider
                 .Setup(gp => gp.SendEmailNotification(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<EmailMessagePayload>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(It.IsAny<bool>()));
+                .Returns(Task.FromResult(this.response));
 
             _ = this.EmailNotificationRepository
                 .Setup(repository => repository.GetRepository(StorageType.StorageAccount).CreateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>(), It.IsAny<string>()))
