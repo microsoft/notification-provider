@@ -21,7 +21,12 @@ namespace NotificationService.Common
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
         /// </summary>
-        public const string AudienceClaimType = "aud";
+        //public const string AudienceClaimType = "aud";
+
+        /// <summary>
+        /// Claim Type for the Audience Claim in JWT token.
+        /// </summary>
+        public const string AppIdClaimType = "appid";
 
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
@@ -38,10 +43,10 @@ namespace NotificationService.Common
         /// </summary>
         public const string AppNameAuthorizePolicy = "AppNameAuthorize";
 
-        /// <summary>
+        /// <summary>s
         /// Name of Authorization policy to validate if the caller is valid audience of the Application.
         /// </summary>
-        public const string AppAudienceAuthorizePolicy = "AppAudienceAuthorize";
+        public const string AppIdAuthorizePolicy = "AppIdAuthorize";
 
         /// <summary>
         /// Authentication scheme to validate the input token.
@@ -87,5 +92,16 @@ namespace NotificationService.Common
         /// A constant for ResendDateRange logging.
         /// </summary>
         public const string ResendDateRange = "ResendDateRange";
+
+        /// <summary>
+        /// A constact for appId in AADV2 claim type.
+        /// </summary>
+        public const string AppIdV2ClaimType = "azp";
+
+        /// <summary>
+        /// A constant used to insert these many items at once in a single batch to storage.
+        /// The azure storage has a limitation of accepting only 100 items in a single batch, so keeping the count to 100.
+        /// </summary>
+        public const int BatchSizeToStore = 100;
     }
 }

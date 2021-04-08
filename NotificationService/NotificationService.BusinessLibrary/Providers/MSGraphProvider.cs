@@ -5,6 +5,7 @@ namespace NotificationService.BusinessLibrary
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -218,32 +219,42 @@ namespace NotificationService.BusinessLibrary
         /// <inheritdoc/>
         public IDictionary<string, ResponseData<string>> SendMeetingInviteAttachments(AuthenticationHeaderValue authenticationHeaderValue, List<FileAttachment> attachments, string eventId, string notificationId)
         {
-            var maxRetryCount = this.pollyRetrySetting.MaxRetries;
             var result = new Dictionary<string, ResponseData<string>>();
-            var executionResult = Parallel.ForEach(attachments, attachment =>
+            if (attachments == null || attachments.Count == 0)
             {
-                int count = 0;
-                ResponseData<string> response = null;
-                do
-                {
-                    try
-                    {
-                        count++;
-                        response = this.SendMeetingInviteAttachment(attachment, authenticationHeaderValue, eventId, notificationId).GetAwaiter().GetResult();
-                        if (result.ContainsKey(attachment.Name))
-                        {
-                            _ = result.Remove(attachment.Name);
-                        }
+                return result;
+            }
 
-                        result.Add(attachment.Name, response);
-                    }
-                    catch (Exception ex)
+            var maxRetryCount = this.pollyRetrySetting.MaxRetries;
+            IList<Task> tasks = new List<Task>();
+            foreach (var attachment in attachments)
+            {
+                tasks.Add(Task.Run(() => {
+                    int count = 0;
+                    ResponseData<string> response = null;
+                    do
                     {
-                        this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
+                        try
+                        {
+                            count++;
+                            response = this.SendMeetingInviteAttachment(attachment, authenticationHeaderValue, eventId, notificationId).GetAwaiter().GetResult();
+                            if (result.ContainsKey(attachment.Name))
+                            {
+                                _ = result.Remove(attachment.Name);
+                            }
+
+                            result.Add(attachment.Name, response);
+                        }
+                        catch (Exception ex)
+                        {
+                            this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
+                        }
                     }
-                }
-                while (!response.Status && count < maxRetryCount);
-            });
+                    while ((response == null || !response.Status) && count < maxRetryCount);
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
 
             return result;
         }

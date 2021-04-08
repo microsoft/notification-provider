@@ -27,8 +27,9 @@ namespace NotificationService.Data
         /// Gets the email notification item from database for the input id.
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
+        /// <param name="applicationName">The Application Name (Optional).</param>
         /// <returns>notitication item corresponding to input id.</returns>
-        Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId);
+        Task<EmailNotificationItemEntity> GetEmailNotificationItemEntity(string notificationId, string applicationName = null);
 
         /// <summary>
         /// Creates entities in database for the input email notification items.
@@ -65,7 +66,7 @@ namespace NotificationService.Data
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
         /// <returns>notitication item corresponding to input id.</returns>
-        Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId);
+        Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName);
 
         /// <summary>
         /// Creates entities in database for the input meeting notification items.
@@ -81,6 +82,13 @@ namespace NotificationService.Data
         /// <param name="meetingNotificationItemEntity">List of <see cref="MeetingNotificationItemEntity"/>.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity);
+
+        /// <summary>
+        /// Gets the list of Meeting Invite Notification Items based on query expression.
+        /// </summary>
+        /// <param name="meetingInviteReportRequest">NotificationReportRequest param.</param>
+        /// <returns>Returns list of Notification Responses.</returns>
+        Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest);
 
         /// <summary>
         /// Get EMailNotification Entities for given data range.

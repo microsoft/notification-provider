@@ -40,6 +40,7 @@ namespace NotificationService.Contracts
                 { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
                 FromAccount = !string.IsNullOrWhiteSpace(emailNotificationItemEntity.From) ? new Recipient() { EmailAddress = new EmailAddress() { Address = emailNotificationItemEntity.From } } : null,
                 SingleValueExtendedProperties = new List<SingleValueExtendedProperty> { new SingleValueExtendedProperty { Id = "SystemTime 0x3FEF", Value = emailNotificationItemEntity.SendOnUtcDate.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) } },
+                Importance = (Models.Graph.ImportanceType)Enum.Parse(typeof(Contracts.Models.Graph.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
         }
 
@@ -91,6 +92,7 @@ namespace NotificationService.Contracts
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),
+                Importance = (DirectSend.Models.Mail.EmailMessage.ImportanceType)Enum.Parse(typeof(DirectSend.Models.Mail.EmailMessage.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
         }
     }

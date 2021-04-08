@@ -26,7 +26,7 @@ namespace DirectSend.Tests
         [TestMethod()]
         public async Task SendAsyncTest()
         {
-            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", DisplayName = "TestDisplayName" };
+            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", FromAddressDisplayName = "TestDisplayName" };
             var directSendMailService= new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
             var emailMessage = new EmailMessage
             {
@@ -48,7 +48,7 @@ namespace DirectSend.Tests
         [TestMethod()]
         public async Task SendMeetingAsyncTest()
         {
-            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", DisplayName = "TestDisplayName" };
+            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", FromAddressDisplayName = "TestDisplayName" };
             var directSendMailService = new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
             var emailMessage = new EmailMessage
             {
@@ -70,7 +70,7 @@ namespace DirectSend.Tests
         [TestMethod()]
         public async Task SendAsyncTest_Attachments()
         {
-            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", DisplayName = "TestDisplayName" };
+            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", FromAddressDisplayName = "TestDisplayName" };
             var directSendMailService = new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
             var emailMessage = new EmailMessage
             {
@@ -94,7 +94,7 @@ namespace DirectSend.Tests
         [TestMethod()]
         public async Task SendAsyncTest_Exception()
         {
-            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", DisplayName = "TestDisplayName" };
+            SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", FromAddressDisplayName = "TestDisplayName" };
             var directSendMailService = new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
             var emailMessage = new EmailMessage
             {

@@ -21,6 +21,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Graph;
     using NotificationService.Contracts.Models.Graph.Invite;
 
     /// <summary>
@@ -497,7 +498,7 @@ namespace NotificationService.BusinessLibrary.Providers
             });
 
             payload.Attendees = (optionalAttendees != null ? requiredAttendees.Union(optionalAttendees) : requiredAttendees).ToList();
-            payload.Body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, meetingNotificationEntity).ConfigureAwait(false);
+            payload.Body = await this.emailManager.GetMeetingInviteBodyAsync(applicationName, meetingNotificationEntity).ConfigureAwait(false);
             payload.End = new InviteDateTime()
             {
                 DateTime = meetingNotificationEntity.End.FormatDate(ApplicationConstants.GraphMeetingInviteDateTimeFormatter),

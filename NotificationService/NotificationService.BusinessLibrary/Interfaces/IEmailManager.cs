@@ -63,7 +63,7 @@ namespace NotificationService.BusinessLibrary
         /// <param name="applicationName">Name of the application.</param>
         /// <param name="notification">The notification.</param>
         /// <returns>A <see cref="MessageBody"/>.</returns>
-        Task<MessageBody> GetNotificationMessageBodyAsync(string applicationName, MeetingNotificationItemEntity notification);
+        Task<MessageBody> GetMeetingInviteBodyAsync(string applicationName, MeetingNotificationItemEntity notification);
 
         /// <summary>
         /// Get EmailNotificaiton object from storage/database.

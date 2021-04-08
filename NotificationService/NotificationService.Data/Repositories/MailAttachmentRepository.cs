@@ -159,7 +159,7 @@ namespace NotificationService.Data.Repositories
                     var blobEmailData = JsonConvert.DeserializeObject<BlobEmailData>(decryptedData);
                     notificationEntity.Attachments = blobEmailData.Attachments;
                     notificationEntity.Body = blobEmailData.Body;
-                    notificationEntity.TemplateData = notificationEntity.TemplateData;
+                    notificationEntity.TemplateData = blobEmailData.TemplateData;
                     notificationEntities.Add(notificationEntity);
                 }
             }

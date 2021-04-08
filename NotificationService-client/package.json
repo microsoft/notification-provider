@@ -2,20 +2,21 @@
   "name": "nsclient",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://cspnotificationarmcd-notificationservice.azurewebsites.net/",
+  "proxy": "https://localhost:44372",
   "dependencies": {
-    "@cseo/controls": "^2.3.0",
+    "@azure/msal-browser": "^2.12.1",
+    "@cseo/controls": "^2.7.0",
     "axios": "^0.21.1",
     "immer": "^8.0.1",
     "moment": "^2.29.1",
-    "msal": "^1.4.4",
-    "office-ui-fabric-react": "^7.157.0",
+    "office-ui-fabric-react": "^7.164.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-scripts": "^4.0.2"
+    "react-scripts": "^4.0.3"
   },
   "resolutions": {
-    "immer": "8.0.1"
+    "immer": "8.0.1",
+    "react-dev-utils": "^11.0.4"
   },
   "scripts": {
     "preinstall": "npx npm-force-resolutions",

@@ -544,7 +544,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
         {
             var eventId = Guid.NewGuid().ToString();
             var id = Guid.NewGuid().ToString();
-            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.TooManyRequests, null);
+            HttpResponseMessage resp = this.GetHttpResponseMessage(HttpStatusCode.Accepted, null);
             var handlerMock = new Mock<HttpMessageHandler>();
             _ = handlerMock
                .Protected()
@@ -557,7 +557,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
             var notificationId = Guid.NewGuid().ToString();
             var msGrpahProvider = new MSGraphProvider(this.MsGraphSetting, Options.Create(this.retrySetting), this.Logger, httpClient);
             var result = msGrpahProvider.SendMeetingInviteAttachments(this.TestTokenHeader, this.GetAttachments(), notificationId, eventId);
-            Assert.AreEqual(result.Count, 2);
+            Assert.GreaterOrEqual(2, result.Count);
         }
 
         private List<FileAttachment> GetAttachments()

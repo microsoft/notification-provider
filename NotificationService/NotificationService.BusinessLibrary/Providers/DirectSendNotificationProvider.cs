@@ -18,6 +18,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using static DirectSend.Models.Mail.EmailMessage;
 
     /// <summary>
     /// Direct Send Notification Provider.
@@ -108,7 +109,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     var toOverride = this.mailSettings.Find(a => a.ApplicationName == applicationName).ToOverride;
                     DirectSend.Models.Mail.EmailMessage message = new DirectSend.Models.Mail.EmailMessage();
                     message.Subject = item.Subject;
-                    MessageBody body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, item).ConfigureAwait(false);
+                    MessageBody body = await this.emailManager.GetMeetingInviteBodyAsync(applicationName, item).ConfigureAwait(false);
                     message.FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = this.directSendSetting?.FromAddressDisplayName, Address = this.directSendSetting?.FromAddress } };
                     if (!sendForReal)
                     {
@@ -132,6 +133,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     message.FileName = item.Attachments?.Select(e => e.FileName);
                     message.FileContent = item.Attachments?.Select(e => e.FileBase64);
                     message.Content = this.ConvertMeetingInviteToBody(item, body.Content);
+                    message.Importance = (ImportanceType)Enum.Parse(typeof(ImportanceType), item.Priority.ToString());
                     await this.mailService.SendMeetingInviteAsync(message).ConfigureAwait(false);
                     item.Status = NotificationItemStatus.Sent;
                 }

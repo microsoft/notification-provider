@@ -53,9 +53,10 @@ namespace NotificationService.Contracts.Extensions
                     Ocurrences = meetingNotificationItem.Ocurrences,
                     Priority = meetingNotificationItem.Priority,
                     RecurrencePattern = meetingNotificationItem.RecurrencePattern,
-                    TemplateId = meetingNotificationItem.TemplateName,
+                    TemplateId = meetingNotificationItem.TemplateId,
                     TemplateData = meetingNotificationItem.TemplateData,
                     Application = applicationName,
+                    TrackingId = meetingNotificationItem.TrackingId,
                     Action = meetingNotificationItem.Action,
                 };
             }

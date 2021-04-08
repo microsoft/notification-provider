@@ -11,6 +11,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.BusinessLibrary;
+    using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
@@ -35,9 +36,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
 
         private Mock<IEmailNotificationRepository> EmailNotificationRepository { get; set; }
 
-        private Mock<IEmailManager> EmailManager { get; set; }
-
         private Mock<IMailTemplateRepository> MailTemplateRepository { get; set; }
+
+        private Mock<IMailTemplateManager> templateManager { get; set; }
+
+        private Mock<ITemplateMerge> templateMerge { get; set; }
 
         /// <summary>
         /// Initialization for the tests.
@@ -48,8 +51,9 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             this.EmailNotificationRepositoryFactory = new Mock<IRepositoryFactory>();
             this.Logger = new Mock<ILogger>().Object;
             this.EmailNotificationRepository = new Mock<IEmailNotificationRepository>();
-            this.EmailManager = new Mock<IEmailManager>();
             this.MailTemplateRepository = new Mock<IMailTemplateRepository>();
+            this.templateMerge = new Mock<ITemplateMerge>();
+            this.templateManager = new Mock<IMailTemplateManager>();
         }
 
         /// <summary>
@@ -77,9 +81,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             {
                 NotificationStatusFilter = new List<NotificationItemStatus> { NotificationItemStatus.Sent, NotificationItemStatus.Processing },
                 NotificationPriorityFilter = new List<NotificationPriority> { NotificationPriority.High },
-                NotificationTypeFilter = new List<NotificationType> { NotificationType.Mail },
                 NotificationIdsFilter = new List<string> { "1" },
-                MailSensitivityFilter = new List<MailSensitivity> { MailSensitivity.Normal },
                 AccountsUsedFilter = new List<string> { "gtauser" },
                 ApplicationFilter = new List<string>() { "test", "SelectedApp", },
                 CreatedDateTimeStart = "2020-07-21",
@@ -99,7 +101,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 .Setup(repository => repository.GetRepository(StorageType.StorageAccount))
                 .Returns(this.EmailNotificationRepository.Object);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.MailTemplateRepository.Object, this.templateManager.Object, this.templateMerge.Object);
 
             var managerResult = this.NotificationReportManager.GetReportNotifications(request);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
@@ -143,11 +145,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 .Setup(repository => repository.GetAllTemplateEntities(applicationName))
                 .ReturnsAsync(mailTemplateEntities);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.MailTemplateRepository.Object, this.templateManager.Object, this.templateMerge.Object);
 
             var managerResult = this.NotificationReportManager.GetAllTemplateEntities(applicationName);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
-            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateName), results.Select(x => x.TemplateId));
+            CollectionAssert.AreEquivalent(managerResult.Result.Select(x => x.TemplateId), results.Select(x => x.TemplateId));
 
             this.MailTemplateRepository.Verify(repo => repo.GetAllTemplateEntities(applicationName));
         }
@@ -182,30 +184,38 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
                 Content = "Test Body",
                 ContentType = "Text",
             };
-
+            MailTemplate mailTemplate = new MailTemplate {
+                Content = "Test Body",
+                Description = "Test Description",
+                TemplateId = "TestTemplate-01",
+                TemplateType = "Text",
+            };
             string applicationName = "TestApp";
             string notificationId = Guid.NewGuid().ToString();
 
             _ = this.EmailNotificationRepository
-                .Setup(repository => repository.GetEmailNotificationItemEntity(notificationId))
+                .Setup(repository => repository.GetEmailNotificationItemEntity(notificationId, notificationItemEntity.Application))
                 .ReturnsAsync(notificationItemEntity);
 
             _ = this.EmailNotificationRepositoryFactory
                 .Setup(repository => repository.GetRepository(StorageType.StorageAccount))
                 .Returns(this.EmailNotificationRepository.Object);
 
-            _ = this.EmailManager
-               .Setup(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity))
-               .ReturnsAsync(body);
+            _ = this.templateManager
+                .Setup(c => c.GetMailTemplate(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(mailTemplate);
 
-            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.EmailManager.Object, this.MailTemplateRepository.Object);
+            _ = this.templateMerge
+                .Setup(c => c.CreateMailBodyUsingTemplate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("Test Message");
+
+            this.NotificationReportManager = new NotificationReportManager(this.Logger, this.EmailNotificationRepositoryFactory.Object, this.Configuration, this.MailTemplateRepository.Object, this.templateManager.Object, this.templateMerge.Object);
 
             var managerResult = this.NotificationReportManager.GetNotificationMessage(applicationName, notificationId);
             Assert.AreEqual(managerResult.Status.ToString(), "RanToCompletion");
-            Assert.AreEqual(managerResult.Result.Body, body);
-
-            this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId));
-            this.EmailManager.Verify(mgr => mgr.GetNotificationMessageBodyAsync(applicationName, notificationItemEntity));
+            Assert.AreEqual(managerResult.Result.Body.Content, body.Content);
+ 
+            this.EmailNotificationRepositoryFactory.Verify(repo => repo.GetRepository(StorageType.StorageAccount).GetEmailNotificationItemEntity(notificationId, applicationName));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace NotificationService.SvCommon
     /// Handler for evaluation of AppAuthorizeRequirement Policy.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class AppAudienceAuthorizePolicyHandler : AuthorizationHandler<AppAudienceAuthorizeRequirement>
+    public class AppIdAuthorizePolicyHandler : AuthorizationHandler<AppIdAuthorizeRequirement>
     {
         /// <summary>
         /// Instance of <see cref="IHttpContextAccessor"/>.
@@ -35,18 +35,18 @@ namespace NotificationService.SvCommon
         private readonly IConfiguration configuration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppAudienceAuthorizePolicyHandler"/> class.
+        /// Initializes a new instance of the <see cref="AppIdAuthorizePolicyHandler"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">Instance of <see cref="IHttpContextAccessor"/>.</param>
         /// <param name="configuration">Instance of <see cref="IConfiguration"/>.</param>
-        public AppAudienceAuthorizePolicyHandler(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        public AppIdAuthorizePolicyHandler(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         /// <inheritdoc/>
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AppAudienceAuthorizeRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AppIdAuthorizeRequirement requirement)
         {
             if (context is null)
             {
@@ -75,12 +75,12 @@ namespace NotificationService.SvCommon
                 // Validate further only if the token is still valid.
                 if (expiryInToken > currentUnixTime)
                 {
-                    var audienceInToken = claims.FirstOrDefault(c => c.Type == ApplicationConstants.AudienceClaimType).Value;
+                    var appIdInToken = claims.FirstOrDefault(c => c.Type == ApplicationConstants.AppIdClaimType || c.Type == ApplicationConstants.AppIdV2ClaimType).Value;
                     var applicationName = routeValues.FirstOrDefault(rv => string.Equals(rv.Key, ApplicationConstants.ApplicationNameQueryParameter, System.StringComparison.InvariantCultureIgnoreCase)).Value?.ToString();
                     var applicationAccounts = JsonConvert.DeserializeObject<List<ApplicationAccounts>>(this.configuration[ConfigConstants.ApplicationAccountsConfigSectionKey]);
                     var validAppIdsForApplication = applicationAccounts?.Find(a => string.Equals(a.ApplicationName, applicationName, StringComparison.InvariantCultureIgnoreCase))?.ValidAppIdsList;
 
-                    if (audienceInToken != null && validAppIdsForApplication != null && validAppIdsForApplication.Contains(audienceInToken))
+                    if (appIdInToken != null && validAppIdsForApplication != null && validAppIdsForApplication.Contains(appIdInToken))
                     {
                         context.Succeed(requirement);
                     }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.Controllers
+namespace NotificationHandler.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace NotificationService.Controllers
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
-    /// Controller to handle Reporting of notifications.
+    /// Controller to handle notification client configs.
     /// </summary>
     [Route("v1/report")]
     [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
@@ -48,6 +48,18 @@ namespace NotificationService.Controllers
         }
 
         /// <summary>
+        /// API to get Applications.
+        /// </summary>
+        /// <returns>Returns list of applications.</returns>
+        [HttpGet]
+        [Route("applications")]
+        public IActionResult GetApplications()
+        {
+            var result = this.notificationReportManager.GetApplications();
+            return this.Accepted(result);
+        }
+
+        /// <summary>
         /// Returns all filtered Email Notification Entities for reporting.
         /// </summary>
         /// <param name="notificationFilterRequest">Request with filter parameters to get notifications for reporting.</param>
@@ -68,6 +80,7 @@ namespace NotificationService.Controllers
             string nextRowKey = notificationResponses.Item2?.NextRowKey;
             if (nextPartitionKey != null && nextRowKey != null)
             {
+                this.Response.Headers.Add("Access-Control-Expose-Headers", "X-NextPartitionKey, X-NextRowKey");
                 this.Response.Headers.Add("X-NextPartitionKey", nextPartitionKey);
                 this.Response.Headers.Add("X-NextRowKey", nextRowKey);
             }
@@ -83,6 +96,7 @@ namespace NotificationService.Controllers
         /// <param name="notificationId">notificationId of the email notification.</param>
         /// <returns>A <see cref="EmailMessage"/> returns the notification Message.</returns>
         [HttpGet]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("notificationMessage/{applicationName}/{notificationId}")]
         public async Task<IActionResult> GetNotificationMessage(string applicationName, string notificationId)
         {
@@ -122,11 +136,42 @@ namespace NotificationService.Controllers
         }
 
         /// <summary>
+        /// Returns all filtered meeting invite Notification Entities for reporting.
+        /// </summary>
+        /// <param name="notificationFilterRequest">Request with filter parameters to get meeting invite notifications for reporting.</param>
+        /// <returns> list of MeetingInviteReportResponse.</returns>
+        [HttpPost]
+        [Route("meetingInvites")]
+        public async Task<IActionResult> GetMeetingInviteReportNotifications([FromBody] NotificationReportRequest notificationFilterRequest)
+        {
+            if (notificationFilterRequest is null)
+            {
+                throw new System.ArgumentException("Notification Filter Request cannot be null");
+            }
+
+            Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken> notificationResponses;
+            this.logger.TraceInformation($"Started {nameof(this.GetMeetingInviteReportNotifications)} method of {nameof(NotificationReportController)}.");
+            notificationResponses = await this.notificationReportManager.GetMeetingInviteReportNotifications(notificationFilterRequest).ConfigureAwait(false);
+            string nextPartitionKey = notificationResponses.Item2?.NextPartitionKey;
+            string nextRowKey = notificationResponses.Item2?.NextRowKey;
+            if (nextPartitionKey != null && nextRowKey != null)
+            {
+                this.Response.Headers.Add("Access-Control-Expose-Headers", "X-NextPartitionKey, X-NextRowKey");
+                this.Response.Headers.Add("X-NextPartitionKey", nextPartitionKey);
+                this.Response.Headers.Add("X-NextRowKey", nextRowKey);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetMeetingInviteReportNotifications)} method of {nameof(NotificationReportController)}.");
+            return new OkObjectResult(notificationResponses.Item1);
+        }
+
+        /// <summary>
         /// Gets All Template Entities for the input application.
         /// </summary>
         /// <param name="applicationName">Application Name.</param>
         /// <returns>a list of template entities <see cref="MailTemplate"/>.</returns>
         [HttpGet]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
         [Route("templates/{applicationName}")]
         public async Task<IActionResult> GetAllTemplateEntities(string applicationName)
         {

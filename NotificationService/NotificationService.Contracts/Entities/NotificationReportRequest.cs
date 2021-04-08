@@ -14,12 +14,6 @@ namespace NotificationService.Contracts
     public class NotificationReportRequest
     {
         /// <summary>
-        /// Gets or sets Notify Type Filter.
-        /// </summary>
-        [DataMember(Name = "NotificationTypeFilter")]
-        public IList<NotificationType> NotificationTypeFilter { get; set; }
-
-        /// <summary>
         /// Gets or sets NotificationPriorityFilter.
         /// </summary>
         [DataMember(Name = "NotificationPriorityFilter")]
@@ -38,6 +32,12 @@ namespace NotificationService.Contracts
         public IList<string> NotificationIdsFilter { get; set; }
 
         /// <summary>
+        /// Gets or sets TrackingIdsFilter.
+        /// </summary>
+        [DataMember(Name = "TrackingIdFilter")]
+        public IList<string> TrackingIdsFilter { get; set; }
+
+        /// <summary>
         /// Gets or sets AccountUsedFilter.
         /// </summary>
         [DataMember(Name = "AccountUsedFilter")]
@@ -48,12 +48,6 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "NotificationStatusFilter")]
         public IList<NotificationItemStatus> NotificationStatusFilter { get; set; }
-
-        /// <summary>
-        /// Gets or sets MailSensitivityFilter.
-        /// </summary>
-        [DataMember(Name = "MailSensitivityFilter")]
-        public IList<MailSensitivity> MailSensitivityFilter { get; set; }
 
         /// <summary>
         /// Gets or sets CreatedDateTimeStart.
@@ -88,7 +82,7 @@ namespace NotificationService.Contracts
         /// <summary>
         /// Gets or sets SendOnUtcDateStart.
         /// </summary>
-        [DataMember(Name = "SendOnUtcDateStart")]
+        [DataMember(Name = "SendOnUtcDateEnd")]
         public string SendOnUtcDateEnd { get; set; }
 
         /// <summary>

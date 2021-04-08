@@ -5,11 +5,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import { initializeIcons } from 'office-ui-fabric-react';
+import {MsalProvider} from './auth/authProvider';
+import { msalConfig, loginRequest } from './configuration/auth-config' ;
 
 initializeIcons();
 ReactDOM.render(
-  <React.StrictMode>
+  <MsalProvider
+  config={msalConfig}
+  scopes={loginRequest}
+  >
     <App />
-  </React.StrictMode>,
+  </MsalProvider>,
   document.getElementById('root')
 );

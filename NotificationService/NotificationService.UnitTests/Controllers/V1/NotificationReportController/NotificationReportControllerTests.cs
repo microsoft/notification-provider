@@ -7,13 +7,12 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Cosmos.Table;
     using Moq;
+    using NotificationHandler.Controllers;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-    using NotificationService.Controllers;
     using NUnit.Framework;
 
     /// <summary>
@@ -25,10 +24,9 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
         private readonly NotificationReportRequest request = new NotificationReportRequest()
         {
             NotificationStatusFilter = new List<NotificationItemStatus> { NotificationItemStatus.Sent, NotificationItemStatus.Processing },
-            MailSensitivityFilter = new List<MailSensitivity> { MailSensitivity.Normal },
             NotificationPriorityFilter = new List<NotificationPriority> { NotificationPriority.High },
-            NotificationTypeFilter = new List<NotificationType> { NotificationType.Mail },
             NotificationIdsFilter = new List<string> { "1" },
+            TrackingIdsFilter = new List<string> { "trackingId" },
             AccountsUsedFilter = new List<string> { "gtauser" },
             ApplicationFilter = new List<string>() { "test", "app1", },
             CreatedDateTimeStart = "2020-07-21",
@@ -99,6 +97,24 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
             var result = notificationReportController.GetNotificationMessage(this.applicationName, this.notificationId);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             this.notificationReportManager.Verify(mgr => mgr.GetNotificationMessage(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            Assert.Pass();
+        }
+
+        /// <summary>
+        /// test case for get meeting invite report notification.
+        /// </summary>
+        [Test]
+        public void GetMeetingInviteReportNotificationsTest()
+        {
+            NotificationReportController notificationReportController = new NotificationReportController(this.notificationReportManager.Object, this.logger);
+            IList<MeetingInviteReportResponse> response = new List<MeetingInviteReportResponse>();
+            Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken> notificationResponses = new Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>(response, null);
+            _ = this.notificationReportManager
+                .Setup(notificationReportManager => notificationReportManager.GetMeetingInviteReportNotifications(It.IsAny<NotificationReportRequest>()))
+                .Returns(Task.FromResult(notificationResponses));
+            var result = notificationReportController.GetMeetingInviteReportNotifications(this.request);
+            Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
+            this.notificationReportManager.Verify(mgr => mgr.GetMeetingInviteReportNotifications(this.request), Times.Once);
             Assert.Pass();
         }
 
