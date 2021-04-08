@@ -7,8 +7,10 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Options;
     using Moq;
@@ -121,9 +123,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             // Test the transient error: Too many Requests/ Request Timeout
             var graphProvider = new Mock<IMSGraphProvider>();
 
+            this.response.Status = false;
+            this.response.StatusCode = HttpStatusCode.TooManyRequests;
             _ = graphProvider
                 .Setup(gp => gp.SendEmailNotification(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<EmailMessagePayload>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(false));
+                .Returns(Task.FromResult(this.response));
 
             _ = this.TokenHelper
                 .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
@@ -144,9 +148,11 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
 
             // When Graph calls succeed
+            this.response.Status = true;
+            this.response.StatusCode = HttpStatusCode.OK;
             _ = graphProvider
                 .Setup(gp => gp.SendEmailNotification(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<EmailMessagePayload>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
+                .Returns(Task.FromResult(this.response));
 
             emailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);
 

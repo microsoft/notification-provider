@@ -125,43 +125,27 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task<bool> SendEmailNotification(AuthenticationHeaderValue authenticationHeaderValue, EmailMessagePayload payLoad, string notificationId)
+        public async Task<ResponseData<string>> SendEmailNotification(AuthenticationHeaderValue authenticationHeaderValue, EmailMessagePayload payLoad, string notificationId)
         {
             this.logger.TraceInformation($"Started {nameof(this.SendEmailNotification)} method of {nameof(MSGraphProvider)}.");
             this.httpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
             var requestPayLoad = JsonConvert.SerializeObject(payLoad, this.jsonSerializerSettings);
             HttpResponseMessage response = null;
-            bool isSuccess = false;
             response = await this.httpClient.PostAsync(
                     $"{this.mSGraphSetting.BaseUrl}/{this.mSGraphSetting.GraphAPIVersion}/{this.mSGraphSetting.SendMailUrl}",
                     new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
-            this.logger.TraceInformation($"Method {nameof(this.SendEmailNotification)}: Completed Graph Send Email Call.");
-            var responseHeaders = response.Headers.ToString();
+            this.logger.TraceInformation($"Method {nameof(this.SendEmailNotification)}: Completed Graph Send Email Call for notificationId : {notificationId}");
 
-            if (response.IsSuccessStatusCode)
-            {
-                // Read and deserialize response.
-                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                isSuccess = true;
-            }
-            else if (response.StatusCode == HttpStatusCode.TooManyRequests || response.StatusCode == HttpStatusCode.RequestTimeout)
-            {
-                isSuccess = false;
-            }
-            else
-            {
-                string content = string.Empty;
-                if (response != null)
-                {
-                    content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                }
+            var responseData = await GetResponseData(response).ConfigureAwait(false);
 
-                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {content}");
+            if (responseData == null || (!responseData.Status && !(responseData.StatusCode == HttpStatusCode.TooManyRequests || responseData.StatusCode == HttpStatusCode.RequestTimeout)))
+            {
+                throw new System.Exception($"An error occurred while sending notification id: {notificationId}. Details: {responseData?.Result}");
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.SendEmailNotification)} method of {nameof(MSGraphProvider)}.");
-            return isSuccess;
+            return responseData;
         }
 
         /// <inheritdoc/>
