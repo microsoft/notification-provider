@@ -13,6 +13,7 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Models.Reports;
     using NUnit.Framework;
 
     /// <summary>
@@ -97,6 +98,23 @@ namespace NotificationService.UnitTests.Controllers.V1.NotificationReportControl
             var result = notificationReportController.GetNotificationMessage(this.applicationName, this.notificationId);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             this.notificationReportManager.Verify(mgr => mgr.GetNotificationMessage(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            Assert.Pass();
+        }
+
+        /// <summary>
+        /// test case for get NotificationMessage.
+        /// </summary>
+        [Test]
+        public void GetMeetingNotificationMessageTest()
+        {
+            NotificationReportController notificationReportController = new NotificationReportController(this.notificationReportManager.Object, this.logger);
+            MeetingInviteMessage notificationMessage = new MeetingInviteMessage();
+            _ = this.notificationReportManager
+                .Setup(notificationReportManager => notificationReportManager.GetMeetingNotificationMessage(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(notificationMessage));
+            var result = notificationReportController.GetMeetingNotificationMessage(this.applicationName, this.notificationId);
+            Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
+            this.notificationReportManager.Verify(mgr => mgr.GetMeetingNotificationMessage(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             Assert.Pass();
         }
 

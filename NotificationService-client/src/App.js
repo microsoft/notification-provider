@@ -1,22 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {CoherenceHeader} from "@cseo/controls";
+import {useState} from 'react';
+import { mergeStyleSets } from 'office-ui-fabric-react';
+import { navCollapsedWidth } from '@m365-admin/nav';
+import {CoherenceHeader, getScrollBarWidth} from "@cseo/controls";
 import MailHistory from "./components/mailHistory";
+import { Customizer } from 'office-ui-fabric-react';
+import { CoherenceCustomizations } from '@cseo/styles';
 import { useMsal } from "./auth/authProvider";
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import NotificationNav from './components/left-nav';
+import { SetOnsearchDetailsView  } from '@cseo/controls';
+import MeetingHistory from './components/meetingHistory';
 
 function App() {
-  const { loading, isAuthenticated, user, signOut } = useMsal()
-  if (loading) {
-    return <div>Loading...</div>;
+  
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const _onNavCollapsed = (isCollapsed) => {
+     setIsNavCollapsed(isCollapsed);
+  };
+
+  const _goBackClicked = () => {
+    SetOnsearchDetailsView(false);
   }
-  return (<>
+ 
+  const { isAuthenticated, user, signOut } = useMsal()
+  
+  return (
+    <Customizer {...CoherenceCustomizations}>
     {isAuthenticated ?
-    (<main>
-        <CoherenceHeader
+    (<>  <CoherenceHeader
          headerLabel={'header'}
          appNameSettings={{
-             label: 'Email History'
+             label: 'Notification Service'
          }}
          farRightSettings={{
           profileSettings: {
@@ -27,9 +44,22 @@ function App() {
             onLogOut: () => signOut()
           }
          }}/>
-         <MailHistory/> 
-    </main>): ''}
-  </>);
+         <BrowserRouter>
+          <>
+            <NotificationNav onNavCollapsed={_onNavCollapsed} onNavItemClicked={_goBackClicked} />
+            <main id='main' tabIndex={-1}>
+                            {
+                                <Switch>
+                                    <Redirect exact from="/" to="/mailHistory" />
+                                    <Route exact path="/mailHistory" render={() => <MailHistory isNavCollapsed={isNavCollapsed} />} />
+                                    <Route exact path="/meetingHistory" render={() => <MeetingHistory isNavCollapsed={isNavCollapsed} />} />
+                                </Switch>
+                            }
+            </main>
+          </>
+         </BrowserRouter>
+    </> ) : ''}
+  </Customizer>);
 }
 
 export default App;

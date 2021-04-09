@@ -8,6 +8,8 @@ namespace NotificationService.BusinessLibrary.Interfaces
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Reports;
 
     /// <summary>
     /// Interface for Notification Report Manager.
@@ -48,5 +50,13 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// <param name="notificationReportRequest"> notification filter request. </param>
         /// <returns> notifications filtered based on input.</returns>
         Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest);
+
+        /// <summary>
+        /// Gets the Meeting Notification Message corresponding to the NotificationId.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="notificationId">notificationId.</param>
+        /// <returns>A <see cref="Task{MeetingNotificationReportMessage}"/> representing the result of the asynchronous operation.</returns>
+        Task<MeetingInviteMessage> GetMeetingNotificationMessage(string applicationName, string notificationId);
     }
 }

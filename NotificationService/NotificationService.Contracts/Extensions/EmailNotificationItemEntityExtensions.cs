@@ -9,6 +9,9 @@ namespace NotificationService.Contracts
     using System.Globalization;
     using System.Linq;
     using NotificationService.Common.Configurations;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Graph.Invite;
+    using NotificationService.Contracts.Models.Reports;
 
     /// <summary>
     /// Extensions of the <see cref="EmailNotificationItemEntity"/> class.
@@ -94,6 +97,27 @@ namespace NotificationService.Contracts
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),
                 Importance = (DirectSend.Models.Mail.EmailMessage.ImportanceType)Enum.Parse(typeof(DirectSend.Models.Mail.EmailMessage.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
+        }
+
+        /// <summary>
+        /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailMessage"/>.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntity">Email Notification Item Entity.</param>
+        /// <param name="body">Message Bosy.</param>
+        /// <returns><see cref="EmailMessage"/>.</returns>
+        public static MeetingInviteMessage ToMeetingInviteReportMessage(this MeetingNotificationItemEntity meetingNotificationItemEntity, MessageBody body)
+        {
+            return meetingNotificationItemEntity != null ?
+                new MeetingInviteMessage()
+                {
+                    Subject = meetingNotificationItemEntity.Subject,
+                    Body = body?.Content,
+                    RequiredAttendees = meetingNotificationItemEntity.RequiredAttendees,
+                    Application = meetingNotificationItemEntity.Application,
+                    From = meetingNotificationItemEntity.From,
+                    NotificationId = meetingNotificationItemEntity.NotificationId,
+                    OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees,
+                } : null;
         }
     }
 }
