@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 import {useState} from 'react';
-import { mergeStyleSets } from 'office-ui-fabric-react';
-import { navCollapsedWidth } from '@m365-admin/nav';
-import {CoherenceHeader, getScrollBarWidth} from "@cseo/controls";
+import {CoherenceHeader} from "@cseo/controls";
 import MailHistory from "./components/mailHistory";
 import { Customizer } from 'office-ui-fabric-react';
 import { CoherenceCustomizations } from '@cseo/styles';

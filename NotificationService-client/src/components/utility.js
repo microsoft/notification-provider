@@ -1,4 +1,4 @@
-import { toast, ToastContainer, Zoom } from 'react-toastify';
+import { toast, Zoom } from 'react-toastify';
 
 export const copyToClipboard = (item, index, event) => {
     const selectedValue = event?.path[0]?.innerText;
