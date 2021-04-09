@@ -16,6 +16,9 @@ namespace NotificationService.FunctionalTests
     public class EmailNotificationSendTest : BaseTests
     {
         [Test]
+        /// <summary>
+        /// Test email through send endpoint
+        /// </summary>
         public async Task SendEmailTest()
         {
             var emailNotificationItems = new EmailNotificationItem[]
