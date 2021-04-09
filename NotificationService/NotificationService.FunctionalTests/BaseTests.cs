@@ -12,6 +12,9 @@ namespace NotificationService.FunctionalTests
     using System;
     using System.Globalization;
 
+    /// <summary>
+    /// Base class for all functional tests
+    /// </summary>
 
     public class BaseTests
     {
