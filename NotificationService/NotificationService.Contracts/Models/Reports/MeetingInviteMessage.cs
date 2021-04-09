@@ -1,5 +1,6 @@
 ﻿namespace NotificationService.Contracts.Models.Reports
 {
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -48,5 +49,11 @@
         /// </summary>
         [DataMember(Name = "NotificationId")]
         public string NotificationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets attachments to the message.
+        /// </summary>
+        [DataMember(Name = "attachments", IsRequired = false)]
+        public List<FileAttachment> Attachments { get; set; }
     }
 }

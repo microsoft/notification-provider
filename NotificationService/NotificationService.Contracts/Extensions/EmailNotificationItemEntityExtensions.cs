@@ -117,6 +117,8 @@ namespace NotificationService.Contracts
                     From = meetingNotificationItemEntity.From,
                     NotificationId = meetingNotificationItemEntity.NotificationId,
                     OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees,
+                    Attachments = meetingNotificationItemEntity.Attachments?.Select(attachment => new FileAttachment
+                    { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
                 } : null;
         }
     }
