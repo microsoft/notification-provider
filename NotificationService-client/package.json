@@ -19,7 +19,8 @@
   },
   "resolutions": {
     "immer": "8.0.1",
-    "react-dev-utils": "^11.0.4"
+    "react-dev-utils": "^11.0.4",
+    "postcss-svgo": "^4.0.3"
   },
   "scripts": {
     "preinstall": "npx npm-force-resolutions",

@@ -64,11 +64,6 @@ export default function MailHistory(propertis) {
         }
     };
 
-    const onPageSizeChange = (newPageSize) => {
-        defaultPageSize.current = newPageSize;
-        selectedPage.current = 1;
-        fetchMailHistory(filter, null, defaultPageSize.current);
-    }
     const paginationProps = {
         pageCount: pageCount.current,
         selectedPage: selectedPage.current,
@@ -77,18 +72,6 @@ export default function MailHistory(propertis) {
         inputFieldAriaLabel: 'page number',
         
         onPageChange: onPageChange
-    };
-    const paginationPageSizeProps = {
-        pageSize: defaultPageSize.current,
-        pageSizeList: [
-            { key: 100, text: '1000' },
-            { key: 200, text: '2000' },
-            { key: 300, text: '3000' },
-            { key: 400, text: '4000' },
-            { key: 500, text: '5000' }
-        ],
-        comboBoxAriaLabel: 'page size',
-        onPageSizeChange: onPageSizeChange
     };
 
     useEffect(() => {
