@@ -27,8 +27,8 @@ export const MsalProvider = ({
 
     instance.interceptors.response.use(response => {
         return Promise.resolve(response);
-    },error => {
-        signIn();
+    }, error => {
+        throw error;
     });
 
     const myMSALObj = new PublicClientApplication(config); 
