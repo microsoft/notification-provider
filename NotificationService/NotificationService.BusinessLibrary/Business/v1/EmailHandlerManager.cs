@@ -222,9 +222,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
         }
 
         /// <inheritdoc/>
-        public async Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds, bool ignoreAlreadySent = false)
+        public async Task<IList<NotificationResponse>> ResendNotifications(string applicationName, string[] notificationIds, NotificationType notifType = NotificationType.Mail, bool ignoreAlreadySent = false)
         {
-            this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailHandlerManager)}.");
+            this.logger.TraceInformation($"Started {nameof(this.ResendNotifications)} method of {nameof(EmailHandlerManager)}.");
             if (string.IsNullOrWhiteSpace(applicationName))
             {
                 throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
@@ -239,7 +239,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
 
             // Queue a single cloud message for all entities created to enable parallel processing.
             var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
-            IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, ignoreAlreadySent);
+            IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForIds(applicationName, notificationIds, notifType, ignoreAlreadySent);
             await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
 
             notificationIds.ToList().ForEach(id =>
@@ -250,7 +250,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                     Status = NotificationItemStatus.Queued,
                 });
             });
-            this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotifications)} method of {nameof(EmailHandlerManager)}.");
+            this.logger.TraceInformation($"Finished {nameof(this.ResendNotifications)} method of {nameof(EmailHandlerManager)}.");
             return notificationResponses;
         }
 
@@ -272,7 +272,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
             }
 
             var notificationIds = failedNotificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
-            var result = await this.ResendEmailNotifications(applicationName, notificationIds.ToArray(), true).ConfigureAwait(false);
+            var result = await this.ResendNotifications(applicationName, notificationIds.ToArray(), NotificationType.Mail, true).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
             return result;
         }

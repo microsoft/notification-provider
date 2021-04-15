@@ -82,16 +82,17 @@ namespace NotificationService.BusinessLibrary
         /// </summary>
         /// <param name="applicationName">Name of associated application.</param>
         /// <param name="notificationIds">Array of notification Ids.</param>
+        /// <param name="notifType">Type of notification (Mail, Meeting).</param>
         /// <param name="ignoreAlreadySent">Boolean value to ignore already sent messages.</param>
         /// <returns>List of cloud messages.</returns>
-        public static IList<string> GetCloudMessagesForIds(string applicationName, string[] notificationIds, bool ignoreAlreadySent = false)
+        public static IList<string> GetCloudMessagesForIds(string applicationName, string[] notificationIds, NotificationType notifType, bool ignoreAlreadySent = false)
         {
             IList<string> cloudMessages = new List<string>();
             var cloudMessage = new
             {
                 NotificationIds = notificationIds,
                 Application = applicationName,
-                NotificationType = NotificationType.Mail,
+                NotificationType = notifType,
                 IgnoreAlreadySent = ignoreAlreadySent,
             };
             cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));

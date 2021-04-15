@@ -9,6 +9,8 @@ namespace NotificationHandler.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+    using NotificationHandler.Controllers.v1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
@@ -16,6 +18,7 @@ namespace NotificationHandler.Controllers
     using NotificationService.Contracts;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
@@ -24,17 +27,12 @@ namespace NotificationHandler.Controllers
     [Route("v1/meetinginvite")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
-    public class MeetingInviteController : Controller
+    public class MeetingInviteController : BaseController
     {
         /// <summary>
         /// Instance of <see cref="IEmailHandlerManager"/>.
         /// </summary>
         private readonly IEmailHandlerManager emailHandlerManager;
-
-        /// <summary>
-        /// Instance of <see cref="ILogger"/>.
-        /// </summary>
-        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MeetingInviteController"/> class.
@@ -44,9 +42,9 @@ namespace NotificationHandler.Controllers
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
         public MeetingInviteController(IEmailHandlerManager emailHandlerManager, ILogger logger)
+            : base (logger)
         {
             this.emailHandlerManager = emailHandlerManager ?? throw new System.ArgumentNullException(nameof(emailHandlerManager));
-            this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -101,6 +99,39 @@ namespace NotificationHandler.Controllers
             this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotifications)} method of {nameof(MeetingInviteController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.QueueMeetingNotifications(applicationName, meetingNotificationItems).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.QueueMeetingNotifications)} method of {nameof(MeetingInviteController)}.", traceProps);
+            return this.Accepted(notificationResponses);
+        }
+
+        /// <summary>
+        /// Resend meeting notification items.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="notificationIds">Array of email notification ids.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
+        [Route("resend/{applicationName}")]
+        public async Task<IActionResult> ResendMeetingInvites(string applicationName, [FromBody] string[] notificationIds)
+        {
+            var traceProps = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(applicationName))
+            {
+                this.LogAndThrowArgumentNullException("Application Name cannot be null or empty.", nameof(applicationName), traceProps);
+            }
+
+            traceProps[AIConstants.Application] = applicationName;
+            if (notificationIds is null || notificationIds.Length == 0)
+            {
+                this.LogAndThrowArgumentNullException("Meeting Notifications Ids list should not be null/empty", nameof(notificationIds), traceProps);
+            }
+
+            traceProps[AIConstants.NotificationIds] = string.Join(',', notificationIds);
+
+            IList<NotificationResponse> notificationResponses;
+            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
+            notificationResponses = await this.emailHandlerManager.ResendNotifications(applicationName, notificationIds, NotificationType.Meet).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
             return this.Accepted(notificationResponses);
         }
     }

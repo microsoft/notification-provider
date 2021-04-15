@@ -9,6 +9,7 @@ namespace NotificationHandler.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using NotificationHandler.Controllers.v1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
@@ -23,18 +24,13 @@ namespace NotificationHandler.Controllers
     [Route("v1/email")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
-    public class EmailController : Controller
+    public class EmailController : BaseController
     {
         /// <summary>
         /// Instance of <see cref="IEmailHandlerManager"/>.
         /// </summary>
         private readonly IEmailHandlerManager emailHandlerManager;
         private readonly IMailTemplateManager templateManager;
-
-        /// <summary>
-        /// Instance of <see cref="ILogger"/>.
-        /// </summary>
-        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailController"/> class.
@@ -44,10 +40,10 @@ namespace NotificationHandler.Controllers
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
         public EmailController(IEmailHandlerManager emailHandlerManager, IMailTemplateManager templateManager, ILogger logger)
+            : base (logger)
         {
             this.emailHandlerManager = emailHandlerManager ?? throw new System.ArgumentNullException(nameof(emailHandlerManager));
             this.templateManager = templateManager ?? throw new ArgumentNullException(nameof(templateManager));
-            this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -86,7 +82,7 @@ namespace NotificationHandler.Controllers
 
             IList<NotificationResponse> notificationResponses;
             this.logger.TraceInformation($"Started {nameof(this.ResendEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
-            notificationResponses = await this.emailHandlerManager.ResendEmailNotifications(applicationName, notificationIds).ConfigureAwait(false);
+            notificationResponses = await this.emailHandlerManager.ResendNotifications(applicationName, notificationIds).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotifications)} method of {nameof(EmailController)}.", traceProps);
             return this.Accepted(notificationResponses);
         }
@@ -332,19 +328,6 @@ namespace NotificationHandler.Controllers
                 this.logger.WriteException(ex);
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Logs and rethrow the exception.
-        /// </summary>
-        /// <param name="message">Error message.</param>
-        /// <param name="inputName">Name of input type.</param>
-        /// <param name="traceProps">custom properties, add more dimensions to this, so it will be easy to trace and query.</param>
-        private void LogAndThrowArgumentNullException(string message, string inputName, Dictionary<string, string> traceProps)
-        {
-            var argumentException = new System.ArgumentNullException(inputName, message);
-            this.logger.TraceInformation(argumentException.Message, traceProps);
-            throw argumentException;
         }
     }
 }
