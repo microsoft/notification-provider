@@ -33,7 +33,6 @@
     <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj" />
     <ProjectReference Include="..\NotificationService.BusinessLibrary\NotificationService.BusinessLibrary.csproj" />
     <ProjectReference Include="..\NotificationService\NotificationService.csproj" />
-    <ProjectReference Include="..\WebNotifications\WebNotifications.csproj" />
   </ItemGroup>
 
 </Project>

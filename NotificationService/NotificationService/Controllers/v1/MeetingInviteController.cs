@@ -24,7 +24,7 @@ namespace NotificationService.Controllers
     [Route("v1/meetinginvite")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
-    public class MeetingInviteController : WebAPICommonController
+    public class MeetingInviteController
     {
         /// <summary>
         /// Instance of <see cref="IEmailManager"/>.
