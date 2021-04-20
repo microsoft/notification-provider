@@ -278,11 +278,6 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => notification.UpdatedDateTime <= updatedTimeEnd);
             }
 
-            if (notificationReportRequest.NotificationTypeFilter?.Count > 0)
-            {
-                filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationTypeFilter.Contains(notification.NotifyType));
-            }
-
             if (notificationReportRequest.NotificationPriorityFilter?.Count > 0)
             {
                 filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationPriorityFilter.Contains(notification.Priority));
@@ -308,9 +303,9 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => notificationReportRequest.NotificationStatusFilter.Contains(notification.Status));
             }
 
-            if (notificationReportRequest.MailSensitivityFilter?.Count > 0)
+            if (notificationReportRequest.TrackingIdsFilter?.Count > 0)
             {
-                filterExpression = filterExpression.And(notification => notificationReportRequest.MailSensitivityFilter.Contains(notification.Sensitivity));
+                filterExpression = filterExpression.And(notification => notificationReportRequest.TrackingIdsFilter.Contains(notification.TrackingId));
             }
 
             return filterExpression;
@@ -353,13 +348,16 @@ namespace NotificationService.Data
         public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId) => throw new NotImplementedException();
+        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();

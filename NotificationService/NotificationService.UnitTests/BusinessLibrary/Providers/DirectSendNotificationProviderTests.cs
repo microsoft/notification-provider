@@ -48,7 +48,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
             var configurationSection = new Mock<IConfigurationSection>();
             _ = configurationSection.Setup(a => a.Value).Returns(JsonConvert.SerializeObject(new DirectSendSetting { SmtpServer = "testServer", SmtpPort = "25" }));
             _ = this.Configuration.Setup(x => x.GetSection("DirectSendSetting")).Returns(configurationSection.Object);
-            _ = this.mockedEmailManager.Setup(x => x.GetNotificationMessageBodyAsync(It.IsAny<string>(), It.IsAny<MeetingNotificationItemEntity>())).ReturnsAsync(new NotificationService.Contracts.MessageBody { Content = "Test" });
+            _ = this.mockedEmailManager.Setup(x => x.GetMeetingInviteBodyAsync(It.IsAny<string>(), It.IsAny<MeetingNotificationItemEntity>())).ReturnsAsync(new NotificationService.Contracts.MessageBody { Content = "Test" });
         }
 
         /// <summary>

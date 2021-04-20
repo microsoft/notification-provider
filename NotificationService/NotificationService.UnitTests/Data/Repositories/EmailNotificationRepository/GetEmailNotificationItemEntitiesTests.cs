@@ -56,9 +56,8 @@ namespace NotificationService.UnitTests.Data.Repositories
             {
                 NotificationStatusFilter = new List<NotificationItemStatus> { NotificationItemStatus.Sent, NotificationItemStatus.Processing },
                 NotificationPriorityFilter = new List<NotificationPriority> { NotificationPriority.High },
-                NotificationTypeFilter = new List<NotificationType> { NotificationType.Mail },
                 NotificationIdsFilter = new List<string> { "1" },
-                MailSensitivityFilter = new List<MailSensitivity> { MailSensitivity.Normal },
+                TrackingIdsFilter = new List<string> { "trackingid" },
                 AccountsUsedFilter = new List<string> { "gtauser" },
                 ApplicationFilter = new List<string>() { "test", "SelectedApp", },
                 CreatedDateTimeStart = "2020-07-21",

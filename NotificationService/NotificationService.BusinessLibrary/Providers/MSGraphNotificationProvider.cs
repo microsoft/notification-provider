@@ -21,6 +21,7 @@ namespace NotificationService.BusinessLibrary.Providers
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Graph;
     using NotificationService.Contracts.Models.Graph.Invite;
 
     /// <summary>
@@ -192,12 +193,27 @@ namespace NotificationService.BusinessLibrary.Providers
                     }
 
                     EmailMessagePayload payLoad = new EmailMessagePayload(message) { SaveToSentItems = saveToSent };
-                    var isSuccess = await this.msGraphProvider.SendEmailNotification(emailAccountUsed.Item1, payLoad, item.NotificationId).ConfigureAwait(false);
-
-                    item.Status = isSuccess ? NotificationItemStatus.Sent : (item.TryCount <= this.maxTryCount ? NotificationItemStatus.Retrying : NotificationItemStatus.Failed);
+                    var response = await this.msGraphProvider.SendEmailNotification(emailAccountUsed.Item1, payLoad, item.NotificationId).ConfigureAwait(false);
+                    if (response.Status)
+                    {
+                        item.Status = NotificationItemStatus.Sent;
+                    }
+                    else if (item.TryCount <= this.maxTryCount && (response.StatusCode == HttpStatusCode.TooManyRequests || response.StatusCode == HttpStatusCode.RequestTimeout))
+                    {
+                        item.Status = NotificationItemStatus.Retrying;
+                        item.ErrorMessage = response.Result;
+                        _ = this.IsMailboxLimitExchausted(response.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
+                    }
+                    else
+                    {
+                        this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailSendFailed} for notificationId:  {item.NotificationId} ");
+                        item.Status = NotificationItemStatus.Failed;
+                        item.ErrorMessage = response.Result;
+                    }
                 }
                 catch (AggregateException ex)
                 {
+                    this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailSendFailed} for notificationId:  {item.NotificationId}");
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }
@@ -302,19 +318,11 @@ namespace NotificationService.BusinessLibrary.Providers
                     // Mark these items as queued and Queue them
                     item.Status = NotificationItemStatus.Retrying;
                     item.ErrorMessage = itemResponse?.Error;
-                    if (itemResponse.Error?.Contains("quota was exceeded", StringComparison.InvariantCultureIgnoreCase) ?? false)
-                    {
-                        this.logger.WriteCustomEvent($"Mail Box Exhausted :  {item.EmailAccountUsed} ");
-                        this.logger.TraceInformation($"{itemResponse.Error} Item with notification id={item.NotificationId} will be retried with a different mail box", traceProps);
-                        if (!isAccountIndexIncremented)
-                        {
-                            isAccountIndexIncremented = true;
-                            this.emailAccountManager.IncrementIndex();
-                        }
-                    }
+                    isAccountIndexIncremented = this.IsMailboxLimitExchausted(itemResponse?.Error, item.NotificationId, item.EmailAccountUsed, isAccountIndexIncremented, traceProps);
                 }
                 else
                 {
+                    this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailSendFailed} for notificationId:  {item.NotificationId} ");
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = itemResponse?.Error;
                 }
@@ -431,13 +439,24 @@ namespace NotificationService.BusinessLibrary.Providers
                     }
                     else
                     {
-                        item.Status = item.TryCount <= this.maxTryCount ? NotificationItemStatus.Retrying : NotificationItemStatus.Failed;
+                        if (item.TryCount <= this.maxTryCount && (result.StatusCode == HttpStatusCode.TooManyRequests || result.StatusCode == HttpStatusCode.RequestTimeout))
+                        {
+                            item.Status = NotificationItemStatus.Retrying;
+                            _ = this.IsMailboxLimitExchausted(result.Result, item.NotificationId, item.EmailAccountUsed, false, traceProps);
+                        }
+                        else
+                        {
+                            this.logger.WriteCustomEvent($"{AIConstants.CustomEventInviteSendFailed} for notificationId:  {item.NotificationId} ");
+                            item.Status = NotificationItemStatus.Failed;
+                        }
+
                         item.ErrorMessage = result.Result;
                         this.logger.TraceInformation($"{nameof(this.ProcessMeetingEntitiesIndividually)} of class {nameof(MSGraphNotificationProvider)} : Putting the invite back for next retry. Current request statusCode: {result.StatusCode} for notificationId {item.NotificationId}", traceProps);
                     }
                 }
                 catch (AggregateException ex)
                 {
+                    this.logger.WriteCustomEvent($"{AIConstants.CustomEventInviteSendFailed} for notificationId:  {item.NotificationId}");
                     item.Status = NotificationItemStatus.Failed;
                     item.ErrorMessage = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
                 }
@@ -479,7 +498,7 @@ namespace NotificationService.BusinessLibrary.Providers
             });
 
             payload.Attendees = (optionalAttendees != null ? requiredAttendees.Union(optionalAttendees) : requiredAttendees).ToList();
-            payload.Body = await this.emailManager.GetNotificationMessageBodyAsync(applicationName, meetingNotificationEntity).ConfigureAwait(false);
+            payload.Body = await this.emailManager.GetMeetingInviteBodyAsync(applicationName, meetingNotificationEntity).ConfigureAwait(false);
             payload.End = new InviteDateTime()
             {
                 DateTime = meetingNotificationEntity.End.FormatDate(ApplicationConstants.GraphMeetingInviteDateTimeFormatter),
@@ -538,6 +557,37 @@ namespace NotificationService.BusinessLibrary.Providers
             return payload;
         }
 
+        /// <summary>
+        /// Logs Event and telemtry for exhausted mailbox.
+        /// </summary>
+        /// <param name="errorMessage">errormessage from http api call.</param>
+        /// <param name="notificationId">unique identifier or notification.</param>
+        /// <param name="mailboxUsed">mailbox used to send notificaiton.</param>
+        /// <param name="isAccountIndexIncremented">to track the index of already exchausted mailbox.</param>
+        /// <param name="traceProps">telemetry properties to be logged.</param>
+        /// <returns>return the update status of already incremented index.</returns>
+        private bool IsMailboxLimitExchausted(string errorMessage, string notificationId, string mailboxUsed, bool isAccountIndexIncremented = false, IDictionary<string, string> traceProps = null)
+        {
+            if (errorMessage?.Contains("quota was exceeded", StringComparison.InvariantCultureIgnoreCase) ?? false)
+            {
+                this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailBoxExhausted}  for mailbox account :  {mailboxUsed} ");
+                this.logger.TraceInformation($"{errorMessage} Item with notification id={notificationId} will be retried with a different mail box", traceProps);
+                if (!isAccountIndexIncremented)
+                {
+                    isAccountIndexIncremented = true;
+                    this.emailAccountManager.IncrementIndex();
+                }
+            }
+
+            return isAccountIndexIncremented;
+        }
+
+        /// <summary>
+        /// Validates for all attachments sent.
+        /// </summary>
+        /// <param name="res">HttpResponse object after send attachment request using httpclient.</param>
+        /// <param name="item">Meeting Notification Item object.</param>
+        /// <returns>a boolean value for success/failure.</returns>
         private static bool IsAllAttachmentsSent(IDictionary<string, ResponseData<string>> res, MeetingNotificationItemEntity item)
         {
             if (res == null)

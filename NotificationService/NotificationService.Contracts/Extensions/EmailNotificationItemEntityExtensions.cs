@@ -9,6 +9,9 @@ namespace NotificationService.Contracts
     using System.Globalization;
     using System.Linq;
     using NotificationService.Common.Configurations;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Graph.Invite;
+    using NotificationService.Contracts.Models.Reports;
 
     /// <summary>
     /// Extensions of the <see cref="EmailNotificationItemEntity"/> class.
@@ -40,6 +43,7 @@ namespace NotificationService.Contracts
                 { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
                 FromAccount = !string.IsNullOrWhiteSpace(emailNotificationItemEntity.From) ? new Recipient() { EmailAddress = new EmailAddress() { Address = emailNotificationItemEntity.From } } : null,
                 SingleValueExtendedProperties = new List<SingleValueExtendedProperty> { new SingleValueExtendedProperty { Id = "SystemTime 0x3FEF", Value = emailNotificationItemEntity.SendOnUtcDate.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) } },
+                Importance = (Models.Graph.ImportanceType)Enum.Parse(typeof(Contracts.Models.Graph.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
         }
 
@@ -91,7 +95,31 @@ namespace NotificationService.Contracts
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),
+                Importance = (DirectSend.Models.Mail.EmailMessage.ImportanceType)Enum.Parse(typeof(DirectSend.Models.Mail.EmailMessage.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
+        }
+
+        /// <summary>
+        /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailMessage"/>.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntity">Email Notification Item Entity.</param>
+        /// <param name="body">Message Bosy.</param>
+        /// <returns><see cref="EmailMessage"/>.</returns>
+        public static MeetingInviteMessage ToMeetingInviteReportMessage(this MeetingNotificationItemEntity meetingNotificationItemEntity, MessageBody body)
+        {
+            return meetingNotificationItemEntity != null ?
+                new MeetingInviteMessage()
+                {
+                    Subject = meetingNotificationItemEntity.Subject,
+                    Body = body?.Content,
+                    RequiredAttendees = meetingNotificationItemEntity.RequiredAttendees,
+                    Application = meetingNotificationItemEntity.Application,
+                    From = meetingNotificationItemEntity.From,
+                    NotificationId = meetingNotificationItemEntity.NotificationId,
+                    OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees,
+                    Attachments = meetingNotificationItemEntity.Attachments?.Select(attachment => new FileAttachment
+                    { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
+                } : null;
         }
     }
 }
