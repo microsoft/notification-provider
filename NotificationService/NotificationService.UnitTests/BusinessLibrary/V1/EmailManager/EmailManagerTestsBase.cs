@@ -255,7 +255,8 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 TemplateType = "Text",
             };
 
-            this.response = new ResponseData<string>() {
+            this.response = new ResponseData<string>()
+            {
                  Status = true,
                  Result = "successful",
                  StatusCode = HttpStatusCode.OK,

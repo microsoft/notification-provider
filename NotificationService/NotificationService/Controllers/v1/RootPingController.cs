@@ -5,12 +5,11 @@ namespace NotificationService.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-    using NotificationService.SvCommon.Common;
 
     /// <summary>
     /// The Root Ping Controller.
     /// </summary>
-    public class RootPingController : WebAPICommonController
+    public class RootPingController : Controller
     {
         /// <summary>
         /// The instance for <see cref="ILogger{RootPingController}"/>.

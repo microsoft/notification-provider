@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationHandler", "Noti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.SvCommon", "NotificationService.SvCommon\NotificationService.SvCommon.csproj", "{4857E8E0-B31E-47E5-A8FC-F08FD3849F19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebNotifications", "WebNotifications\WebNotifications.csproj", "{F3C067EE-7901-4842-88F9-B01BDA536D39}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationsQueueProcessor", "NotificationsQueueProcessor\NotificationsQueueProcessor.csproj", "{5E4A0D1A-14FC-4717-AD23-899E39191467}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NotificationProviders", "NotificationProviders", "{2B82BA20-E61B-48C9-AC79-8881A8C6791C}"
@@ -50,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirectSend.UnitTests", "Not
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "NotificationService.IaaC", "NotificationService.IaaC\NotificationService.IaaC.deployproj", "{E15E4C46-C557-4D3C-A69D-04C0E73CB84B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.FunctionalTests", "NotificationService.FunctionalTests\NotificationService.FunctionalTests.csproj", "{7159519C-758B-4E95-B4E0-0DB8F1641162}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.FunctionalTests", "NotificationService.FunctionalTests\NotificationService.FunctionalTests.csproj", "{7159519C-758B-4E95-B4E0-0DB8F1641162}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -99,10 +97,6 @@ Global
 		{4857E8E0-B31E-47E5-A8FC-F08FD3849F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4857E8E0-B31E-47E5-A8FC-F08FD3849F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4857E8E0-B31E-47E5-A8FC-F08FD3849F19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F3C067EE-7901-4842-88F9-B01BDA536D39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3C067EE-7901-4842-88F9-B01BDA536D39}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3C067EE-7901-4842-88F9-B01BDA536D39}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3C067EE-7901-4842-88F9-B01BDA536D39}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E4A0D1A-14FC-4717-AD23-899E39191467}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E4A0D1A-14FC-4717-AD23-899E39191467}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E4A0D1A-14FC-4717-AD23-899E39191467}.Release|Any CPU.ActiveCfg = Release|Any CPU
