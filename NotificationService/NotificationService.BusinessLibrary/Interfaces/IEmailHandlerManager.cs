@@ -19,9 +19,10 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="applicationName">Application sourcing the email notification.</param>
         /// <param name="notificationIds">Array of notification Ids to be resent.</param>
+        /// <param name="notifType">Type of notification (Mail, Meeting).</param>
         /// <param name="ignoreAlreadySent"> ignore alredysent items.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task<IList<NotificationResponse>> ResendEmailNotifications(string applicationName, string[] notificationIds, bool ignoreAlreadySent = false);
+        Task<IList<NotificationResponse>> ResendNotifications(string applicationName, string[] notificationIds, NotificationType notifType = NotificationType.Mail, bool ignoreAlreadySent = false);
 
         /// <summary>
         /// Queue email notification items.
