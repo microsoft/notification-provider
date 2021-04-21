@@ -9,6 +9,7 @@ namespace NotificationService.BusinessLibrary
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
@@ -16,6 +17,7 @@ namespace NotificationService.BusinessLibrary
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
@@ -61,6 +63,11 @@ namespace NotificationService.BusinessLibrary
         private readonly ITemplateMerge templateMerge;
 
         /// <summary>
+        /// instance of <see cref="ICloudStorageClient"/>. 
+        /// </summary>
+        private readonly ICloudStorageClient cloudStorageClient;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EmailManager"/> class.
         /// </summary>
         /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
@@ -73,7 +80,8 @@ namespace NotificationService.BusinessLibrary
             IRepositoryFactory repositoryFactory,
             ILogger logger,
             IMailTemplateManager templateManager,
-            ITemplateMerge templateMerge)
+            ITemplateMerge templateMerge,
+            ICloudStorageClient cloudStorageClient)
         {
             this.repositoryFactory = repositoryFactory;
             this.configuration = configuration;
@@ -81,6 +89,7 @@ namespace NotificationService.BusinessLibrary
             this.logger = logger;
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
+            this.cloudStorageClient = cloudStorageClient;
         }
 
         /// <summary>
@@ -312,6 +321,91 @@ namespace NotificationService.BusinessLibrary
         public async Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList)
         {
             return await this.emailNotificationRepository.GetPendingOrFailedEmailNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task QueueEmailNotificaitionGDPRMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotificaitionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+
+            if (notificationEntities == null || notificationEntities.Count == 0)
+            {
+                return;
+            }
+
+            var isGdprEnabled = (bool)this.configuration.GetValue(typeof(bool), ConfigConstants.IsGDPREnabled);
+            if (!isGdprEnabled)
+            {
+                this.logger.TraceInformation($"Gdpr Enabled Flag is set to False for EmailNotification", traceProps);
+                return;
+            }
+
+            var gdprMapQueue = this.configuration?[$"{ConfigConstants.StorageAccGdprMapQueueName}"];
+            var cloudQueue = this.cloudStorageClient.GetCloudQueue(gdprMapQueue);
+            foreach (var item in notificationEntities)
+            {
+                var payload = item.Select(notificationItem => new EmailNotificationQueueItem()
+                {
+                    BCC = notificationItem.BCC,
+                    CC = notificationItem.CC,
+                    From = notificationItem.From,
+                    To = notificationItem.To,
+                    NotificationId = notificationItem.NotificationId,
+                });
+                var queueItem = new NotificationMappingQueueItem()
+                {
+                    NotificationType = NotificationType.Mail.ToString(),
+                    ApplicationName = applicationName,
+                    Payload = payload,
+                };
+
+                var cloudMessage = JsonConvert.SerializeObject(queueItem);
+                await this.cloudStorageClient.QueueCloudMessages(cloudQueue, new List<string>() { cloudMessage }).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.QueueEmailNotificaitionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+        }
+
+        /// <inheritdoc/>
+        public async Task QueueMeetingNotificactionGDPRMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotificactionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+
+            if (notificationEntities == null || notificationEntities.Count == 0)
+            {
+                return;
+            }
+
+            var isGdprEnabled = (bool)this.configuration.GetValue(typeof(bool), ConfigConstants.IsGDPREnabled);
+            if (!isGdprEnabled)
+            {
+                this.logger.TraceInformation($"Gdpr Enabled Flag is set to False for EmailNotification", traceProps);
+                return;
+            }
+
+            var gdprMapQueue = this.configuration?[$"{ConfigConstants.StorageAccGdprMapQueueName}"];
+            var cloudQueue = this.cloudStorageClient.GetCloudQueue(gdprMapQueue);
+            foreach (var item in notificationEntities)
+            {
+                var payload = item.Select(notificationItem => new MeetingNotificationQueueItem()
+                {
+                    From = notificationItem.From,
+                    NotificationId = notificationItem.NotificationId,
+                    RequiredAttendees = notificationItem.RequiredAttendees,
+                    OptionalAttendees = notificationItem.OptionalAttendees,
+                });
+                var queueItem = new NotificationMappingQueueItem()
+                {
+                    NotificationType = NotificationType.Meet.ToString(),
+                    ApplicationName = applicationName,
+                    Payload = payload,
+                };
+
+                var cloudMessage = JsonConvert.SerializeObject(queueItem);
+                await this.cloudStorageClient.QueueCloudMessages(cloudQueue, new List<string>() { cloudMessage }).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.QueueMeetingNotificactionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
         }
     }
 }

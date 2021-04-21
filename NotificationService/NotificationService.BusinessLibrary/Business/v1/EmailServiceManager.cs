@@ -180,6 +180,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IList<NotificationResponse> notificationResponses = new List<NotificationResponse>();
             IList<MeetingNotificationItemEntity> emailNotificationEntities = await this.emailManager.CreateMeetingNotificationEntities(applicationName, meetingInviteItems, NotificationItemStatus.Processing).ConfigureAwait(false);
             IList<MeetingNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetMeetingNotificationItemEntities(emailNotificationEntities.Select(e => e.NotificationId).ToList(), applicationName).ConfigureAwait(false);
+
+            _ = Task.Run(async () => await this.emailManager.QueueMeetingNotificactionGDPRMapping(applicationName, new List<List<MeetingNotificationItemEntity>>() { notificationEntities.ToList() }, null).ConfigureAwait(false));
+
             var notificationItemEntities = await this.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
             var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
             this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInvites)} method of {nameof(EmailServiceManager)}.");
@@ -243,6 +246,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
             this.logger.TraceInformation($"Started {nameof(this.SendNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.");
             IList<EmailNotificationItemEntity> emailNotificationEntities = await this.emailManager.CreateNotificationEntities(applicationName, emailNotificationItems, NotificationItemStatus.Processing).ConfigureAwait(false);
             IList<EmailNotificationItemEntity> notificationEntities = await this.emailNotificationRepository.GetEmailNotificationItemEntities(emailNotificationEntities.Select(e => e.NotificationId).ToList(), applicationName).ConfigureAwait(false);
+
+            _ = Task.Run(async () => await this.emailManager.QueueEmailNotificaitionGDPRMapping(applicationName, new List<List<EmailNotificationItemEntity>>() { notificationEntities.ToList() }, null).ConfigureAwait(false) );
+
             var retEntities = await this.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.SendNotificationsUsingProvider)} method of {nameof(EmailServiceManager)}.");
             return retEntities;

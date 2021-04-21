@@ -181,8 +181,18 @@
         public static string DirectSendSMTPPortConfigKey = $"{DirectSendSettingConfigSectionKey}:SmtpPort";
 
         /// <summary>
-        /// A constant for DIrectSend SMTPServer config key from appsetting.json.
+        /// A constant for DirectSend SMTPServer config key from appsetting.json.
         /// </summary>
         public static string DirectSendSMTPServerConfigKey = $"{DirectSendSettingConfigSectionKey}:SmtpServer";
+
+        /// <summary>
+        /// A constant for GDPR queueName.
+        /// </summary>
+        public static string StorageAccGdprMapQueueName = $"{StorageAccountConfigSectionKey}:GdprMapQueueName";
+
+        /// <summary>
+        /// A constant for GDPR enabled flag.
+        /// </summary>
+        public static string IsGDPREnabled = "IsGDPREnabled";
     }
 }

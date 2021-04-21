@@ -50,7 +50,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirectSend.UnitTests", "Not
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "NotificationService.IaaC", "NotificationService.IaaC\NotificationService.IaaC.deployproj", "{E15E4C46-C557-4D3C-A69D-04C0E73CB84B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.FunctionalTests", "NotificationService.FunctionalTests\NotificationService.FunctionalTests.csproj", "{7159519C-758B-4E95-B4E0-0DB8F1641162}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.FunctionalTests", "NotificationService.FunctionalTests\NotificationService.FunctionalTests.csproj", "{7159519C-758B-4E95-B4E0-0DB8F1641162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDPRNotificationMappingProcessor", "GDPRNotificationMappingProcessor\GDPRNotificationMappingProcessor.csproj", "{F76A7CE6-2652-476F-A17B-BC2FA0E7943F}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -123,6 +125,10 @@ Global
 		{7159519C-758B-4E95-B4E0-0DB8F1641162}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7159519C-758B-4E95-B4E0-0DB8F1641162}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7159519C-758B-4E95-B4E0-0DB8F1641162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F76A7CE6-2652-476F-A17B-BC2FA0E7943F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F76A7CE6-2652-476F-A17B-BC2FA0E7943F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F76A7CE6-2652-476F-A17B-BC2FA0E7943F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F76A7CE6-2652-476F-A17B-BC2FA0E7943F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

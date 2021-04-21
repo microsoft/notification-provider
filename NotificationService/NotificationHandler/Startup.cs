@@ -76,7 +76,8 @@ namespace NotificationHandler
                         s.GetService<IRepositoryFactory>(),
                         s.GetService<ILogger>(),
                         s.GetService<IMailTemplateManager>(),
-                        s.GetService<ITemplateMerge>()))
+                        s.GetService<ITemplateMerge>(),
+                        s.GetService<ICloudStorageClient>()))
                 .AddScoped<IEmailHandlerManager, EmailHandlerManager>(s =>
                     new EmailHandlerManager(
                         this.Configuration,

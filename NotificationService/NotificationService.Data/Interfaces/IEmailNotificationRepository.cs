@@ -8,6 +8,7 @@ namespace NotificationService.Data
     using System.Threading.Tasks;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
 
     /// <summary>
@@ -100,5 +101,19 @@ namespace NotificationService.Data
         /// <param name="loadBody"> by default it is false. if false it will not populate body, attachments etc. </param>
         /// <returns>A <see cref="Task"/> represents the return of the asynchronous operation.</returns>
         Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
+
+        /// <summary>
+        /// Create EmailId - NotificationId mapping in for email Notifications.
+        /// </summary>
+        /// <param name="notifications">List of notifications.</param>
+        /// <param name="applicationName">Application Name.</param>
+        void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName);
+
+        /// <summary>
+        /// Create EmailId - NotificationId mapping in for meeting Notifications.
+        /// </summary>
+        /// <param name="notifications">List of notifications.</param>
+        /// <param name="applicationName">Application Name.</param>
+        void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName);
     }
 }

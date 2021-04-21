@@ -16,6 +16,7 @@ namespace NotificationService.Data
     using NotificationService.Common.Utility;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
 
     /// <summary>
@@ -361,5 +362,11 @@ namespace NotificationService.Data
 
         /// <inheritdoc/>
         public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
     }
 }

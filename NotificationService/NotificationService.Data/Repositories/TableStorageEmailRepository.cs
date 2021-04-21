@@ -15,6 +15,7 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
 
 
@@ -52,6 +53,11 @@ namespace NotificationService.Data.Repositories
         /// Instance of <see cref="IMailAttachmentRepository"/>.
         /// </summary>
         private readonly IMailAttachmentRepository mailAttachmentRepository;
+
+        /// <summary>
+        /// MAX Retry for inserting records in storage table. 
+        /// </summary>
+        private const int MaxRetries = 3;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageEmailRepository"/> class.
@@ -452,6 +458,153 @@ namespace NotificationService.Data.Repositories
             return updatedNotificationEntities;
         }
 
+        /// <inheritdoc />
+        public void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName)
+        {
+            var traceProps = new Dictionary<string, string>();
+            if (notifications == null || notifications.Count == 0)
+            {
+                return;
+            }
+
+            traceProps[AIConstants.EmailNotificationCount] = notifications.Count + string.Empty;
+            traceProps[AIConstants.NotificationType] = NotificationType.Mail.ToString();
+
+            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationForEmailsMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            var tableName = this.storageAccountSetting?.EmailNotificationMapTableName;
+
+            if (string.IsNullOrEmpty(tableName))
+            {
+                this.logger.TraceError($"Storage Table not confifured for GDPR email to notification mapping.", traceProps);
+                throw new InvalidOperationException("Storage Table not confifured for GDPR email to notification mapping.");
+            }
+
+            var cloudTable = this.cloudStorageClient.GetCloudTable(tableName);
+            List<EmailNotificationMapEntity> list = new List<EmailNotificationMapEntity>();
+            foreach (var notification in notifications)
+            {
+                this.CreateMappingEntity(list, notification.From, notification.NotificationId, applicationName);
+                this.CreateMappingEntity(list, notification.To, notification.NotificationId, applicationName);
+                this.CreateMappingEntity(list, notification.CC, notification.NotificationId, applicationName);
+                this.CreateMappingEntity(list, notification.BCC, notification.NotificationId, applicationName);
+            }
+
+            var listWithoutDuplicates = list.ToHashSet(new EmailNotificationMapEntity.EmailNotificaitonMapEntityComparer()).ToList();
+            IList<Task> tasks = new List<Task>();
+
+            foreach (var item in listWithoutDuplicates)
+            {
+                tasks.Add(Task.Run(() => {
+                    int count = 0;
+                    TableResult result = null;
+                    do
+                    {
+                        try
+                        {
+                            TableOperation insertOperation = TableOperation.InsertOrMerge(item);
+                            result = cloudTable.ExecuteAsync(insertOperation).GetAwaiter().GetResult();
+                        } catch (Exception ex)
+                        {
+                            this.logger.TraceInformation($"Exception while inserting email-notification mapping records {item.PartitionKey}, exception : {ex}");
+                        }
+                    } while (result == null || result.HttpStatusCode != 200 || count < MaxRetries);
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForEmailsMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+        }
+
+        /// <inheritdoc />
+        public void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName)
+        {
+            var traceProps = new Dictionary<string, string>();
+            if (notifications == null || notifications.Count == 0)
+            {
+                return;
+            }
+
+            traceProps[AIConstants.EmailNotificationCount] = notifications.Count + string.Empty;
+            traceProps[AIConstants.NotificationType] = NotificationType.Meet.ToString();
+
+            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationForMeetingInvitesMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            var tableName = this.storageAccountSetting?.MeetingNotificationMapTableName;
+
+            if (string.IsNullOrEmpty(tableName))
+            {
+                this.logger.TraceError($"Storage Table not confifured for GDPR meeting emails to notification mapping.", traceProps);
+                throw new InvalidOperationException("Storage Table not confifured for GDPR meeting emails to notification mapping.");
+            }
+
+            var cloudTable = this.cloudStorageClient.GetCloudTable(tableName);
+            List<EmailNotificationMapEntity> list = new List<EmailNotificationMapEntity>();
+            foreach (var notification in notifications)
+            {
+                this.CreateMappingEntity(list, notification.From, notification.NotificationId, applicationName);
+                this.CreateMappingEntity(list, notification.RequiredAttendees, notification.NotificationId, applicationName);
+                this.CreateMappingEntity(list, notification.OptionalAttendees, notification.NotificationId, applicationName);
+            }
+
+            var listWithoutDuplicates = list.ToHashSet(new EmailNotificationMapEntity.EmailNotificaitonMapEntityComparer()).ToList();
+
+            IList<Task> tasks = new List<Task>();
+
+            foreach (var item in listWithoutDuplicates)
+            {
+                tasks.Add(Task.Run(() => {
+                    int count = 0;
+                    TableResult result = null;
+                    do
+                    {
+                        try
+                        {
+                            TableOperation insertOperation = TableOperation.InsertOrMerge(item);
+                            result = cloudTable.ExecuteAsync(insertOperation).GetAwaiter().GetResult();
+                        }
+                        catch (Exception ex)
+                        {
+                            this.logger.TraceInformation($"Exception while inserting meeting email-notification mapping records {item.PartitionKey}, exception : {ex}");
+                        }
+                    } while (result == null || result.HttpStatusCode != 200 || count < MaxRetries);
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForMeetingInvitesMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+        }
+
+
+        /// <summary>
+        /// Creates EmailId - notificationId mapping Entity.
+        /// </summary>
+        /// <param name="emailNotificationMapEntities"> List of Entity instance.</param>
+        /// <param name="emails">comma-separated emailids.</param>
+        /// <param name="notificationId">notificationId.</param>
+        private void CreateMappingEntity(List<EmailNotificationMapEntity> emailNotificationMapEntities, string emails, string notificationId, string applicationName)
+        {
+            if (string.IsNullOrEmpty(emails))
+            {
+                return;
+            }
+
+            emailNotificationMapEntities.AddRange(emails.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).Select(emailId => new EmailNotificationMapEntity()
+            {
+                PartitionKey = emailId,
+                RowKey = notificationId,
+                ApplicationName = applicationName,
+                CreateDateTime = DateTime.Now,
+                UpdateDateTime = DateTime.Now,
+                IsScrubbed = false,
+            }));
+        }
+
+        /// <summary>
+        /// Create expression Filter.
+        /// </summary>
+        /// <param name="notificationReportRequest">NotificationReportRequest instance.</param>
+        /// <returns>Returns filter string.</returns>
         private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
         {
             var filterSet = new HashSet<string>();

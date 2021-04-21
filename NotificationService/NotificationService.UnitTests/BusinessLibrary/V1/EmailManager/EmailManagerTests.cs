@@ -36,8 +36,10 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.TemplateMerge = new Mock<ITemplateMerge>();
             this.Configuration = new Mock<IConfiguration>();
             this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
+            this.CloudStorageAccount = new Mock<ICloudStorageClient>();
             this.RepositoryFactory = new Mock<IRepositoryFactory>();
             _ = this.Configuration.Setup(x => x[ConfigConstants.StorageType]).Returns("StorageAccount");
+            _ = this.Configuration.Setup(x => x[ConfigConstants.IsGDPREnabled]).Returns("false");
             _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
         }
 
@@ -88,13 +90,18 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         public Mock<IEmailNotificationRepository> EmailNotificationRepo { get; set; }
 
         /// <summary>
+        /// Gets or sets cloutd Storage account mocked instance.
+        /// </summary>
+        public Mock<ICloudStorageClient> CloudStorageAccount { get; set; }
+
+        /// <summary>
         /// Notifications the entities to response tests.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task CreateMeetingNotificationEntitiesTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageAccount.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem>
             {
                 new MeetingNotificationItem { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
@@ -111,7 +118,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public void NotificationEntitiesToResponseTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object);
+            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageAccount.Object);
             var meetingNotificationItems = new List<MeetingNotificationItemEntity>
             {
                 new MeetingNotificationItemEntity
