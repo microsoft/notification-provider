@@ -91,7 +91,7 @@ namespace GDPRNotificationMappingProcessor
                 this.emailNotificationRepository.CreateEmailIdNotificationForMeetingInvitesMapping(entities, item.ApplicationName);
             }
 
-            this.logger.TraceInformation($"Started processing notificaiton for type {item.NotificationType} to create emailid-notificationid mapping.");
+            this.logger.TraceInformation($"Finished processing notificaiton for type {item.NotificationType} to create emailid-notificationid mapping.");
         }
     }
 }

@@ -499,6 +499,7 @@ namespace NotificationService.Data.Repositories
                     TableResult result = null;
                     do
                     {
+                        count++;
                         try
                         {
                             TableOperation insertOperation = TableOperation.InsertOrMerge(item);
@@ -507,11 +508,11 @@ namespace NotificationService.Data.Repositories
                         {
                             this.logger.TraceInformation($"Exception while inserting email-notification mapping records {item.PartitionKey}, exception : {ex}");
                         }
-                    } while (result == null || result.HttpStatusCode != 200 || count < MaxRetries);
+                    } while (result == null && count < MaxRetries);
                 }));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            _ = Task.WhenAll(tasks: tasks.ToArray());
 
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForEmailsMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
         }
@@ -557,6 +558,7 @@ namespace NotificationService.Data.Repositories
                     TableResult result = null;
                     do
                     {
+                        count++;
                         try
                         {
                             TableOperation insertOperation = TableOperation.InsertOrMerge(item);
@@ -566,11 +568,11 @@ namespace NotificationService.Data.Repositories
                         {
                             this.logger.TraceInformation($"Exception while inserting meeting email-notification mapping records {item.PartitionKey}, exception : {ex}");
                         }
-                    } while (result == null || result.HttpStatusCode != 200 || count < MaxRetries);
+                    } while (result == null && count < MaxRetries);
                 }));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            _ = Task.WhenAll(tasks: tasks.ToArray());
 
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForMeetingInvitesMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
         }
