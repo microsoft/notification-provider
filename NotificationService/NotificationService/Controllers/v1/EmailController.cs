@@ -23,7 +23,7 @@ namespace NotificationService.Controllers
     [Route("v1/email")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
     [ServiceFilter(typeof(ValidateModelAttribute))]
-    public class EmailController : WebAPICommonController
+    public class EmailController : Controller
     {
         /// <summary>
         /// Instance of <see cref="IEmailManager"/>.
