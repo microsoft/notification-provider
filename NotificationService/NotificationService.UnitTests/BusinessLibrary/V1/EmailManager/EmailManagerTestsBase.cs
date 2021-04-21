@@ -15,7 +15,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using Moq;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Models;
     using NotificationService.BusinessLibrary.Providers;
@@ -157,7 +157,11 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// <summary>
         /// Mocked response data.
         /// </summary>
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1401 // Fields should be private
         protected ResponseData<string> response;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1201 // Elements should appear in the correct order
 
         /// <summary>
         /// Initialization for all Email Manager Tests.
@@ -255,9 +259,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
 
             this.response = new ResponseData<string>()
             {
-                 Status = true,
-                 Result = "successful",
-                 StatusCode = HttpStatusCode.OK,
+                Status = true,
+                Result = "successful",
+                StatusCode = HttpStatusCode.OK,
             };
 
             this.Configuration = new ConfigurationBuilder()

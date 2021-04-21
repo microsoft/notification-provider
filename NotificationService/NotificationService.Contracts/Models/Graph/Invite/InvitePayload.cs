@@ -115,7 +115,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         public bool IsReminderOn { get; set; } = false;
 
         /// <summary>
-        /// Gets or Sets OnlineMeetingUrl (A URL for an online meeting). 
+        /// Gets or Sets OnlineMeetingUrl (A URL for an online meeting).
         /// </summary>
         [DataMember(Name = "onlineMeetingUrl")]
         public string OnlineMeetingUrl { get; set; }

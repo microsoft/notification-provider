@@ -38,7 +38,7 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or Sets Action.
         /// </summary>
-        [DataMember(Name="action")]
+        [DataMember(Name = "action")]
         public string Action { get; set; }
 
         /// <summary>

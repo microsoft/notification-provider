@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="LogEvent.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend.Models
 {
@@ -106,6 +107,8 @@ namespace DirectSend.Models
         /// <summary>
         /// Gets or Sets Properties.
         /// </summary>
+#pragma warning disable CA2227 // Collection properties should be read only
         public IDictionary<string, string> Properties { get; set; }
+#pragma warning restore CA2227 // Collection properties should be read only
     }
 }

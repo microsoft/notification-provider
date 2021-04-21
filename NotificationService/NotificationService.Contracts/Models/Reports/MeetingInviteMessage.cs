@@ -1,4 +1,7 @@
-﻿namespace NotificationService.Contracts.Models.Reports
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.Contracts.Models.Reports
 {
     using System.Collections.Generic;
     using System.Runtime.Serialization;

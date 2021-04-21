@@ -101,6 +101,5 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "Subject")]
         public string Subject { get; set; }
-
     }
 }

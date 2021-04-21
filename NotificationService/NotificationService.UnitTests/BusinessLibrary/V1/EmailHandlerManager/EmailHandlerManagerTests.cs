@@ -11,7 +11,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
     using Moq;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
@@ -42,8 +42,8 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailHandlerManagerTe
         {
             var config = new Dictionary<string, string>()
             {
-                { ConfigConstants.AllowedMaxResendDurationInDays, "1"},
-                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting(){ NotificationQueueName = "notifications-queue", }) },
+                { ConfigConstants.AllowedMaxResendDurationInDays, "1" },
+                { ConfigConstants.StorageAccountConfigSectionKey, JsonConvert.SerializeObject(new StorageAccountSetting() { NotificationQueueName = "notifications-queue", }) },
             };
 
             this.Configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();

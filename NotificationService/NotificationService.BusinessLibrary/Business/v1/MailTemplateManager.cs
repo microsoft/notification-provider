@@ -74,12 +74,13 @@ namespace NotificationService.BusinessLibrary
             catch (Exception ex)
             {
                 result = false;
+                this.logger.WriteException(ex);
                 throw; // controller methods logs this exception
             }
             finally
             {
                 stopwatch.Stop();
-                traceprops[AIConstants.Result] = result.ToString();
+                traceprops[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
                 metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent($"{nameof(this.GetMailTemplate)} Completed", traceprops, metrics);
@@ -121,12 +122,13 @@ namespace NotificationService.BusinessLibrary
             catch (Exception ex)
             {
                 result = false;
+                this.logger.WriteException(ex);
                 throw; // controller methods logs this exception
             }
             finally
             {
                 stopwatch.Stop();
-                traceprops[AIConstants.Result] = result.ToString();
+                traceprops[AIConstants.Result] = result.ToString(CultureInfo.InvariantCulture);
                 var metrics = new Dictionary<string, double>();
                 metrics[AIConstants.Duration] = stopwatch.ElapsedMilliseconds;
                 this.logger.WriteCustomEvent($"{nameof(this.SaveEmailTemplate)} Completed", traceprops, metrics);
@@ -168,6 +170,7 @@ namespace NotificationService.BusinessLibrary
             }
             catch (Exception ex)
             {
+                this.logger.WriteException(ex);
                 result = false;
                 throw; // controller methods logs this exception
             }

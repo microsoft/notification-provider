@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="EmailMessage.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend.Models.Mail
 {

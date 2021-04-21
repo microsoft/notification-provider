@@ -1,4 +1,7 @@
-﻿namespace NotificationService.Common.Configurations
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.Common.Configurations
 {
     /// <summary>
     /// Configuration Constants class.
@@ -131,7 +134,7 @@
         public const string AllowedMaxResendDurationInDays = "AllowedMaxResendDurationInDays";
 
         /// <summary>
-        /// A constact for StorageAccount notification queue. 
+        /// A constact for StorageAccount notification queue.
         /// </summary>
         public const string StorageAccNotificationQueueName = "NotificationQueueName";
 
@@ -146,43 +149,71 @@
         public const string NotificationProviderType = "NotificationProviderType";
 
         /// <summary>
-        /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
-        /// </summary>
-        public static string BearerTokenIssuerConfigKey = $"{BearerTokenConfigSectionKey}:Issuer";
-
-        /// <summary>
-        /// A constant for BearerTokenAuthenticationValidAudiences config key from appsetting.json.
-        /// </summary>
-        public static string BearerTokenValidAudiencesConfigKey = $"{BearerTokenConfigSectionKey}:ValidAudiences";
-
-        /// <summary>
-        /// A constant for AI Tracelevel config key from appsetting.json.
-        /// </summary>
-        public static string AITraceLelelConfigKey = $"{AIConfigSectionKey}:TraceLevel";
-
-        /// <summary>
-        /// A constant for AI InstrumentationKey config key from appsetting.json.
-        /// </summary>
-        public static string AIInsrumentationConfigKey = $"{AIConfigSectionKey}:InstrumentationKey";
-
-        /// <summary>
         /// A constant for AzureAppConfigConnectionstring config key from appsetting.json.
         /// </summary>
         public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
 
         /// <summary>
+        /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
+        /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
+        public static string BearerTokenIssuerConfigKey = $"{BearerTokenConfigSectionKey}:Issuer";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
+
+        /// <summary>
+        /// A constant for BearerTokenAuthenticationValidAudiences config key from appsetting.json.
+        /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
+        public static string BearerTokenValidAudiencesConfigKey = $"{BearerTokenConfigSectionKey}:ValidAudiences";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
+
+        /// <summary>
+        /// A constant for AI Tracelevel config key from appsetting.json.
+        /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
+        public static string AITraceLelelConfigKey = $"{AIConfigSectionKey}:TraceLevel";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
+
+        /// <summary>
+        /// A constant for AI InstrumentationKey config key from appsetting.json.
+        /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
+        public static string AIInsrumentationConfigKey = $"{AIConfigSectionKey}:InstrumentationKey";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
+
+        /// <summary>
         /// A constant for DirectSend DisplayName config key from appsetting.json.
         /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
         public static string DirectSendFromAddressDisplayNameConfigKey = $"{DirectSendSettingConfigSectionKey}:FromAddressDisplayName";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         /// <summary>
         /// A constant for DirectSend SMTPPort config key from appsetting.json.
         /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
         public static string DirectSendSMTPPortConfigKey = $"{DirectSendSettingConfigSectionKey}:SmtpPort";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         /// <summary>
         /// A constant for DIrectSend SMTPServer config key from appsetting.json.
         /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
         public static string DirectSendSMTPServerConfigKey = $"{DirectSendSettingConfigSectionKey}:SmtpServer";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
     }
 }

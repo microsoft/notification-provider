@@ -12,7 +12,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using Microsoft.Extensions.Configuration;
     using Moq;
     using Newtonsoft.Json;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.Common;

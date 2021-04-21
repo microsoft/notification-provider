@@ -43,7 +43,7 @@ namespace NotificationService.BusinessLibrary.Utilities
             string mailBody = null;
             if (string.Equals(templateType, "XSLT", StringComparison.InvariantCultureIgnoreCase))
             {
-               mailBody = this.ConvertXSLT(notificationTemplate, notificationInput);
+                mailBody = this.ConvertXSLT(notificationTemplate, notificationInput);
             }
             else
             {
@@ -72,6 +72,7 @@ namespace NotificationService.BusinessLibrary.Utilities
                 XmlReaderSettings xmlReaderSettings = new XmlReaderSettings();
                 xmlReaderSettings.DtdProcessing = DtdProcessing.Prohibit;
                 XmlReader reader = XmlReader.Create(stream, xmlReaderSettings);
+
                 // Load message data into xmlDocument
                 xmlData.Load(reader);
             }

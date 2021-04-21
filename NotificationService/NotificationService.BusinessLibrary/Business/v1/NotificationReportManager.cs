@@ -69,8 +69,8 @@ namespace NotificationService.BusinessLibrary
         /// <param name="mailTemplateRepository">The mail template repository.</param>
         /// <param name="templateManager">The template manager.</param>
         /// <param name="templateMerge">The template merge.</param>
-        /// <exception cref="Exception">Unknown Database Type</exception>
-        /// <exception cref="System.ArgumentNullException">mailTemplateRepository</exception>
+        /// <exception cref="Exception">Unknown Database Type.</exception>
+        /// <exception cref="System.ArgumentNullException">mailTemplateRepository.</exception>
         public NotificationReportManager(
             ILogger logger,
             IRepositoryFactory repositoryFactory,
@@ -168,7 +168,7 @@ namespace NotificationService.BusinessLibrary
                 IList<MailTemplateEntity> mailTemplateEntities = await this.mailTemplateRepository.GetAllTemplateEntities(applicationName).ConfigureAwait(false);
                 IList<MailTemplateInfo> mailTemplatesInfo = new List<MailTemplateInfo>();
                 foreach (var item in mailTemplateEntities)
-                    {
+                {
                     mailTemplatesInfo.Add(item.ToTemplateInfoContract());
                 }
 

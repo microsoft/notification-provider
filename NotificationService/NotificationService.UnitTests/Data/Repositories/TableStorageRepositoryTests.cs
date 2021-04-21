@@ -45,11 +45,6 @@ namespace NotificationService.UnitTests.Data.Repositories
         private readonly string applicationName = "TestApp";
 
         /// <summary>
-        /// Instance of <see cref="meetingHistoryTable"/>.
-        /// </summary>
-        private Mock<CloudTable> meetingHistoryTable;
-
-        /// <summary>
         /// DateRange object.
         /// </summary>
         private readonly DateTimeRange dateRange = new DateTimeRange
@@ -57,6 +52,11 @@ namespace NotificationService.UnitTests.Data.Repositories
             StartDate = DateTime.Now,
             EndDate = DateTime.Now.AddHours(2),
         };
+
+        /// <summary>
+        /// Instance of <see cref="meetingHistoryTable"/>.
+        /// </summary>
+        private Mock<CloudTable> meetingHistoryTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageRepositoryTests"/> class.
@@ -144,7 +144,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         [Test]
         public async Task GetEmailNotificationItemEntitiesBetweenDatesTests()
         {
-            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed};
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
             var emailNotificationItemEntity = new EmailNotificationItemTableEntity()
             {
                 Application = this.applicationName,

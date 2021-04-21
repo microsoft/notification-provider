@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="DSSmtpClientFactory.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend
 {

@@ -37,7 +37,7 @@ namespace NotificationService.FunctionalTests
 
         public static IConfiguration InitConfiguration()
         {
-            
+
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json");
 

@@ -16,7 +16,7 @@ namespace NotificationService.Common.Exceptions
         public int StatusCode { get; set; }
 
         /// <summary>
-        /// Gets or Sets Message
+        /// Gets or Sets Message.
         /// </summary>
         public string Message { get; set; }
 

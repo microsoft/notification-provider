@@ -27,7 +27,7 @@ namespace DirectSend.Tests
         public async Task SendAsyncTest()
         {
             SendAccountConfiguration sendAccountConfiguration = new SendAccountConfiguration { Address = "TestAddress", FromAddressDisplayName = "TestDisplayName" };
-            var directSendMailService= new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
+            var directSendMailService = new DirectSendMailService(this.mockedClientPool.Object, this.mockedLogger.Object, sendAccountConfiguration);
             var emailMessage = new EmailMessage
             {
                 Content = "TestContent",
@@ -106,7 +106,7 @@ namespace DirectSend.Tests
             var smtpConfig = new SmtpConfiguration { SmtpServer = "Test", SmtpPort = 25 };
             _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new Exception("test exception"));
             _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
-            var ex = await Assert.ThrowsExceptionAsync<Exception>(() =>  directSendMailService.SendEmailAsync(emailMessage));
+            var ex = await Assert.ThrowsExceptionAsync<Exception>(() => directSendMailService.SendEmailAsync(emailMessage));
 
             Assert.AreEqual("test exception", ex.Message);
             _ = this.mockedClient.Setup(x => x.SendAsync(It.IsAny<MimeMessage>(), It.IsAny<Dictionary<string, string>>(), null, default)).ThrowsAsync(new SmtpCommandException(SmtpErrorCode.MessageNotAccepted, SmtpStatusCode.AuthenticationChallenge, "Test"));

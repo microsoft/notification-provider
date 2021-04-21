@@ -1,4 +1,7 @@
-﻿namespace NotificationService.UnitTests.BusinessLibrary.V1.NotifiationReportManager
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.UnitTests.BusinessLibrary.V1.NotifiationReportManager
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +20,7 @@
     public class GetMeetingInviteMessage : NotificationReportManagerTestBase
     {
         /// <summary>
-        /// 
+        /// Setup.
         /// </summary>
         [SetUp]
         public void Setup()
@@ -36,6 +39,7 @@
         /// <summary>
         /// Test GetMeetingInviteMessage Success.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task GetMeetingInviteMessageTest_Success()
         {
@@ -55,6 +59,7 @@
         /// <summary>
         /// Test GetMeetingInviteMessage No Entity Found for given notificationId.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task GetMeetingInviteMessageTest_EntityNotFoundException()
         {

@@ -13,7 +13,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using Microsoft.Azure.Storage.Queue;
     using Moq;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.Common;
