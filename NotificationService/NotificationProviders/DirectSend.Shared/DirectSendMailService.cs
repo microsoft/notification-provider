@@ -81,6 +81,11 @@ namespace DirectSend
                 message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
             }
 
+            if (emailMessage.ReplyTo != null && emailMessage.ReplyTo.Any())
+            {
+                message.ReplyTo.AddRange(emailMessage.ReplyTo.Select(x => new MailboxAddress(x.Name, x.Address)));
+            }
+
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
             message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
 

@@ -11,8 +11,8 @@ namespace NotificationService.Contracts.Models
     /// <summary>
     /// MeetingNotificationItem.
     /// </summary>
-    [DataContract]
     /// <seealso cref="NotificationService.Contracts.NotificationItemBase" />
+    [DataContract]
     public class MeetingNotificationItem : NotificationItemBase
     {
         /// <summary>

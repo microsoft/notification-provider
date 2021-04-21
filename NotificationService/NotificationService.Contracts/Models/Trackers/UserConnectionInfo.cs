@@ -61,14 +61,14 @@ namespace NotificationService.Contracts.Models.Trackers
         public override int GetHashCode() => this.ConnectionId.GetHashCode(StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Determines whether the specified <see cref="Object" />, is equal to this instance (Not a reference equality).
+        /// Determines whether the specified <see cref="object" />, is equal to this instance (Not a reference equality).
         /// </summary>
         /// <remarks>
         /// The <see cref="UserConnectionInfo"/> objects are equal if their connection Ids are same.
         /// </remarks>
-        /// <param name="obj">The <see cref="Object" /> to compare with this instance.</param>
+        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="Object" /> is equal to this instance; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {

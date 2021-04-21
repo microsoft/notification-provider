@@ -5,7 +5,6 @@ namespace NotificationService.FunctionalTests
 {
     using Newtonsoft.Json;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
     using NotificationService.Contracts.Models.Reports;
     using NUnit.Framework;

@@ -11,7 +11,6 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
-    using Microsoft.Rest.Azure;
     using Moq;
     using Newtonsoft.Json;
     using NotificationHandler.Controllers;

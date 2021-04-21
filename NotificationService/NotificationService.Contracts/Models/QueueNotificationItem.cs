@@ -3,8 +3,6 @@
 
 namespace NotificationService.Contracts
 {
-    using NotificationService.Contracts;
-
     /// <summary>
     /// Contract for the notification item in the queue.
     /// </summary>

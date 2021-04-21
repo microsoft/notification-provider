@@ -1,5 +1,10 @@
 ﻿namespace NotificationService.UnitTests.BusinessLibrary.Providers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http.Headers;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
@@ -12,13 +17,10 @@
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Threading.Tasks;
 
+    /// <summary>
+    /// MSGraphNotificationProviderTests.
+    /// </summary>
     public class MSGraphNotificationProviderTests
     {
         private readonly Mock<IConfiguration> configuration;

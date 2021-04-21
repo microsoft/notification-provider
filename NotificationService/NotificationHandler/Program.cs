@@ -11,7 +11,7 @@ namespace NotificationHandler
     /// Starting point of the service.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class Program
+    public static class Program
     {
         /// <summary>
         /// Main entry point for the application start.

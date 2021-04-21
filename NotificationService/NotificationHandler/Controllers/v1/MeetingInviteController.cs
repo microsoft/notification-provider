@@ -9,7 +9,6 @@ namespace NotificationHandler.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Newtonsoft.Json;
     using NotificationHandler.Controllers.v1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -18,7 +17,6 @@ namespace NotificationHandler.Controllers
     using NotificationService.Contracts;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
-    using NotificationService.Contracts.Models.Request;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>

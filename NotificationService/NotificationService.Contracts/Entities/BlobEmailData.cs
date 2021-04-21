@@ -1,8 +1,6 @@
 ﻿namespace NotificationService.Contracts.Entities
 {
-    using System;
     using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// BlobEmailData.

@@ -9,7 +9,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
@@ -28,7 +27,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
     using NotificationService.UnitTests.Mocks;
-    using Org.BouncyCastle.Asn1.Ocsp;
 
     /// <summary>
     /// Base class for Email Manager class tests.

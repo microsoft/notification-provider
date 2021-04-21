@@ -17,7 +17,6 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Request;
 
-
     /// <summary>
     /// Repository for TableStorage.
     /// </summary>
@@ -518,7 +517,7 @@ namespace NotificationService.Data.Repositories
 
             static string PrepareFilterExp(HashSet<string> filterSet)
             {
-                string filterExp = String.Join(" and ", filterSet.ToArray());
+                string filterExp = string.Join(" and ", filterSet.ToArray());
                 return filterExp;
             }
         }
@@ -566,9 +565,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
             emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
             emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
-            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
             emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
-            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
             emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
             emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
             emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;
@@ -703,15 +700,12 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.CC = emailNotificationItemTableEntity.CC;
             emailNotificationItemEntity.EmailAccountUsed = emailNotificationItemTableEntity.EmailAccountUsed;
             emailNotificationItemEntity.ErrorMessage = emailNotificationItemTableEntity.ErrorMessage;
-            emailNotificationItemEntity.Footer = emailNotificationItemTableEntity.Footer;
             emailNotificationItemEntity.From = emailNotificationItemTableEntity.From;
-            emailNotificationItemEntity.Header = emailNotificationItemTableEntity.Header;
             emailNotificationItemEntity.NotificationId = emailNotificationItemTableEntity.NotificationId;
             emailNotificationItemEntity.ReplyTo = emailNotificationItemTableEntity.ReplyTo;
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
             emailNotificationItemEntity.Subject = emailNotificationItemTableEntity.Subject;
             emailNotificationItemEntity.TemplateId = emailNotificationItemTableEntity.TemplateId;
-            //emailNotificationItemEntity.TemplateData = emailNotificationItemTableEntity.TemplateData;
             emailNotificationItemEntity.Timestamp = emailNotificationItemTableEntity.Timestamp;
             emailNotificationItemEntity.To = emailNotificationItemTableEntity.To;
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;

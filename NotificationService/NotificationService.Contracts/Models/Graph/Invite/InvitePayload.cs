@@ -3,10 +3,8 @@
 
 namespace NotificationService.Contracts.Models.Graph.Invite
 {
-    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using System.Text;
 
     /// <summary>
     /// Graph Invite Payload.

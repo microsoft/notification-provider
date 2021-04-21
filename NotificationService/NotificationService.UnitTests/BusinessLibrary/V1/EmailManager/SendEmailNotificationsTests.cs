@@ -10,9 +10,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.Storage.Queue;
-    using Microsoft.Extensions.Options;
     using Moq;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.v1;

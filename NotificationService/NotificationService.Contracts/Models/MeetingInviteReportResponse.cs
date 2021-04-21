@@ -36,7 +36,6 @@ namespace NotificationService.Contracts
         [DataMember(Name = "TrackingId")]
         public string TrackingId { get; set; }
 
-
         /// <summary>
         /// Gets or sets Status.
         /// </summary>
