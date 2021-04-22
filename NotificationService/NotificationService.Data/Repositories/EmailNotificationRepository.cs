@@ -364,9 +364,9 @@ namespace NotificationService.Data
         public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
+        public void CreateEmailIdNotificationMappingForEmail(IList<EmailNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
+        public void CreateEmailIdNotificationMappingForMeetingInvite(IList<MeetingNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
     }
 }

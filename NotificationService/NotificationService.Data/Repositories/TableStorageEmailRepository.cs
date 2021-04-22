@@ -459,7 +459,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc />
-        public void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName)
+        public void CreateEmailIdNotificationMappingForEmail(IList<EmailNotificationQueueItem> notifications, string applicationName)
         {
             var traceProps = new Dictionary<string, string>();
             if (notifications == null || notifications.Count == 0)
@@ -470,13 +470,13 @@ namespace NotificationService.Data.Repositories
             traceProps[AIConstants.EmailNotificationCount] = notifications.Count + string.Empty;
             traceProps[AIConstants.NotificationType] = NotificationType.Mail.ToString();
 
-            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationForEmailsMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationMappingForEmail)} method of {nameof(TableStorageEmailRepository)}", traceProps);
             var tableName = this.storageAccountSetting?.EmailNotificationMapTableName;
 
             if (string.IsNullOrEmpty(tableName))
             {
                 this.logger.TraceError($"Storage Table not confifured for GDPR email to notification mapping.", traceProps);
-                throw new InvalidOperationException("Storage Table not confifured for GDPR email to notification mapping.");
+                throw new ArgumentNullException(tableName, "Storage Table not confifured for GDPR email to notification mapping.");
             }
 
             var cloudTable = this.cloudStorageClient.GetCloudTable(tableName);
@@ -514,11 +514,11 @@ namespace NotificationService.Data.Repositories
 
             _ = Task.WhenAll(tasks: tasks.ToArray());
 
-            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForEmailsMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationMappingForEmail)} method of {nameof(TableStorageEmailRepository)}", traceProps);
         }
 
         /// <inheritdoc />
-        public void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName)
+        public void CreateEmailIdNotificationMappingForMeetingInvite(IList<MeetingNotificationQueueItem> notifications, string applicationName)
         {
             var traceProps = new Dictionary<string, string>();
             if (notifications == null || notifications.Count == 0)
@@ -529,13 +529,13 @@ namespace NotificationService.Data.Repositories
             traceProps[AIConstants.EmailNotificationCount] = notifications.Count + string.Empty;
             traceProps[AIConstants.NotificationType] = NotificationType.Meet.ToString();
 
-            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationForMeetingInvitesMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.CreateEmailIdNotificationMappingForMeetingInvite)} method of {nameof(TableStorageEmailRepository)}", traceProps);
             var tableName = this.storageAccountSetting?.MeetingNotificationMapTableName;
 
             if (string.IsNullOrEmpty(tableName))
             {
                 this.logger.TraceError($"Storage Table not confifured for GDPR meeting emails to notification mapping.", traceProps);
-                throw new InvalidOperationException("Storage Table not confifured for GDPR meeting emails to notification mapping.");
+                throw new ArgumentNullException(tableName, "Storage Table not confifured for GDPR meeting emails to notification mapping.");
             }
 
             var cloudTable = this.cloudStorageClient.GetCloudTable(tableName);
@@ -574,7 +574,7 @@ namespace NotificationService.Data.Repositories
 
             _ = Task.WhenAll(tasks: tasks.ToArray());
 
-            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationForMeetingInvitesMapping)} method of {nameof(TableStorageEmailRepository)}", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.CreateEmailIdNotificationMappingForMeetingInvite)} method of {nameof(TableStorageEmailRepository)}", traceProps);
         }
 
 

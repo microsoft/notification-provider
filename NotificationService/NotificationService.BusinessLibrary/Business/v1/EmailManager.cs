@@ -324,9 +324,9 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task QueueEmailNotificaitionGDPRMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
+        public async Task QueueEmailNotificaitionMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
         {
-            this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotificaitionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.QueueEmailNotificaitionMapping)} method of {nameof(EmailManager)}.", traceProps);
 
             if (notificationEntities == null || notificationEntities.Count == 0)
             {
@@ -363,13 +363,13 @@ namespace NotificationService.BusinessLibrary
                 await this.cloudStorageClient.QueueCloudMessages(cloudQueue, new List<string>() { cloudMessage }).ConfigureAwait(false);
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.QueueEmailNotificaitionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.QueueEmailNotificaitionMapping)} method of {nameof(EmailManager)}.", traceProps);
         }
 
         /// <inheritdoc/>
-        public async Task QueueMeetingNotificactionGDPRMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
+        public async Task QueueMeetingNotificactionMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps)
         {
-            this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotificactionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.QueueMeetingNotificactionMapping)} method of {nameof(EmailManager)}.", traceProps);
 
             if (notificationEntities == null || notificationEntities.Count == 0)
             {
@@ -405,7 +405,7 @@ namespace NotificationService.BusinessLibrary
                 await this.cloudStorageClient.QueueCloudMessages(cloudQueue, new List<string>() { cloudMessage }).ConfigureAwait(false);
             }
 
-            this.logger.TraceInformation($"Finished {nameof(this.QueueMeetingNotificactionGDPRMapping)} method of {nameof(EmailManager)}.", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.QueueMeetingNotificactionMapping)} method of {nameof(EmailManager)}.", traceProps);
         }
     }
 }

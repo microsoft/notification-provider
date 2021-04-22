@@ -66,6 +66,7 @@ namespace NotificationService.Data
         /// Gets the meeting notification item from database for the input id.
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
+        /// <param name="applicationName">Application Name.</param>
         /// <returns>notitication item corresponding to input id.</returns>
         Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName);
 
@@ -107,13 +108,13 @@ namespace NotificationService.Data
         /// </summary>
         /// <param name="notifications">List of notifications.</param>
         /// <param name="applicationName">Application Name.</param>
-        void CreateEmailIdNotificationForEmailsMapping(IList<EmailNotificationQueueItem> notifications, string applicationName);
+        void CreateEmailIdNotificationMappingForEmail(IList<EmailNotificationQueueItem> notifications, string applicationName);
 
         /// <summary>
         /// Create EmailId - NotificationId mapping in for meeting Notifications.
         /// </summary>
         /// <param name="notifications">List of notifications.</param>
         /// <param name="applicationName">Application Name.</param>
-        void CreateEmailIdNotificationForMeetingInvitesMapping(IList<MeetingNotificationQueueItem> notifications, string applicationName);
+        void CreateEmailIdNotificationMappingForMeetingInvite(IList<MeetingNotificationQueueItem> notifications, string applicationName);
     }
 }

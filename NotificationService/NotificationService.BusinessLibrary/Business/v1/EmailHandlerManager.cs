@@ -132,7 +132,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                     this.logger.TraceVerbose($"Completed {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 }
 
-                _ = Task.Run(async () => await this.emailManager.QueueEmailNotificaitionGDPRMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
+                _ = Task.Run(async () => await this.emailManager.QueueEmailNotificaitionMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
 
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
                 this.logger.TraceInformation($"Completed {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
@@ -205,7 +205,7 @@ namespace NotificationService.BusinessLibrary.Business.v1
                     this.logger.TraceVerbose($"Completed {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 }
 
-                _ = Task.Run(async () => await this.emailManager.QueueMeetingNotificactionGDPRMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
+                _ = Task.Run(async () => await this.emailManager.QueueMeetingNotificactionMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
 
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
                 this.logger.TraceInformation($"Completed {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);

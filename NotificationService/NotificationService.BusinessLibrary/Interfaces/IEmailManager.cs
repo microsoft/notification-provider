@@ -81,7 +81,7 @@ namespace NotificationService.BusinessLibrary
         /// <param name="notificationEntities">notification entites to be queued.</param>
         /// <param name="traceProps">telemetry trace properties to log.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.></returns>
-        Task QueueEmailNotificaitionGDPRMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
+        Task QueueEmailNotificaitionMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
 
         /// <summary>
         /// Queue Meeting Notification Messages to GDPR Mapping queue.
@@ -90,6 +90,6 @@ namespace NotificationService.BusinessLibrary
         /// <param name="notificationEntities">meeting notification entites to be queued.</param>
         /// <param name="traceProps">telemetry trace properties to log.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.></returns>
-        Task QueueMeetingNotificactionGDPRMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
+        Task QueueMeetingNotificactionMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
     }
 }

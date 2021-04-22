@@ -83,12 +83,12 @@ namespace GDPRNotificationMappingProcessor
             if (notifType == NotificationType.Mail)
             {
                 var entities = JsonConvert.DeserializeObject<List<EmailNotificationQueueItem>>(payloadJson);
-                this.emailNotificationRepository.CreateEmailIdNotificationForEmailsMapping(entities, item.ApplicationName);
+                this.emailNotificationRepository.CreateEmailIdNotificationMappingForEmail(entities, item.ApplicationName);
             }
             else
             {
                 var entities = JsonConvert.DeserializeObject<List<MeetingNotificationQueueItem>>(payloadJson);
-                this.emailNotificationRepository.CreateEmailIdNotificationForMeetingInvitesMapping(entities, item.ApplicationName);
+                this.emailNotificationRepository.CreateEmailIdNotificationMappingForMeetingInvite(entities, item.ApplicationName);
             }
 
             this.logger.TraceInformation($"Finished processing notificaiton for type {item.NotificationType} to create emailid-notificationid mapping.");
