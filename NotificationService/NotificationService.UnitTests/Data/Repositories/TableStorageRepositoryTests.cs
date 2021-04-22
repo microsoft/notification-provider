@@ -207,7 +207,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             var item = new List<EmailNotificationQueueItem>() { new EmailNotificationQueueItem() { To = "test1@contoso.com;test2@contoso.com", CC = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
             var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             classUnderTest.CreateEmailIdNotificationMappingForEmail(item, this.applicationName);
-            this.cloudTable.Verify(x => x.ExecuteAsync(It.IsAny<TableOperation>()), Times.AtLeastOnce);
+            this.cloudStorageClient.Verify(x => x.GetCloudTable(It.IsAny<string>()), Times.AtLeastOnce);
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             var item = new List<MeetingNotificationQueueItem>() { new MeetingNotificationQueueItem() { RequiredAttendees = "test1@contoso.com;test2@contoso.com", OptionalAttendees = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
             var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             classUnderTest.CreateEmailIdNotificationMappingForMeetingInvite(item, this.applicationName);
-            this.cloudTable.Verify(x => x.ExecuteAsync(It.IsAny<TableOperation>()), Times.AtLeastOnce);
+            this.cloudStorageClient.Verify(x => x.GetCloudTable(It.IsAny<string>()), Times.AtLeastOnce);
         }
 
         /// <summary>
