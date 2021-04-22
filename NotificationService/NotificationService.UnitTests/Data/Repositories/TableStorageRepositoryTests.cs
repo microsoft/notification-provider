@@ -14,10 +14,12 @@ namespace NotificationService.UnitTests.Data.Repositories
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
     using NotificationService.Data.Repositories;
     using NUnit.Framework;
+    using Org.BouncyCastle.Math.EC.Rfc7748;
 
     /// <summary>
     /// Table Storage Repository Tests Class.
@@ -50,6 +52,16 @@ namespace NotificationService.UnitTests.Data.Repositories
         private Mock<CloudTable> meetingHistoryTable;
 
         /// <summary>
+        /// Instace of <see cref="CloudTable"/>
+        /// </summary>
+        private readonly Mock<CloudTable> cloudTable;
+
+        /// <summary>
+        /// storageconfiguration options.
+        /// </summary>
+        IOptions<StorageAccountSetting> storageConfigOptions;
+
+        /// <summary>
         /// DateRange object.
         /// </summary>
         private readonly DateTimeRange dateRange = new DateTimeRange
@@ -66,8 +78,13 @@ namespace NotificationService.UnitTests.Data.Repositories
             this.cloudStorageClient = new Mock<ITableStorageClient>();
             this.logger = new Mock<ILogger>();
             this.mailAttachmentRepository = new Mock<IMailAttachmentRepository>();
+            this.cloudTable = new Mock<CloudTable>(new Uri("https://test.azurestorage.com/testtable"), (TableClientConfiguration) null);
             this.meetingHistoryTable = new Mock<CloudTable>(new Uri("http://unittests.localhost.com/FakeTable"), (TableClientConfiguration)null);
+            this.storageConfigOptions = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate", EmailHistoryTableName = "EmailHistory", MeetingHistoryTableName = "MeetingHistory", NotificationQueueName = "test-queue", EmailNotificationMapTableName = "EmailMappingTable", MeetingNotificationMapTableName = "MeetingMappingTable" });
             _ = this.cloudStorageClient.Setup(x => x.GetCloudTable("MeetingHistory")).Returns(this.meetingHistoryTable.Object);
+            _ = this.cloudStorageClient.Setup(x => x.GetCloudTable(It.IsAny<string>())).Returns(this.cloudTable.Object);
+            TableResult res = new TableResult() { HttpStatusCode = 200};
+            _ = this.cloudTable.Setup(x => x.ExecuteAsync(It.IsAny<TableOperation>())).ReturnsAsync(res);
         }
 
         /// <summary>
@@ -111,9 +128,11 @@ namespace NotificationService.UnitTests.Data.Repositories
         [Test]
         public async Task CreateMeetingNotificationItemEntitiesTests()
         {
+            this.meetingHistoryTable = new Mock<CloudTable>(new Uri("http://unittests.localhost.com/FakeTable"), (TableClientConfiguration)null);
+            _ = this.cloudStorageClient.Setup(x => x.GetCloudTable("MeetingHistory")).Returns(this.meetingHistoryTable.Object);
             IList<MeetingNotificationItemEntity> entities = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = "notificationId1", Application = "Application", RowKey = "notificationId1" }, new MeetingNotificationItemEntity { NotificationId = "notificationId2", Application = "Application", RowKey = "notificationId2" } };
             _ = this.mailAttachmentRepository.Setup(e => e.UploadMeetingInvite(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(entities));
-            this.meetingHistoryTable.Setup(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>(), null, null)).Verifiable();
+            this.meetingHistoryTable.Setup(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>())).Verifiable();
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate", EmailHistoryTableName = "EmailHistory", MeetingHistoryTableName = "MeetingHistory", NotificationQueueName = "test-queue" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             await repo.CreateMeetingNotificationItemEntities(entities, this.applicationName);
@@ -176,6 +195,83 @@ namespace NotificationService.UnitTests.Data.Repositories
             classUnderTest = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
             result = await classUnderTest.GetPendingOrFailedEmailNotificationsByDateRange(this.dateRange, this.applicationName, null);
             Assert.IsNull(result);
+        }
+
+        /// <summary>
+        /// Create NotificationId and EmailId mapping for email Notifications. Test for Success.
+        /// </summary>
+        [Test]
+        public void CreateEmailIdNotificationMappingForEmail_Success()
+        {
+            this.storageConfigOptions.Value.EmailNotificationMapTableName = "EmailNotificationMapTable";
+            var item = new List<EmailNotificationQueueItem>() { new EmailNotificationQueueItem() { To = "test1@contoso.com;test2@contoso.com", CC = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
+            var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+            classUnderTest.CreateEmailIdNotificationMappingForEmail(item, this.applicationName);
+            this.cloudTable.Verify(x => x.ExecuteAsync(It.IsAny<TableOperation>()), Times.AtLeastOnce);
+        }
+
+        /// <summary>
+        /// Create NotificationId and EmailId mapping for email Notifications. Test for Failures.
+        /// </summary>
+        [Test]
+        public void CreateEmailIdNotificationMappingForEmail_Failed()
+        {
+            var item = new List<EmailNotificationQueueItem>() { new EmailNotificationQueueItem() { To = "test1@contoso.com;test2@contoso.com", CC = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
+            var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // Test for null EmailNotificationQueueItem list.
+            classUnderTest.CreateEmailIdNotificationMappingForEmail(null, this.applicationName);
+
+            this.storageConfigOptions.Value.EmailNotificationMapTableName = null;
+            classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // Test for Table does not exists exception.
+            try
+            {
+                classUnderTest.CreateEmailIdNotificationMappingForEmail(item, this.applicationName);
+            } catch(Exception ex)
+            {
+                Assert.IsTrue(ex is ArgumentNullException);
+            }
+        }
+
+        /// <summary>
+        /// Create NotificationId and EmailId mapping for meeting Notifications. Test For Success.
+        /// </summary>
+        [Test]
+        public void CreateEmailIdNotificationForMeetingInvitesMapping_Success()
+        {
+            this.storageConfigOptions.Value.MeetingNotificationMapTableName = "MeetingNotificationMapTable";
+            var item = new List<MeetingNotificationQueueItem>() { new MeetingNotificationQueueItem() { RequiredAttendees = "test1@contoso.com;test2@contoso.com", OptionalAttendees = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
+            var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+            classUnderTest.CreateEmailIdNotificationMappingForMeetingInvite(item, this.applicationName);
+            this.cloudTable.Verify(x => x.ExecuteAsync(It.IsAny<TableOperation>()), Times.AtLeastOnce);
+        }
+
+        /// <summary>
+        /// Create NotificationId and EmailId mapping for meeting Notifications. Test For Failure.
+        /// </summary>
+        [Test]
+        public void CreateEmailIdNotificationForMeetingInvitesMapping_Failed()
+        {
+            var item = new List<MeetingNotificationQueueItem>() { new MeetingNotificationQueueItem() { RequiredAttendees = "test1@contoso.com;test2@contoso.com", OptionalAttendees = "tst@abc.com", From = "abc@contosot.com", NotificationId = Guid.NewGuid().ToString() } };
+            var classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // Test for null EmailNotificationQueueItem list.
+            classUnderTest.CreateEmailIdNotificationMappingForMeetingInvite(null, this.applicationName);
+
+            this.storageConfigOptions.Value.MeetingNotificationMapTableName = null;
+            classUnderTest = new TableStorageEmailRepository(this.storageConfigOptions, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
+
+            // Test for Table does not exists exception.
+            try
+            {
+                classUnderTest.CreateEmailIdNotificationMappingForMeetingInvite(item, this.applicationName);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex is ArgumentNullException);
+            }
         }
     }
 }

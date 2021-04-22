@@ -6,6 +6,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.BusinessLibrary;
@@ -26,6 +27,16 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     public class EmailManagerTests
     {
         /// <summary>
+        /// Application Name Constant.
+        /// </summary>
+        public const string ApplicationName = "TestApp";
+
+        /// <summary>
+        /// CloudQueue instance ref.
+        /// </summary>
+        private readonly Mock<CloudQueue> cloudQueue;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EmailManagerTests"/> class.
         /// </summary>
         public EmailManagerTests()
@@ -34,13 +45,25 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             this.EncryptionService = new Mock<IEncryptionService>();
             this.TemplateManager = new Mock<IMailTemplateManager>();
             this.TemplateMerge = new Mock<ITemplateMerge>();
-            this.Configuration = new Mock<IConfiguration>();
             this.EmailNotificationRepo = new Mock<IEmailNotificationRepository>();
-            this.CloudStorageAccount = new Mock<ICloudStorageClient>();
+            this.CloudStorageClient = new Mock<ICloudStorageClient>();
             this.RepositoryFactory = new Mock<IRepositoryFactory>();
-            _ = this.Configuration.Setup(x => x[ConfigConstants.StorageType]).Returns("StorageAccount");
-            _ = this.Configuration.Setup(x => x[ConfigConstants.IsGDPREnabled]).Returns("false");
+            this.cloudQueue = new Mock<CloudQueue>(new Uri("https://test.azure.com/testqueue"));
+
+            var testConfigValues = new Dictionary<string, string>()
+            {
+                { ConfigConstants.StorageType, "StorageAccount" },
+                { ConfigConstants.IsGDPREnabled, "false" },
+                { ConfigConstants.StorageAccGdprMapQueueName,  "TestQueue" },
+            };
+
+            this.Configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(testConfigValues)
+                .Build();
+
             _ = this.RepositoryFactory.Setup(x => x.GetRepository(It.IsAny<StorageType>())).Returns(this.EmailNotificationRepo.Object);
+            _ = this.CloudStorageClient.Setup(x => x.GetCloudQueue(It.IsAny<string>())).Returns(this.cloudQueue.Object);
+            this.CloudStorageClient.Setup(x => x.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<List<string>>(), It.IsAny<TimeSpan>())).Verifiable();
         }
 
         /// <summary>
@@ -56,7 +79,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// <summary>
         /// Gets or sets Configuration.
         /// </summary>
-        public Mock<IConfiguration> Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Gets or sets Encryption Service Mock.
@@ -92,7 +115,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         /// <summary>
         /// Gets or sets cloutd Storage account mocked instance.
         /// </summary>
-        public Mock<ICloudStorageClient> CloudStorageAccount { get; set; }
+        public Mock<ICloudStorageClient> CloudStorageClient { get; set; }
 
         /// <summary>
         /// Notifications the entities to response tests.
@@ -101,7 +124,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public async Task CreateMeetingNotificationEntitiesTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageAccount.Object);
+            var emailManager = new EmailManager(this.Configuration, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
             var meetingNotificationItems = new List<MeetingNotificationItem>
             {
                 new MeetingNotificationItem { EndDate = DateTime.UtcNow.AddHours(1), Start = DateTime.UtcNow.AddHours(1), End = DateTime.UtcNow },
@@ -118,7 +141,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
         [Test]
         public void NotificationEntitiesToResponseTests()
         {
-            var emailManager = new EmailManager(this.Configuration.Object, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageAccount.Object);
+            var emailManager = new EmailManager(this.Configuration, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
             var meetingNotificationItems = new List<MeetingNotificationItemEntity>
             {
                 new MeetingNotificationItemEntity
@@ -131,6 +154,78 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             };
             var meetingEntities = emailManager.NotificationEntitiesToResponse(new List<NotificationResponse>(), meetingNotificationItems);
             Assert.IsTrue(meetingEntities.Count == 2);
+        }
+
+        /// <summary>
+        /// Queue EmailNotification for GDPR Mapping.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task QueueEmailNotificaitionGDPRMappingTest_Success()
+        {
+            var emailNotificationItemEntities = new List<List<EmailNotificationItemEntity>>()
+            {
+                new List<EmailNotificationItemEntity>()
+                {
+                    new EmailNotificationItemEntity()
+                    {
+                        Application = ApplicationName,
+                        To = "test@abc.com",
+                        From = "abc@contoso.com",
+                        NotificationId = "1234",
+                        Body = "Test Email",
+                    },
+                },
+            };
+            var testConfigValues = new Dictionary<string, string>()
+            {
+                { ConfigConstants.StorageType, "StorageAccount" },
+                { ConfigConstants.IsGDPREnabled, "true" },
+                { ConfigConstants.StorageAccGdprMapQueueName,  "TestQueue" },
+            };
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(testConfigValues)
+                .Build();
+            var emailManager = new EmailManager(config, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
+            await emailManager.QueueEmailNotificaitionMapping(ApplicationName, emailNotificationItemEntities, null);
+            this.CloudStorageClient.Verify(x => x.GetCloudQueue(It.IsAny<string>()), Times.AtLeastOnce);
+        }
+
+        /// <summary>
+        /// Queue Meeting Notification for GDPR Mapping.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task QueueMeetingNotificaitionGDPRMappingTest_Success()
+        {
+            var meetingNotificationItemEntities = new List<List<MeetingNotificationItemEntity>>()
+            {
+                new List<MeetingNotificationItemEntity>()
+                {
+                    new MeetingNotificationItemEntity()
+                    {
+                        Application = ApplicationName,
+                        RequiredAttendees = "test@abc.com",
+                        From = "abc@contoso.com",
+                        NotificationId = "1234",
+                        Body = "Test Email",
+                    },
+                },
+            };
+            var testConfigValues = new Dictionary<string, string>()
+            {
+                { ConfigConstants.StorageType, "StorageAccount" },
+                { ConfigConstants.IsGDPREnabled, "true" },
+                { ConfigConstants.StorageAccGdprMapQueueName,  "TestQueue" },
+            };
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(testConfigValues)
+                .Build();
+            var emailManager = new EmailManager(config, this.RepositoryFactory.Object, this.Logger, this.TemplateManager.Object, this.TemplateMerge.Object, this.CloudStorageClient.Object);
+            await emailManager.QueueMeetingNotificactionMapping(ApplicationName, meetingNotificationItemEntities, null);
+            this.CloudStorageClient.Verify(x => x.GetCloudQueue(It.IsAny<string>()), Times.AtLeastOnce);
         }
     }
 }

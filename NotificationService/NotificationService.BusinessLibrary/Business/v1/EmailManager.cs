@@ -336,7 +336,7 @@ namespace NotificationService.BusinessLibrary
             var isGdprEnabled = (bool)this.configuration.GetValue(typeof(bool), ConfigConstants.IsGDPREnabled);
             if (!isGdprEnabled)
             {
-                this.logger.TraceInformation($"Gdpr Enabled Flag is set to False for EmailNotification", traceProps);
+                this.logger.TraceInformation($"GDPR scrub functionality is switched off Email Notification", traceProps);
                 return;
             }
 
@@ -379,7 +379,7 @@ namespace NotificationService.BusinessLibrary
             var isGdprEnabled = (bool)this.configuration.GetValue(typeof(bool), ConfigConstants.IsGDPREnabled);
             if (!isGdprEnabled)
             {
-                this.logger.TraceInformation($"Gdpr Enabled Flag is set to False for EmailNotification", traceProps);
+                this.logger.TraceInformation($"GDPR scrub functionality is switched off for Meeting Notification", traceProps);
                 return;
             }
 
