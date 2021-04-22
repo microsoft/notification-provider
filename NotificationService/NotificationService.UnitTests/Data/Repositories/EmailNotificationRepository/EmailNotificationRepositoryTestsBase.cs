@@ -14,6 +14,8 @@ namespace NotificationService.UnitTests.Data.Repositories
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Extensions;
     using NotificationService.Data;
 
     /// <summary>
@@ -45,7 +47,12 @@ namespace NotificationService.UnitTests.Data.Repositories
         /// <summary>
         /// Gets or sets Cosmos Container Mock.
         /// </summary>
-        public Mock<Container> CosmosContainer { get; set; }
+        public Mock<Container> EmailHistoryContainer { get; set; }
+
+        /// <summary>
+        /// Gets or sets Cosmos Container Mock.
+        /// </summary>
+        public Mock<Container> MeetingHistoryContainer { get; set; }
 
         /// <summary>
         /// Gets or sets Email Notification Repository instance.
@@ -92,42 +99,120 @@ namespace NotificationService.UnitTests.Data.Repositories
         }
 
         /// <summary>
+        /// Gets test Meeting notification entities.
+        /// </summary>
+        public IList<MeetingNotificationItemEntity> meetingNotificationEntities
+        {
+            get => new List<MeetingNotificationItemEntity>()
+            {
+                new MeetingNotificationItemEntity()
+                {
+                    Application = this.ApplicationName,
+                    Id = "TestId",
+                    RequiredAttendees = "user@contoso.com",
+                    Subject = "TestSubject",
+                    Body = "TestBody",
+                },
+                new MeetingNotificationItemEntity()
+                {
+                    Application = this.ApplicationName,
+                    Id = "TestId2",
+                    RequiredAttendees = "user@contoso.com",
+                    Subject = "TestSubject",
+                    Body = "TestBody",
+                },
+            };
+        }
+
+        /// <summary>
+        /// Gets MailHistoryContainerName.
+        /// </summary>
+        protected string MailHistoryContainerName { get => "TestEmailContainer"; }
+
+        /// <summary>
+        /// Gets MeetingHistoryContainerName.
+        /// </summary>
+        protected string MeetingHistoryContainerName { get => "TestMeetingContainer"; }
+
+        /// <summary>
         /// Initialization for all Email Manager Tests.
         /// </summary>
         protected void SetupTestBase()
         {
             this.CosmosLinqQuery = new Mock<ICosmosLinqQuery>();
             this.CosmosDBQueryClient = new Mock<ICosmosDBQueryClient>();
-            this.CosmosContainer = new Mock<Container>();
+            this.EmailHistoryContainer = new Mock<Container>();
+            this.MeetingHistoryContainer = new Mock<Container>();
             this.MailAttachmentRepository = new Mock<IMailAttachmentRepository>();
-            var mockItemResponse = new Mock<ItemResponse<EmailNotificationItemEntity>>();
-            var mockFeedIterator = new Mock<FeedIterator<EmailNotificationItemEntity>>();
+            var mockEmailItemResponse = new Mock<ItemResponse<EmailNotificationItemCosmosDbEntity>>();
+            var mockEmailFeedIterator = new Mock<FeedIterator<EmailNotificationItemCosmosDbEntity>>();
+            var mockMeetingItemResponse = new Mock<ItemResponse<MeetingNotificationItemCosmosDbEntity>>();
+            var mockMeetingFeedIterator = new Mock<FeedIterator<MeetingNotificationItemCosmosDbEntity>>();
 
-            IOrderedQueryable<EmailNotificationItemEntity> queryableEntityReponse = this.NotificationEntities.AsQueryable().OrderBy(e => e.NotificationId);
-            this.CosmosDBSetting = Options.Create(new CosmosDBSetting() { Database = "TestDatabase", Container = "TestContainer", Key = "TestKey", Uri = "TestUri" });
+            List<EmailNotificationItemCosmosDbEntity> emailNotificationItemCosmosDbEntities = new List<EmailNotificationItemCosmosDbEntity>();
+            foreach (var item in this.NotificationEntities)
+            {
+                emailNotificationItemCosmosDbEntities.Add(item.ConvertToEmailNotificationItemCosmosDbEntity());
+            }
+
+            List<MeetingNotificationItemCosmosDbEntity> meetingNotificationItemCosmosDbEntities = new List<MeetingNotificationItemCosmosDbEntity>();
+            foreach (var item in this.meetingNotificationEntities)
+            {
+                meetingNotificationItemCosmosDbEntities.Add(item.ConvertToMeetingNotificationItemCosmosDbEntity());
+            }
+
+            IOrderedQueryable<EmailNotificationItemCosmosDbEntity> queryableEmailEntityReponse = emailNotificationItemCosmosDbEntities.AsQueryable().OrderBy(e => e.NotificationId);
+
+            IOrderedQueryable<MeetingNotificationItemCosmosDbEntity> queryableMeetingEntityReponse = meetingNotificationItemCosmosDbEntities.AsQueryable().OrderBy(e => e.NotificationId);
+
+            this.CosmosDBSetting = Options.Create(new CosmosDBSetting() { Database = "TestDatabase", EmailHistoryContainer = this.MailHistoryContainerName, MeetingHistoryContainer = "TestMeetingContainer", Key = "TestKey", Uri = "TestUri" });
             this.Logger = Mock.Of<ILogger>();
 
-            IQueryable<EmailNotificationItemEntity> queryResult = null;
+            IQueryable<EmailNotificationItemCosmosDbEntity> queryResult = null;
             _ = this.CosmosLinqQuery
-                .Setup(clq => clq.GetFeedIterator(It.IsAny<IQueryable<EmailNotificationItemEntity>>()))
-                .Callback<IQueryable<EmailNotificationItemEntity>>(r => queryResult = r)
-                .Returns(mockFeedIterator.Object);
+                .Setup(clq => clq.GetFeedIterator(It.IsAny<IQueryable<EmailNotificationItemCosmosDbEntity>>()))
+                .Callback<IQueryable<EmailNotificationItemCosmosDbEntity>>(r => queryResult = r)
+                .Returns(mockEmailFeedIterator.Object);
 
-            _ = this.CosmosContainer
-                .Setup(container => container.CreateItemAsync(It.IsAny<EmailNotificationItemEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(mockItemResponse.Object));
+            _ = this.EmailHistoryContainer
+                .Setup(container => container.CreateItemAsync(It.IsAny<EmailNotificationItemCosmosDbEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(mockEmailItemResponse.Object));
 
-            _ = this.CosmosContainer
-                .Setup(container => container.UpsertItemAsync(It.IsAny<EmailNotificationItemEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(mockItemResponse.Object));
+            _ = this.EmailHistoryContainer
+                .Setup(container => container.UpsertItemAsync(It.IsAny<EmailNotificationItemCosmosDbEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(mockEmailItemResponse.Object));
 
-            _ = this.CosmosContainer
-                .Setup(container => container.GetItemLinqQueryable<EmailNotificationItemEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
-                .Returns(queryableEntityReponse);
+            _ = this.EmailHistoryContainer
+                .Setup(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+                .Returns(queryableEmailEntityReponse);
 
             _ = this.CosmosDBQueryClient
-                .Setup(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(this.CosmosContainer.Object);
+                .Setup(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName))
+                .Returns(this.EmailHistoryContainer.Object);
+
+
+            IQueryable<MeetingNotificationItemCosmosDbEntity> meetingQueryResult = null;
+            _ = this.CosmosLinqQuery
+                .Setup(clq => clq.GetFeedIterator(It.IsAny<IQueryable<MeetingNotificationItemCosmosDbEntity>>()))
+                .Callback<IQueryable<MeetingNotificationItemCosmosDbEntity>>(r => meetingQueryResult = r)
+                .Returns(mockMeetingFeedIterator.Object);
+
+            _ = this.MeetingHistoryContainer
+                .Setup(container => container.CreateItemAsync(It.IsAny<MeetingNotificationItemCosmosDbEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(mockMeetingItemResponse.Object));
+
+            _ = this.MeetingHistoryContainer
+                .Setup(container => container.UpsertItemAsync(It.IsAny<MeetingNotificationItemCosmosDbEntity>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(mockMeetingItemResponse.Object));
+
+            _ = this.MeetingHistoryContainer
+                .Setup(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+                .Returns(queryableMeetingEntityReponse);
+
+            _ = this.CosmosDBQueryClient
+                .Setup(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName))
+                .Returns(this.MeetingHistoryContainer.Object);
+
 
             this.EmailNotificationRepository = new EmailNotificationRepository(this.CosmosDBSetting, this.CosmosDBQueryClient.Object, this.Logger, this.CosmosLinqQuery.Object, this.MailAttachmentRepository.Object);
         }

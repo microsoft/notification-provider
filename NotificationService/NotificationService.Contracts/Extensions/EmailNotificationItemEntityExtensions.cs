@@ -121,5 +121,84 @@ namespace NotificationService.Contracts
                     { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
                 } : null;
         }
+
+        /// <summary>
+        /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailNotificationItemTableEntity"/>.
+        /// </summary>
+        /// <param name="emailNotificationItemEntity">Email Notification Item Entity.</param>
+        /// <returns><see cref="EmailNotificationItemTableEntity"/>.</returns>
+        public static EmailNotificationItemTableEntity ConvertToEmailNotificationItemTableEntity(this EmailNotificationItemEntity emailNotificationItemEntity)
+        {
+            if (emailNotificationItemEntity is null)
+            {
+                return null;
+            }
+
+            EmailNotificationItemTableEntity emailNotificationItemTableEntity = new EmailNotificationItemTableEntity();
+            emailNotificationItemTableEntity.PartitionKey = emailNotificationItemEntity.Application;
+            emailNotificationItemTableEntity.RowKey = emailNotificationItemEntity.NotificationId;
+            emailNotificationItemTableEntity.Application = emailNotificationItemEntity.Application;
+            emailNotificationItemTableEntity.BCC = emailNotificationItemEntity.BCC;
+            emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
+            emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
+            emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
+            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
+            emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
+            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
+            emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
+            emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
+            emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;
+            emailNotificationItemTableEntity.Sensitivity = emailNotificationItemEntity.Sensitivity;
+            emailNotificationItemTableEntity.Status = emailNotificationItemEntity.Status.ToString();
+            emailNotificationItemTableEntity.Subject = emailNotificationItemEntity.Subject;
+            emailNotificationItemTableEntity.TemplateId = emailNotificationItemEntity.TemplateId;
+            emailNotificationItemTableEntity.Timestamp = emailNotificationItemEntity.Timestamp;
+            emailNotificationItemTableEntity.To = emailNotificationItemEntity.To;
+            emailNotificationItemTableEntity.TrackingId = emailNotificationItemEntity.TrackingId;
+            emailNotificationItemTableEntity.TryCount = emailNotificationItemEntity.TryCount;
+            emailNotificationItemTableEntity.ETag = emailNotificationItemEntity.ETag;
+            emailNotificationItemTableEntity.SendOnUtcDate = emailNotificationItemEntity.SendOnUtcDate;
+            return emailNotificationItemTableEntity;
+        }
+
+        /// <summary>
+        /// Converts <see cref="EmailNotificationItemEntity"/> to a <see cref="EmailNotificationItemCosmosDbEntity"/>.
+        /// </summary>
+        /// <param name="emailNotificationItemEntity">Email Notification Item Entity.</param>
+        /// <returns><see cref="EmailNotificationItemCosmosDbEntity"/>.</returns>
+        public static EmailNotificationItemCosmosDbEntity ConvertToEmailNotificationItemCosmosDbEntity(this EmailNotificationItemEntity emailNotificationItemEntity)
+        {
+            if (emailNotificationItemEntity is null)
+            {
+                return null;
+            }
+
+            EmailNotificationItemCosmosDbEntity emailNotificationItemTableEntity = new EmailNotificationItemCosmosDbEntity();
+            emailNotificationItemTableEntity.PartitionKey = emailNotificationItemEntity.Application;
+            emailNotificationItemTableEntity.RowKey = emailNotificationItemEntity.NotificationId;
+            emailNotificationItemTableEntity.Id = emailNotificationItemEntity.Id;
+            emailNotificationItemTableEntity.Application = emailNotificationItemEntity.Application;
+            emailNotificationItemTableEntity.BCC = emailNotificationItemEntity.BCC;
+            emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
+            emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
+            emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
+            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
+            emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
+            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
+            emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
+            emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
+            emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;
+            emailNotificationItemTableEntity.Sensitivity = emailNotificationItemEntity.Sensitivity;
+            emailNotificationItemTableEntity.Status = emailNotificationItemEntity.Status.ToString();
+            emailNotificationItemTableEntity.Subject = emailNotificationItemEntity.Subject;
+            emailNotificationItemTableEntity.TemplateId = emailNotificationItemEntity.TemplateId;
+            emailNotificationItemTableEntity.Timestamp = emailNotificationItemEntity.Timestamp;
+            emailNotificationItemTableEntity.To = emailNotificationItemEntity.To;
+            emailNotificationItemTableEntity.TrackingId = emailNotificationItemEntity.TrackingId;
+            emailNotificationItemTableEntity.TryCount = emailNotificationItemEntity.TryCount;
+            emailNotificationItemTableEntity.ETag = emailNotificationItemEntity.ETag;
+            emailNotificationItemTableEntity.SendOnUtcDate = emailNotificationItemEntity.SendOnUtcDate;
+            return emailNotificationItemTableEntity;
+        }
     }
 }
