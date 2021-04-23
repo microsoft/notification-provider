@@ -10,7 +10,6 @@ namespace NotificationService.Contracts.Entities
     /// <summary>
     /// MeetingNotificationItemEntity.
     /// </summary>
-    /// <seealso cref="NotificationService.Contracts.NotificationItemBaseEntity" />
     public class MeetingNotificationItemTableEntity : TableEntity
     {
         /// <summary>

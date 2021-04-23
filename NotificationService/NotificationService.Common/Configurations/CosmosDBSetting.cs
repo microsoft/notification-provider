@@ -24,8 +24,13 @@ namespace NotificationService.Common
         public string Database { get; set; }
 
         /// <summary>
-        /// Gets or sets Container name.
+        /// Gets or sets EmailHistoryContainer name.
         /// </summary>
-        public string Container { get; set; }
+        public string EmailHistoryContainer { get; set; }
+
+        /// <summary>
+        /// Gets or sets MeetingHistoryContainer name.
+        /// </summary>
+        public string MeetingHistoryContainer { get; set; }
     }
 }
