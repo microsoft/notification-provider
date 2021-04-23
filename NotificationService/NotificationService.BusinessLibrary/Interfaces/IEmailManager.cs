@@ -73,5 +73,23 @@ namespace NotificationService.BusinessLibrary
         /// <param name="statusList">Status List of Notification items.</param>
         /// <returns>A <see cref="EmailNotificationItemTableEntity"/>.</returns>
         Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList);
+
+        /// <summary>
+        /// Queue Email Notification Messages to GDPR Mapping queue.
+        /// </summary>
+        /// <param name="applicationName">Application Name.</param>
+        /// <param name="notificationEntities">notification entites to be queued.</param>
+        /// <param name="traceProps">telemetry trace properties to log.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.></returns>
+        Task QueueEmailNotificaitionMapping(string applicationName, List<List<EmailNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
+
+        /// <summary>
+        /// Queue Meeting Notification Messages to GDPR Mapping queue.
+        /// </summary>
+        /// <param name="applicationName">Application Name.</param>
+        /// <param name="notificationEntities">meeting notification entites to be queued.</param>
+        /// <param name="traceProps">telemetry trace properties to log.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.></returns>
+        Task QueueMeetingNotificactionMapping(string applicationName, List<List<MeetingNotificationItemEntity>> notificationEntities, IDictionary<string, string> traceProps);
     }
 }

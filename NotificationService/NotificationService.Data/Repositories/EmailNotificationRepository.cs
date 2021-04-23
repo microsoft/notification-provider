@@ -18,6 +18,7 @@ namespace NotificationService.Data
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
 
     /// <summary>
@@ -741,5 +742,12 @@ namespace NotificationService.Data
 
             return filterExpression;
         }
+        
+        /// <inheritdoc/>
+        public void CreateEmailIdNotificationMappingForEmail(IList<EmailNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public void CreateEmailIdNotificationMappingForMeetingInvite(IList<MeetingNotificationQueueItem> notifications, string applicationName) => throw new NotImplementedException();
+
     }
 }

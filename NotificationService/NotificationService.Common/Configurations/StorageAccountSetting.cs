@@ -37,5 +37,15 @@ namespace NotificationService.Common
         /// Gets or sets the Notification queue name.
         /// </summary>
         public string NotificationQueueName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Email-Notification mapping TableName.
+        /// </summary>
+        public string EmailNotificationMapTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Meeting-Notification mapping TableName.
+        /// </summary>
+        public string MeetingNotificationMapTableName { get; set; }
     }
 }

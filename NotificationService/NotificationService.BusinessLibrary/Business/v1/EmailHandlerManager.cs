@@ -12,6 +12,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
@@ -19,6 +20,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.GDPR;
     using NotificationService.Contracts.Models.Request;
     using NotificationService.Data;
 
@@ -130,6 +132,8 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     this.logger.TraceVerbose($"Completed {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 }
 
+                _ = Task.Run(async () => await this.emailManager.QueueEmailNotificaitionMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
+
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
                 this.logger.TraceInformation($"Completed {nameof(this.QueueEmailNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 result = true;
@@ -151,16 +155,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
             }
         }
 
-        /// <summary>
-        /// Queue email notification items.
-        /// </summary>
-        /// <param name="applicationName">Application sourcing the email notification.</param>
-        /// <param name="meetingNotificationItems">Array of email notification items.</param>
-        /// <returns>
-        /// A <see cref="Task" /> representing the result of the asynchronous operation.
-        /// </returns>
-        /// <exception cref="ArgumentException">Application Name cannot be null or empty. - applicationName.</exception>
-        /// <exception cref="ArgumentNullException">meetingNotificationItems.</exception>
+        /// <inheritdoc/>
         public async Task<IList<NotificationResponse>> QueueMeetingNotifications(string applicationName, MeetingNotificationItem[] meetingNotificationItems)
         {
             var stopwatch = new Stopwatch();
@@ -209,6 +204,8 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
                     this.logger.TraceVerbose($"Completed {nameof(this.cloudStorageClient.QueueCloudMessages)} method of {nameof(EmailHandlerManager)}.", traceProps);
                 }
+
+                _ = Task.Run(async () => await this.emailManager.QueueMeetingNotificactionMapping(applicationName, entitiesToQueue, traceProps).ConfigureAwait(false));
 
                 var responses = this.emailManager.NotificationEntitiesToResponse(notificationResponses, notificationItemEntities);
                 this.logger.TraceInformation($"Completed {nameof(this.QueueMeetingNotifications)} method of {nameof(EmailHandlerManager)}.", traceProps);
