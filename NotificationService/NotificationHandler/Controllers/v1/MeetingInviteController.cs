@@ -22,7 +22,7 @@ namespace NotificationHandler.Controllers
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
-    /// Controller to handle email notifications.
+    /// Controller to handle meeting invite notifications.
     /// </summary>
     [Route("v1/meetinginvite")]
     [Authorize(Policy = ApplicationConstants.AppNameAuthorizePolicy)]
@@ -37,7 +37,7 @@ namespace NotificationHandler.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="MeetingInviteController"/> class.
         /// </summary>
-        /// <param name="emailHandlerManager">An instance of <see cref="EmailManager"/>.</param>
+        /// <param name="emailHandlerManager">An instance of <see cref="EmailHandlerManager"/>.</param>
         /// <param name="templateManager">An instance of <see cref="MailTemplateManager"/>.</param>
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
@@ -48,9 +48,9 @@ namespace NotificationHandler.Controllers
         }
 
         /// <summary>
-        /// Queue email notification items for asynchronous processing.
+        /// Queue meeting invite  notification items for asynchronous processing.
         /// </summary>
-        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="applicationName">Application sourcing the meeting invite  notification.</param>
         /// <param name="meetingNotificationItems">Array of email notification items.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
@@ -105,7 +105,7 @@ namespace NotificationHandler.Controllers
         /// <summary>
         /// Resend meeting notification items.
         /// </summary>
-        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="applicationName">Application sourcing the meeting invite notification.</param>
         /// <param name="notificationIds">Array of email notification ids.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
@@ -129,16 +129,16 @@ namespace NotificationHandler.Controllers
             traceProps[AIConstants.NotificationIds] = string.Join(',', notificationIds);
 
             IList<NotificationResponse> notificationResponses;
-            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingInvites)} method of {nameof(MeetingInviteController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.ResendNotifications(applicationName, notificationIds, NotificationType.Meet).ConfigureAwait(false);
-            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingInvites)} method of {nameof(MeetingInviteController)}.", traceProps);
             return this.Accepted(notificationResponses);
         }
 
         /// <summary>
         /// Resend meeting notification items by Date Range.
         /// </summary>
-        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="applicationName">Application sourcing the meeting invite  notification.</param>
         /// <param name="dateRange">Date Range to resubmit the notifications.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpPost]
@@ -171,9 +171,9 @@ namespace NotificationHandler.Controllers
 
             traceProps[ApplicationConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
             IList<NotificationResponse> notificationResponses;
-            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailController)}.", traceProps);
+            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(MeetingInviteController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.ResendMeetingNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
-            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailController)}.", traceProps);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(MeetingInviteController)}.", traceProps);
             return this.Accepted(notificationResponses);
         }
     }
