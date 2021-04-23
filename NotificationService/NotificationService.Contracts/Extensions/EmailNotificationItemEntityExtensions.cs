@@ -144,9 +144,7 @@ namespace NotificationService.Contracts
             emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
             emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
             emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
-            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
             emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
-            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
             emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
             emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
             emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;
@@ -184,9 +182,7 @@ namespace NotificationService.Contracts
             emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
             emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
             emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
-            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
             emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
-            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
             emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
             emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
             emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;

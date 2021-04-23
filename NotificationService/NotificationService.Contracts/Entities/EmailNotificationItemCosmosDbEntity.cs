@@ -71,18 +71,6 @@ namespace NotificationService.Contracts
         public string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the header.
-        /// </summary>
-        [DataMember(Name = "Header")]
-        public string Header { get; set; }
-
-        /// <summary>
-        /// Gets or sets the footer.
-        /// </summary>
-        [DataMember(Name = "Footer")]
-        public string Footer { get; set; }
-
-        /// <summary>
         /// Gets or sets the Sensitivity.
         /// </summary>
         [DataMember(Name = "Sensitivity")]

@@ -35,9 +35,7 @@ namespace NotificationService.Contracts.Extensions
             emailNotificationItemEntity.CC = emailNotificationItemTableEntity.CC;
             emailNotificationItemEntity.EmailAccountUsed = emailNotificationItemTableEntity.EmailAccountUsed;
             emailNotificationItemEntity.ErrorMessage = emailNotificationItemTableEntity.ErrorMessage;
-            emailNotificationItemEntity.Footer = emailNotificationItemTableEntity.Footer;
             emailNotificationItemEntity.From = emailNotificationItemTableEntity.From;
-            emailNotificationItemEntity.Header = emailNotificationItemTableEntity.Header;
             emailNotificationItemEntity.NotificationId = emailNotificationItemTableEntity.NotificationId;
             emailNotificationItemEntity.ReplyTo = emailNotificationItemTableEntity.ReplyTo;
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
