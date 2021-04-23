@@ -9,6 +9,7 @@ namespace NotificationHandler.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
     using NotificationHandler.Controllers.V1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -17,6 +18,7 @@ namespace NotificationHandler.Controllers
     using NotificationService.Contracts;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
+    using NotificationService.Contracts.Models.Request;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
@@ -130,6 +132,48 @@ namespace NotificationHandler.Controllers
             this.logger.TraceInformation($"Started {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
             notificationResponses = await this.emailHandlerManager.ResendNotifications(applicationName, notificationIds, NotificationType.Meet).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingInvites)} method of {nameof(EmailController)}.", traceProps);
+            return this.Accepted(notificationResponses);
+        }
+
+        /// <summary>
+        /// Resend meeting notification items by Date Range.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="dateRange">Date Range to resubmit the notifications.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = ApplicationConstants.BearerAuthenticationScheme)]
+        [Authorize(Policy = ApplicationConstants.AppIdAuthorizePolicy)]
+        [Route("resend/{applicationName}/bydaterange")]
+        public async Task<IActionResult> ResendMeetingNotificationsByDateRange(string applicationName, [FromBody] DateTimeRange dateRange)
+        {
+            var traceProps = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(applicationName))
+            {
+                throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+            }
+
+            if (dateRange is null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
+            }
+
+            traceProps[AIConstants.Application] = applicationName;
+            if (dateRange is null)
+            {
+                this.LogAndThrowArgumentNullException("DateTimeRange can't be null.", nameof(dateRange), traceProps);
+            }
+
+            if ((dateRange.EndDate - dateRange.StartDate).TotalMinutes <= 0)
+            {
+                this.LogAndThrowArgumentNullException("StartDate value must be less than EndDate value.", nameof(dateRange), traceProps);
+            }
+
+            traceProps[ApplicationConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
+            IList<NotificationResponse> notificationResponses;
+            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailController)}.", traceProps);
+            notificationResponses = await this.emailHandlerManager.ResendMeetingNotificationsByDateRange(applicationName, dateRange).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailController)}.", traceProps);
             return this.Accepted(notificationResponses);
         }
     }

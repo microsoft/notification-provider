@@ -452,6 +452,61 @@ namespace NotificationService.Data.Repositories
             return updatedNotificationEntities;
         }
 
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> GetPendingOrFailedMeetingNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
+        {
+            if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
+            }
+
+            string filterExpression = TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, dateRange.StartDate)
+                    + " and "
+                    + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThan, dateRange.EndDate);
+
+            if (!string.IsNullOrEmpty(applicationName))
+            {
+                filterExpression = filterExpression
+                    + " and "
+                    + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, applicationName);
+            }
+
+            if (statusList != null && statusList.Count > 0)
+            {
+                string statusFilterExpression = null;
+                foreach (var status in statusList)
+                {
+                    string filter = TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status.ToString());
+                    statusFilterExpression = statusFilterExpression == null ? filter : " or " + filter;
+                }
+
+                filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
+            }
+
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            traceProps[AIConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
+
+            this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedMeetingNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
+            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
+            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
+            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            if (meetingNotificationItemEntities == null || meetingNotificationItemEntities.Count == 0)
+            {
+                return null;
+            }
+
+            IList<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => e.ConvertToMeetingNotificationItemEntity()).ToList();
+            IList<MeetingNotificationItemEntity> updatedNotificationEntities = notificationEntities;
+            if (!string.IsNullOrEmpty(applicationName) && loadBody)
+            {
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetPendingOrFailedMeetingNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
+            return updatedNotificationEntities;
+        }
+
         /// <summary>
         /// Get notification status string.
         /// </summary>
