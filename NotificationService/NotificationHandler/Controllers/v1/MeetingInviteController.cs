@@ -9,8 +9,7 @@ namespace NotificationHandler.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Newtonsoft.Json;
-    using NotificationHandler.Controllers.v1;
+    using NotificationHandler.Controllers.V1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
@@ -18,7 +17,6 @@ namespace NotificationHandler.Controllers
     using NotificationService.Contracts;
     using NotificationService.Contracts.Extensions;
     using NotificationService.Contracts.Models;
-    using NotificationService.Contracts.Models.Request;
     using NotificationService.SvCommon.Attributes;
 
     /// <summary>
@@ -42,7 +40,7 @@ namespace NotificationHandler.Controllers
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
         public MeetingInviteController(IEmailHandlerManager emailHandlerManager, ILogger logger)
-            : base (logger)
+            : base(logger)
         {
             this.emailHandlerManager = emailHandlerManager ?? throw new System.ArgumentNullException(nameof(emailHandlerManager));
         }

@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+﻿// Copyright(c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace DirectSend.Models.Configurations
 {
     /// <summary>
-    /// SendAccountConfiguration
+    /// SendAccountConfiguration.
     /// </summary>
     public class SendAccountConfiguration
     {

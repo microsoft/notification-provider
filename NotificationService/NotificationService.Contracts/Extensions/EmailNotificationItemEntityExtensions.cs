@@ -10,7 +10,6 @@ namespace NotificationService.Contracts
     using System.Linq;
     using NotificationService.Common.Configurations;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models.Graph.Invite;
     using NotificationService.Contracts.Models.Reports;
 
     /// <summary>
@@ -92,6 +91,8 @@ namespace NotificationService.Contracts
                                  .Select(torecipient => new DirectSend.Models.Mail.EmailAddress { Address = torecipient }).ToList(),
                 CcAddresses = emailNotificationItemEntity.CC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
                                  .Select(ccrecipient => new DirectSend.Models.Mail.EmailAddress { Address = ccrecipient }).ToList(),
+                ReplyTo = emailNotificationItemEntity.ReplyTo?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(replyTo => new DirectSend.Models.Mail.EmailAddress { Address = replyTo }).ToList(),
                 FromAddresses = new List<DirectSend.Models.Mail.EmailAddress> { new DirectSend.Models.Mail.EmailAddress { Name = directSendSetting?.FromAddressDisplayName, Address = directSendSetting?.FromAddress } },
                 FileName = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileName).ToList(),
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),
@@ -119,7 +120,8 @@ namespace NotificationService.Contracts
                     OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees,
                     Attachments = meetingNotificationItemEntity.Attachments?.Select(attachment => new FileAttachment
                     { Name = attachment.FileName, ContentBytes = attachment.FileBase64, IsInline = attachment.IsInline }).ToList(),
-                } : null;
+                }
+                : null;
         }
     }
 }

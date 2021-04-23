@@ -17,6 +17,9 @@ namespace NotificationService.Data.Interfaces
     public interface IRepository<T>
         where T : CosmosDBEntity
     {
+#pragma warning disable CS1584 // XML comment has syntactically incorrect cref attribute
+
+#pragma warning disable CS1658 // Warning is overriding an error
         /// <summary>
         /// Upserts the entities asynchronously.
         /// </summary>
@@ -24,6 +27,8 @@ namespace NotificationService.Data.Interfaces
         /// <param name="entities">The entities.</param>
         /// <returns>The instance of <see cref="Task{IEnumerable{T}}"/> representing asynchronous operation with <c>true</c> if successful.</returns>
         Task<IEnumerable<T>> UpsertAsync(IEnumerable<T> entities);
+#pragma warning restore CS1658 // Warning is overriding an error
+#pragma warning restore CS1584 // XML comment has syntactically incorrect cref attribute
 
         /// <summary>
         /// Reads the entity asynchronously.
@@ -32,6 +37,9 @@ namespace NotificationService.Data.Interfaces
         /// <returns>The instance of <see cref="Task{T}"/>.</returns>
         Task<T> ReadAsync(string entityId);
 
+#pragma warning disable CS1584 // XML comment has syntactically incorrect cref attribute
+
+#pragma warning disable CS1658 // Warning is overriding an error
         /// <summary>
         /// Reads the entities matching specified filter criteria asynchronously.
         /// </summary>
@@ -41,6 +49,8 @@ namespace NotificationService.Data.Interfaces
         /// <param name="numOfEntities">The number of entities to project.</param>
         /// <returns>The instance of <see cref="Task{EntityCollection{T}}"/> representing asynchronous operation.</returns>
         Task<EntityCollection<T>> ReadAsync(Expression<Func<T, bool>> filterExpression, Expression<Func<T, NotificationPriority>> orderExpression, string nextPageId, int numOfEntities = 10);
+#pragma warning restore CS1658 // Warning is overriding an error
+#pragma warning restore CS1584 // XML comment has syntactically incorrect cref attribute
 
         /// <summary>
         /// Deletes the entity asynchronously.

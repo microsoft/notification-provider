@@ -3,9 +3,9 @@
 
 namespace NotificationService.Contracts
 {
-    using NotificationService.Contracts.Models.Graph;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using NotificationService.Contracts.Models.Graph;
 
     /// <summary>
     /// Email Message contract of MS Graph Provider.

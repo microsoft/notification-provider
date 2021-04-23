@@ -1,4 +1,7 @@
-﻿namespace NotificationHandler.Controllers.v1
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationHandler.Controllers.V1
 {
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Mvc;
@@ -12,7 +15,11 @@
         /// <summary>
         /// Instance of <see cref="ILogger"/>.
         /// </summary>
+#pragma warning disable SA1401 // Fields should be private
+#pragma warning disable CA1051 // Do not declare visible instance fields
         protected readonly ILogger logger;
+#pragma warning restore CA1051 // Do not declare visible instance fields
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseController"/> class.

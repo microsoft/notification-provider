@@ -1,4 +1,7 @@
-﻿namespace NotificationService.Common.Logger
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.Common.Logger
 {
     /// <summary>
     /// AI logging constants class.

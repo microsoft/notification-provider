@@ -29,5 +29,4 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         [EnumMember(Value = "skypeForConsumer")]
         SkypeForConsumer,
     }
-
 }

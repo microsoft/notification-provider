@@ -33,7 +33,11 @@ namespace NotificationService.Common.Utility
         /// <param name="dateTime"> DateTime Object.</param>
         /// <param name="formatter"> Datetime formatter string.</param>
         /// <returns>formatted datetime string.</returns>
+#pragma warning disable IDE0031 // Use null propagation
+#pragma warning disable CA1305 // Specify IFormatProvider
         public static string FormatDate(this DateTime dateTime, string formatter) => dateTime != null ? dateTime.ToString(formatter) : null;
+#pragma warning restore CA1305 // Specify IFormatProvider
+#pragma warning restore IDE0031 // Use null propagation
 
         /// <summary>
         /// Get a list of given type T from given string and split characater.

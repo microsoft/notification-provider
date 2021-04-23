@@ -46,15 +46,15 @@ namespace NotificationService.Data
             return cloudTable;
         }
 
-      /*  /// <inheritdoc/>
-        public Task QueueCloudMessages(CloudQueue cloudQueue, IEnumerable<string> messages, TimeSpan? initialVisibilityDelay = null)
-        {
-            messages.ToList().ForEach(msg =>
-            {
-                CloudQueueMessage message = new CloudQueueMessage(msg);
-                cloudQueue.AddMessage(message, null, initialVisibilityDelay);
-            });
-            return Task.CompletedTask;
-        }*/
+        /*  /// <inheritdoc/>
+          public Task QueueCloudMessages(CloudQueue cloudQueue, IEnumerable<string> messages, TimeSpan? initialVisibilityDelay = null)
+          {
+              messages.ToList().ForEach(msg =>
+              {
+                  CloudQueueMessage message = new CloudQueueMessage(msg);
+                  cloudQueue.AddMessage(message, null, initialVisibilityDelay);
+              });
+              return Task.CompletedTask;
+          }*/
     }
 }

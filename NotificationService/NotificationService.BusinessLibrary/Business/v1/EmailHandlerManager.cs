@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.BusinessLibrary.Business.v1
+namespace NotificationService.BusinessLibrary.Business.V1
 {
     using System;
     using System.Collections.Generic;
@@ -151,6 +151,16 @@ namespace NotificationService.BusinessLibrary.Business.v1
             }
         }
 
+        /// <summary>
+        /// Queue email notification items.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="meetingNotificationItems">Array of email notification items.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the result of the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentException">Application Name cannot be null or empty. - applicationName.</exception>
+        /// <exception cref="ArgumentNullException">meetingNotificationItems.</exception>
         public async Task<IList<NotificationResponse>> QueueMeetingNotifications(string applicationName, MeetingNotificationItem[] meetingNotificationItems)
         {
             var stopwatch = new Stopwatch();

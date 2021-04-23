@@ -111,7 +111,7 @@ namespace NotificationService.UnitTests.Controllers.V1.MeetingInviteController
         /// <returns><see cref="IList{NotificationResponse}"/>.</returns>
         private IList<NotificationResponse> GetResendMeetingInvitesResponse()
         {
-            return this.notificationIds.Select(c => new NotificationResponse() { NotificationId = c, Status = NotificationItemStatus.Queued}).ToList();
+            return this.notificationIds.Select(c => new NotificationResponse() { NotificationId = c, Status = NotificationItemStatus.Queued }).ToList();
         }
     }
 }

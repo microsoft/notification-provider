@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.BusinessLibrary.Business.v1
+namespace NotificationService.BusinessLibrary.Business.V1
 {
     using System;
     using System.Collections.Generic;
@@ -93,10 +93,10 @@ namespace NotificationService.BusinessLibrary.Business.v1
             IEmailManager emailManager)
         {
             this.configuration = configuration;
-            this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
+            this.emailNotificationRepository = repositoryFactory?.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.cloudStorageClient = cloudStorageClient;
             this.logger = logger;
-            this.notificationProvider = notificationProviderFactory.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[ConfigConstants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
+            this.notificationProvider = notificationProviderFactory?.GetNotificationProvider(Enum.TryParse<NotificationProviderType>(this.configuration?[ConfigConstants.NotificationProviderType], out this.provider) ? this.provider : throw new Exception());
             if (this.configuration?[ConfigConstants.MailSettingsConfigKey] != null)
             {
                 this.mailSettings = JsonConvert.DeserializeObject<List<MailSettings>>(this.configuration?[ConfigConstants.MailSettingsConfigKey]);
@@ -268,7 +268,9 @@ namespace NotificationService.BusinessLibrary.Business.v1
             var notificationEntitiesToBeSkipped = new List<EmailNotificationItemEntity>();
             if (notificationEntities.Count == 0)
             {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentException("No records found for the input notification ids.", nameof(notificationIds));
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             }
 
             if (queueNotificationItem.IgnoreAlreadySent)

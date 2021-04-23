@@ -17,7 +17,6 @@ namespace NotificationService.Data.Repositories
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Request;
 
-
     /// <summary>
     /// Repository for TableStorage.
     /// </summary>
@@ -452,6 +451,39 @@ namespace NotificationService.Data.Repositories
             return updatedNotificationEntities;
         }
 
+        /// <summary>
+        /// Get notification status string.
+        /// </summary>
+        /// <param name="status">notification status int format.</param>
+        /// <returns>returns notification status string. </returns>
+        private static string GetStatus(int status)
+        {
+            string statusStr = "Queued";
+            switch (status)
+            {
+                case 0:
+                    statusStr = "Queued";
+                    break;
+                case 1:
+                    statusStr = "Processing";
+                    break;
+                case 2:
+                    statusStr = "Retrying";
+                    break;
+                case 3:
+                    statusStr = "Failed";
+                    break;
+                case 4:
+                    statusStr = "Sent";
+                    break;
+                case 5:
+                    statusStr = "FakeMail";
+                    break;
+            }
+
+            return statusStr;
+        }
+
         private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
         {
             var filterSet = new HashSet<string>();
@@ -518,42 +550,9 @@ namespace NotificationService.Data.Repositories
 
             static string PrepareFilterExp(HashSet<string> filterSet)
             {
-                string filterExp = String.Join(" and ", filterSet.ToArray());
+                string filterExp = string.Join(" and ", filterSet.ToArray());
                 return filterExp;
             }
-        }
-
-        /// <summary>
-        /// Get notification status string.
-        /// </summary>
-        /// <param name="status">notification status int format.</param>
-        /// <returns>returns notification status string. </returns>
-        private static string GetStatus(int status)
-        {
-            string statusStr = "Queued";
-            switch (status)
-            {
-                case 0:
-                    statusStr = "Queued";
-                    break;
-                case 1:
-                    statusStr = "Processing";
-                    break;
-                case 2:
-                    statusStr = "Retrying";
-                    break;
-                case 3:
-                    statusStr = "Failed";
-                    break;
-                case 4:
-                    statusStr = "Sent";
-                    break;
-                case 5:
-                    statusStr = "FakeMail";
-                    break;
-            }
-
-            return statusStr;
         }
 
         private EmailNotificationItemTableEntity ConvertToEmailNotificationItemTableEntity(EmailNotificationItemEntity emailNotificationItemEntity)
@@ -566,9 +565,7 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemTableEntity.CC = emailNotificationItemEntity.CC;
             emailNotificationItemTableEntity.EmailAccountUsed = emailNotificationItemEntity.EmailAccountUsed;
             emailNotificationItemTableEntity.ErrorMessage = emailNotificationItemEntity.ErrorMessage;
-            emailNotificationItemTableEntity.Footer = emailNotificationItemEntity.Footer;
             emailNotificationItemTableEntity.From = emailNotificationItemEntity.From;
-            emailNotificationItemTableEntity.Header = emailNotificationItemEntity.Header;
             emailNotificationItemTableEntity.NotificationId = emailNotificationItemEntity.NotificationId;
             emailNotificationItemTableEntity.Priority = emailNotificationItemEntity.Priority.ToString();
             emailNotificationItemTableEntity.ReplyTo = emailNotificationItemEntity.ReplyTo;
@@ -703,15 +700,12 @@ namespace NotificationService.Data.Repositories
             emailNotificationItemEntity.CC = emailNotificationItemTableEntity.CC;
             emailNotificationItemEntity.EmailAccountUsed = emailNotificationItemTableEntity.EmailAccountUsed;
             emailNotificationItemEntity.ErrorMessage = emailNotificationItemTableEntity.ErrorMessage;
-            emailNotificationItemEntity.Footer = emailNotificationItemTableEntity.Footer;
             emailNotificationItemEntity.From = emailNotificationItemTableEntity.From;
-            emailNotificationItemEntity.Header = emailNotificationItemTableEntity.Header;
             emailNotificationItemEntity.NotificationId = emailNotificationItemTableEntity.NotificationId;
             emailNotificationItemEntity.ReplyTo = emailNotificationItemTableEntity.ReplyTo;
             emailNotificationItemEntity.Sensitivity = emailNotificationItemTableEntity.Sensitivity;
             emailNotificationItemEntity.Subject = emailNotificationItemTableEntity.Subject;
             emailNotificationItemEntity.TemplateId = emailNotificationItemTableEntity.TemplateId;
-            //emailNotificationItemEntity.TemplateData = emailNotificationItemTableEntity.TemplateData;
             emailNotificationItemEntity.Timestamp = emailNotificationItemTableEntity.Timestamp;
             emailNotificationItemEntity.To = emailNotificationItemTableEntity.To;
             emailNotificationItemEntity.TrackingId = emailNotificationItemTableEntity.TrackingId;

@@ -29,25 +29,6 @@ namespace NotificationService.Common.Exceptions
         }
 
         /// <summary>
-        /// Entry point for exception handling.
-        /// </summary>
-        /// <param name="context"> HttpContext object for the curently executing Action.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation. </returns>
-        public async Task InvokeAsync(HttpContext context)
-        {
-            try
-            {
-                await this.next(context).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                var error = $"{nameof(this.InvokeAsync)}: Exception occured for the request : [{context.Request.Path}], Exception: {ex.StackTrace}";
-                this.logger.TraceError(error);
-                await HandleExceptionAsync(context, ex).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
         /// Exception Handling before returning response.
         /// </summary>
         /// <param name="context"> HttpContext object for the curently executing Action.</param>
@@ -55,6 +36,11 @@ namespace NotificationService.Common.Exceptions
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. </returns>
         public static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var message = "Internal Server Error: Something went wrong! please try after somtime.";
@@ -69,6 +55,27 @@ namespace NotificationService.Common.Exceptions
                 StatusCode = context.Response.StatusCode,
                 Message = message,
             }.ToString());
+        }
+
+        /// <summary>
+        /// Entry point for exception handling.
+        /// </summary>
+        /// <param name="context"> HttpContext object for the curently executing Action.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. </returns>
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await this.next(context).ConfigureAwait(false);
+            }
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+                var error = $"{nameof(this.InvokeAsync)}: Exception occured for the request : [{context.Request.Path}], Exception: {ex.StackTrace}";
+                this.logger.TraceError(error);
+                await HandleExceptionAsync(context, ex).ConfigureAwait(false);
+            }
         }
     }
 }
