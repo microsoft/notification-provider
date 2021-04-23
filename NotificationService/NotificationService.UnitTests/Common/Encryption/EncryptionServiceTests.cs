@@ -9,7 +9,6 @@ namespace NotificationService.UnitTests.Common.Encryption
     using Azure.Core.Cryptography;
     using Microsoft.Extensions.Configuration;
     using Moq;
-    using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Encryption;
     using NotificationService.UnitTests.Mocks;

@@ -83,7 +83,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public async Task ResendEmailNotificationsByDateRangeTest_ValidInput()
         {
             EmailController emailController = new EmailController(this.emailHandlerManager.Object, this.mailTemplateManager.Object, this.logger);
-            IList<NotificationResponse> responses = new List<NotificationResponse>() { new NotificationResponse() { NotificationId = Guid.NewGuid().ToString(), Status = NotificationItemStatus.Queued,} };
+            IList<NotificationResponse> responses = new List<NotificationResponse>() { new NotificationResponse() { NotificationId = Guid.NewGuid().ToString(), Status = NotificationItemStatus.Queued, } };
             var dateRange = new DateTimeRange()
             {
                 StartDate = DateTime.Now,

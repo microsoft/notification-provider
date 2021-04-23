@@ -48,11 +48,15 @@ namespace NotificationService.Common.Encryption
         /// <summary>
         /// Gets Key used by AES Algorithm.
         /// </summary>
+#pragma warning disable CA1819 // Properties should not return arrays
         public byte[] Key { get; }
+#pragma warning restore CA1819 // Properties should not return arrays
 
         /// <summary>
         /// Gets Initial Vector used by AES Algorithm.
         /// </summary>
+#pragma warning disable CA1819 // Properties should not return arrays
         public byte[] Iv { get; }
+#pragma warning restore CA1819 // Properties should not return arrays
     }
 }

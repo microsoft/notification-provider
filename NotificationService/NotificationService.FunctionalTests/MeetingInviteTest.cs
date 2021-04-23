@@ -5,7 +5,6 @@ namespace NotificationService.FunctionalTests
 {
     using Newtonsoft.Json;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models;
     using NotificationService.Contracts.Models.Reports;
     using NUnit.Framework;
@@ -16,7 +15,7 @@ namespace NotificationService.FunctionalTests
     using System.Text;
     using System.Threading.Tasks;
 
-    public class MeetingInviteTest  : BaseTests
+    public class MeetingInviteTest : BaseTests
     {
         [Test]
         /// <summary>
@@ -31,7 +30,7 @@ namespace NotificationService.FunctionalTests
                     From = this.Configuration[FunctionalConstants.ToAddress],
                     RequiredAttendees = this.Configuration[FunctionalConstants.ToAddress],
                     Subject = "Functional Testing of Meeting Invites Queue endpoint",
-                    Body = "Lets meet!",             
+                    Body = "Lets meet!",
                     Start = date,
                     End = date.AddHours(1),
                     Priority = NotificationPriority.Normal
@@ -118,7 +117,7 @@ namespace NotificationService.FunctionalTests
                         }
 
                     }
-                }   
+                }
                 else
                 {
                     Assert.Fail();

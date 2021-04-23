@@ -43,7 +43,6 @@ namespace NotificationService.Contracts
         /// Normal
         /// </summary>
         Normal,
-
     }
 
     /// <summary>

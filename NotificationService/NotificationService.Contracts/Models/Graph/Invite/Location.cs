@@ -42,7 +42,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         public string LocationUri { get; set; }
 
         /// <summary>
-        /// Gets or Sets UniqueId
+        /// Gets or Sets UniqueId.
         /// </summary>
         [DataMember(Name = "uniqueId")]
         public string UniqueId { get; set; }

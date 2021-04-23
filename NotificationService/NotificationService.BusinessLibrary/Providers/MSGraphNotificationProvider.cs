@@ -113,7 +113,7 @@ namespace NotificationService.BusinessLibrary.Providers
 
         /// <inheritdoc/>
         public async Task ProcessNotificationEntities(string applicationName, IList<EmailNotificationItemEntity> notificationEntities)
-         {
+        {
             if (notificationEntities is null || notificationEntities.Count == 0)
             {
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
@@ -156,6 +156,59 @@ namespace NotificationService.BusinessLibrary.Providers
             }
 
             this.logger.TraceInformation($"Finished {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+        }
+
+        /// <inheritdoc/>
+        public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> meetingInviteEntities)
+        {
+            var traceProps = new Dictionary<string, string>();
+            traceProps[AIConstants.Application] = applicationName;
+            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+            if (meetingInviteEntities is null || meetingInviteEntities.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null/empty.");
+            }
+
+            traceProps[AIConstants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
+            var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
+            AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
+            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
+            Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount = new Tuple<AuthenticationHeaderValue, AccountCredential>(authenticationHeaderValue, selectedAccountCreds);
+            this.logger.TraceVerbose($"applicationFromAddress: {applicationFromAddress}", traceProps);
+            meetingInviteEntities.ToList().ForEach(nie => nie.From = applicationFromAddress);
+
+            if (authenticationHeaderValue == null)
+            {
+                foreach (var item in meetingInviteEntities)
+                {
+                    item.Status = NotificationItemStatus.Failed;
+                    item.ErrorMessage = $"Could not retrieve authentication token with selected account:{selectedAccount.Item2?.AccountName} for the application:{applicationName}.";
+                }
+            }
+            else
+            {
+                string emailAccountUsed = selectedAccount.Item2.AccountName;
+                await this.ProcessMeetingEntitiesIndividually(applicationName, meetingInviteEntities, selectedAccount).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
+        }
+
+        /// <summary>
+        /// Validates for all attachments sent.
+        /// </summary>
+        /// <param name="res">HttpResponse object after send attachment request using httpclient.</param>
+        /// <param name="item">Meeting Notification Item object.</param>
+        /// <returns>a boolean value for success/failure.</returns>
+        private static bool IsAllAttachmentsSent(IDictionary<string, ResponseData<string>> res, MeetingNotificationItemEntity item)
+        {
+            if (res == null)
+            {
+                return false;
+            }
+
+            var successResponse = res.Values.Where(a => a.Status == true);
+            return successResponse.Count() == item.Attachments.Count();
         }
 
         /// <summary>
@@ -331,42 +384,6 @@ namespace NotificationService.BusinessLibrary.Providers
             this.logger.TraceInformation($"Finished {nameof(this.ProcessEntitiesInBatch)} method of {nameof(MSGraphNotificationProvider)}.");
         }
 
-        /// <inheritdoc/>
-        public async Task ProcessMeetingNotificationEntities(string applicationName, IList<MeetingNotificationItemEntity> meetingInviteEntities)
-        {
-            var traceProps = new Dictionary<string, string>();
-            traceProps[AIConstants.Application] = applicationName;
-            this.logger.TraceInformation($"Started {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
-            if (meetingInviteEntities is null || meetingInviteEntities.Count == 0)
-            {
-                throw new ArgumentNullException(nameof(meetingInviteEntities), "meetingInviteEntities are null/empty.");
-            }
-
-            traceProps[AIConstants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
-            var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
-            AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
-            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
-            Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount = new Tuple<AuthenticationHeaderValue, AccountCredential>(authenticationHeaderValue, selectedAccountCreds);
-            this.logger.TraceVerbose($"applicationFromAddress: {applicationFromAddress}", traceProps);
-            meetingInviteEntities.ToList().ForEach(nie => nie.From = applicationFromAddress);
-
-            if (authenticationHeaderValue == null)
-            {
-                foreach (var item in meetingInviteEntities)
-                {
-                    item.Status = NotificationItemStatus.Failed;
-                    item.ErrorMessage = $"Could not retrieve authentication token with selected account:{selectedAccount.Item2?.AccountName} for the application:{applicationName}.";
-                }
-            }
-            else
-            {
-                string emailAccountUsed = selectedAccount.Item2.AccountName;
-                await this.ProcessMeetingEntitiesIndividually(applicationName, meetingInviteEntities, selectedAccount).ConfigureAwait(false);
-            }
-
-            this.logger.TraceInformation($"Finished {nameof(this.ProcessMeetingNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
-        }
-
         /// <summary>
         /// Process meeting invites individually.
         /// </summary>
@@ -374,7 +391,7 @@ namespace NotificationService.BusinessLibrary.Providers
         /// <param name="notificationEntities">List of Meeting Notification Entities to be sent.</param>
         /// <param name="selectedAccount">email account used for sending meeting invites.</param>
         /// <returns>A<see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        private async Task ProcessMeetingEntitiesIndividually(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount) 
+        private async Task ProcessMeetingEntitiesIndividually(string applicationName, IList<MeetingNotificationItemEntity> notificationEntities, Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount)
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
@@ -466,7 +483,7 @@ namespace NotificationService.BusinessLibrary.Providers
         }
 
         /// <summary>
-        /// create Payload for Meeting Invite to be set to Graph API. 
+        /// create Payload for Meeting Invite to be set to Graph API.
         /// </summary>
         /// <param name="meetingNotificationEntity"> MeetingNotification Entity Object.</param>
         /// <param name="applicationName">Application Name for the Meeting Invite.</param>
@@ -519,7 +536,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 },
             };
 
-            if ( meetingNotificationEntity.RecurrencePattern != MeetingRecurrencePattern.None )
+            if (meetingNotificationEntity.RecurrencePattern != MeetingRecurrencePattern.None)
             {
                 var recurrencePattern = new RecurrencePattern()
                 {
@@ -544,7 +561,7 @@ namespace NotificationService.BusinessLibrary.Providers
                 };
             }
 
-            payload.ReminderMinutesBeforeStart = Convert.ToInt32(meetingNotificationEntity.ReminderMinutesBeforeStart);
+            payload.ReminderMinutesBeforeStart = Convert.ToInt32(meetingNotificationEntity.ReminderMinutesBeforeStart, CultureInfo.InvariantCulture);
             payload.Start = new InviteDateTime()
             {
                 DateTime = meetingNotificationEntity.Start.FormatDate(ApplicationConstants.GraphMeetingInviteDateTimeFormatter),
@@ -580,23 +597,6 @@ namespace NotificationService.BusinessLibrary.Providers
             }
 
             return isAccountIndexIncremented;
-        }
-
-        /// <summary>
-        /// Validates for all attachments sent.
-        /// </summary>
-        /// <param name="res">HttpResponse object after send attachment request using httpclient.</param>
-        /// <param name="item">Meeting Notification Item object.</param>
-        /// <returns>a boolean value for success/failure.</returns>
-        private static bool IsAllAttachmentsSent(IDictionary<string, ResponseData<string>> res, MeetingNotificationItemEntity item)
-        {
-            if (res == null)
-            {
-                return false;
-            }
-
-            var successResponse = res.Values.Where(a => a.Status == true);
-            return successResponse.Count() == item.Attachments.Count();
         }
     }
 }

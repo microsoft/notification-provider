@@ -1,8 +1,9 @@
-﻿namespace NotificationService.Contracts.Entities
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.Contracts.Entities
 {
-    using System;
     using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// BlobEmailData.

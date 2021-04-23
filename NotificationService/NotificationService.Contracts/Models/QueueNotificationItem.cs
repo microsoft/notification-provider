@@ -3,8 +3,6 @@
 
 namespace NotificationService.Contracts
 {
-    using NotificationService.Contracts;
-
     /// <summary>
     /// Contract for the notification item in the queue.
     /// </summary>
@@ -13,7 +11,9 @@ namespace NotificationService.Contracts
         /// <summary>
         /// Gets or sets unique identifiers of the notification items.
         /// </summary>
+#pragma warning disable CA1819 // Properties should not return arrays
         public string[] NotificationIds { get; set; }
+#pragma warning restore CA1819 // Properties should not return arrays
 
         /// <summary>
         /// Gets or sets the name of application associate to the notification item.

@@ -9,7 +9,7 @@ namespace NotificationHandler.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
-    using NotificationHandler.Controllers.v1;
+    using NotificationHandler.Controllers.V1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
@@ -40,7 +40,7 @@ namespace NotificationHandler.Controllers
         /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
         /// <param name="correlationProvider">An instance of <see cref="ICorrelationProvider"/>.</param>
         public EmailController(IEmailHandlerManager emailHandlerManager, IMailTemplateManager templateManager, ILogger logger)
-            : base (logger)
+            : base(logger)
         {
             this.emailHandlerManager = emailHandlerManager ?? throw new System.ArgumentNullException(nameof(emailHandlerManager));
             this.templateManager = templateManager ?? throw new ArgumentNullException(nameof(templateManager));
@@ -103,6 +103,11 @@ namespace NotificationHandler.Controllers
             if (string.IsNullOrWhiteSpace(applicationName))
             {
                 throw new ArgumentException("Application Name cannot be null or empty.", nameof(applicationName));
+            }
+
+            if (dateRange is null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
             }
 
             traceProps[AIConstants.Application] = applicationName;
@@ -188,7 +193,7 @@ namespace NotificationHandler.Controllers
                     this.LogAndThrowArgumentNullException("Mail template param should not be null", nameof(mailTemplate), traceProps);
                 }
 
-                if (string.IsNullOrWhiteSpace(mailTemplate.TemplateId))
+                if (string.IsNullOrWhiteSpace(mailTemplate?.TemplateId))
                 {
                     this.LogAndThrowArgumentNullException("Template name should not be empty", nameof(mailTemplate), traceProps);
                 }

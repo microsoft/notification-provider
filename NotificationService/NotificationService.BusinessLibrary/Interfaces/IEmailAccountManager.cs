@@ -16,7 +16,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="applicationName">Application Name to be used as filter.</param>
         /// <param name="applicationAccounts">List of applicationAccounts.</param>
-        /// <returns><see cref="AccountCredential"/></returns>
+        /// <returns><see cref="AccountCredential"/>.</returns>
         public AccountCredential FetchAccountToBeUsedForApplication(
             string applicationName, List<ApplicationAccounts> applicationAccounts);
 

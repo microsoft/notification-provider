@@ -19,7 +19,7 @@ namespace NotificationService
     using DirectSend;
     using DirectSend.Models.Configurations;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.BusinessLibrary.Utilities;

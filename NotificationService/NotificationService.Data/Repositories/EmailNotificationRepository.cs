@@ -206,9 +206,27 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
+        public Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
         public async Task<Tuple<IList<EmailNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
         {
-            if (notificationReportRequest is null)
+            if (notificationReportRequest == null)
             {
                 throw new System.ArgumentNullException(nameof(notificationReportRequest));
             }
@@ -221,17 +239,23 @@ namespace NotificationService.Data
             int take = notificationReportRequest.Take > 0 ? notificationReportRequest.Take : 100;
             if (filterExpression == null)
             {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentNullException($"Filter Expression Cannot be null");
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             }
 
             if (projectionExpression == null)
             {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentNullException($"Select Expression Cannot be null");
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             }
 
             if (orderExpression == null)
             {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentNullException($"Order Expression Cannot be null");
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             }
 
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotifications)} method of {nameof(EmailNotificationRepository)}.");
@@ -431,6 +455,7 @@ namespace NotificationService.Data
             };
             return selectExpression;
         }
+
 
         /// <inheritdoc/>
         public async Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationItemEntities(IList<string> notificationIds, string applicationName = null)

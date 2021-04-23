@@ -11,8 +11,8 @@ namespace NotificationService.Contracts.Models
     /// <summary>
     /// MeetingNotificationItem.
     /// </summary>
-    [DataContract]
     /// <seealso cref="NotificationService.Contracts.NotificationItemBase" />
+    [DataContract]
     public class MeetingNotificationItem : NotificationItemBase
     {
         /// <summary>
@@ -38,7 +38,7 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or Sets Action.
         /// </summary>
-        [DataMember(Name="action")]
+        [DataMember(Name = "action")]
         public string Action { get; set; }
 
         /// <summary>

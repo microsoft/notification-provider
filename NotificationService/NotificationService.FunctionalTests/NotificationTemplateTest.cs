@@ -32,7 +32,7 @@ namespace NotificationService.FunctionalTests
                 TemplateType = "Text",
                 Content = "<html><body><p>Hi {{MailSummary}}</p><table border='1'><tbody><tr><td>AppName</td><td>{{appname}}</td></tr><tr><td>Content</td><td>{{Content}}</td></tr></tbody></table></body></html>"
             };
-          
+
             string TemplateData = "{\"{{MailSummary}}\":\"This is a functional testing scenario with templates\",\"{{appname}}\":\"Test App\",\"{{Content}}\":\"Test content\"}";
 
             var stringContent = new StringContent(JsonConvert.SerializeObject(mailTemplate), Encoding.UTF8, FunctionalConstants.ContentType);

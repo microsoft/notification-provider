@@ -8,7 +8,6 @@ namespace NotificationService.BusinessLibrary.Interfaces
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Contracts;
-    using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Reports;
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace NotificationsQueueProcessor
     using System.Threading.Tasks;
 
     /// <summary>
-    /// IHttpClientHelper
+    /// IHttpClientHelper.
     /// </summary>
     public interface IHttpClientHelper
     {

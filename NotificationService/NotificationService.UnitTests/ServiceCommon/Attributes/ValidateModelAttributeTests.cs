@@ -8,14 +8,11 @@ namespace NotificationService.UnitTests.SvCommon.Attributes
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Abstractions;
-    using Microsoft.AspNetCore.Mvc.Controllers;
     using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.Logging;
     using Moq;
-    using NotificationService.BusinessLibrary;
-    using NotificationService.Controllers;
     using NotificationService.SvCommon.Attributes;
     using NUnit.Framework;
 

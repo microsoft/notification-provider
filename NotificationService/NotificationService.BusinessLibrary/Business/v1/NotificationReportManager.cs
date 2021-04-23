@@ -60,25 +60,28 @@ namespace NotificationService.BusinessLibrary
         /// </summary>
         private readonly ITemplateMerge templateMerge;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NotificationReportManager"/> class.
-        /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
-        /// <param name="repositoryFactory">An instance of <see cref="IRepositoryFactory"/>.</param>
-        /// <param name="configuration">An instance of <see cref="IConfiguration"/>.</param>
-        /// <param name="emailManager">An instance of <see cref="EmailManager"/>.</param>
-        /// <param name="mailTemplateRepository">An instance of <see cref="IMailTemplateRepository"/>.</param>
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="repositoryFactory">The repository factory.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="mailTemplateRepository">The mail template repository.</param>
+        /// <param name="templateManager">The template manager.</param>
+        /// <param name="templateMerge">The template merge.</param>
+        /// <exception cref="Exception">Unknown Database Type.</exception>
+        /// <exception cref="System.ArgumentNullException">mailTemplateRepository.</exception>
         public NotificationReportManager(
             ILogger logger,
             IRepositoryFactory repositoryFactory,
             IConfiguration configuration,
             IMailTemplateRepository mailTemplateRepository,
-            IMailTemplateManager templateManager, 
+            IMailTemplateManager templateManager,
             ITemplateMerge templateMerge)
         {
             this.logger = logger;
             this.configuration = configuration;
-            this.emailNotificationRepository = this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
+            this.emailNotificationRepository = repositoryFactory?.GetRepository(Enum.TryParse<StorageType>(this.configuration?[ConfigConstants.StorageType], out this.repo) ? this.repo : throw new Exception("Unknown Database Type"));
             this.templateManager = templateManager;
             this.templateMerge = templateMerge;
             this.mailTemplateRepository = mailTemplateRepository ?? throw new System.ArgumentNullException(nameof(mailTemplateRepository));
@@ -90,7 +93,7 @@ namespace NotificationService.BusinessLibrary
             // Map the request object to filters
             if (notificationReportRequest == null)
             {
-                throw new ArgumentNullException($"The Notification Report Request cannot be null");
+                throw new ArgumentNullException($"{nameof(notificationReportRequest)}");
             }
 
             var emailNotificationItemEntities = await this.emailNotificationRepository.GetEmailNotifications(notificationReportRequest).ConfigureAwait(false);
@@ -141,7 +144,7 @@ namespace NotificationService.BusinessLibrary
             // Map the request object to filters
             if (notificationReportRequest == null)
             {
-                throw new ArgumentNullException($"The Notification Report Request cannot be null");
+                throw new ArgumentNullException($"{nameof(notificationReportRequest)}");
             }
 
             var meetingNotificationItemEntities = await this.emailNotificationRepository.GetMeetingInviteNotifications(notificationReportRequest).ConfigureAwait(false);
@@ -156,7 +159,6 @@ namespace NotificationService.BusinessLibrary
             return tuple;
         }
 
-
         /// <inheritdoc/>
         public async Task<IList<MailTemplateInfo>> GetAllTemplateEntities(string applicationName)
         {
@@ -166,7 +168,7 @@ namespace NotificationService.BusinessLibrary
                 IList<MailTemplateEntity> mailTemplateEntities = await this.mailTemplateRepository.GetAllTemplateEntities(applicationName).ConfigureAwait(false);
                 IList<MailTemplateInfo> mailTemplatesInfo = new List<MailTemplateInfo>();
                 foreach (var item in mailTemplateEntities)
-                    {
+                {
                     mailTemplatesInfo.Add(item.ToTemplateInfoContract());
                 }
 
