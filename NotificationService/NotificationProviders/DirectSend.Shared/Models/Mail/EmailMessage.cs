@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="EmailMessage.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend.Models.Mail
 {
-    using MimeKit;
     using System.Collections.Generic;
 
     /// <summary>
@@ -102,5 +102,12 @@ namespace DirectSend.Models.Mail
         /// </summary>
         public ImportanceType Importance { get; set; }
 
+        /// <summary>
+        /// Gets or sets ReplyTo.
+        /// </summary>
+        /// <value>
+        /// ReplyTo addresses.
+        /// </value>
+        public IEnumerable<EmailAddress> ReplyTo { get; set; }
     }
 }

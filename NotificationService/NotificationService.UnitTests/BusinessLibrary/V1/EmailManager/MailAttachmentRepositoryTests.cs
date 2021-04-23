@@ -81,7 +81,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
             _ = this.MockedCloudStorageClient.Setup(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}", "TestString")).ReturnsAsync($"TestApp/{ApplicationConstants.EmailNotificationsFolderName}/{notificationId}");
             _ = this.EncryptionService.Setup(x => x.Encrypt(It.IsAny<string>())).Returns("TestString");
             var repo = new MailAttachmentRepository(this.Logger, this.MockedCloudStorageClient.Object, this.EncryptionService.Object);
-            var updatednotifications = await repo.UploadMeetingInvite(notifications, NotificationType.Mail.ToString(), "TestApp").ConfigureAwait(false);
+            var updatednotifications = await repo.UploadMeetingInvite(notifications, "TestApp").ConfigureAwait(false);
             Assert.IsTrue(updatednotifications.Count == 1);
             this.MockedCloudStorageClient.Verify(x => x.UploadBlobAsync($"TestApp/{ApplicationConstants.MeetingNotificationsFolderName}/{notificationId}", "TestString"), Times.Once);
             this.EncryptionService.Verify(x => x.Encrypt(It.IsAny<string>()), Times.Once);

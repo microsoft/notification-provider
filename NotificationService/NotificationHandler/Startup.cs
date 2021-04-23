@@ -11,7 +11,7 @@ namespace NotificationHandler
     using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Utilities;
     using NotificationService.Common;

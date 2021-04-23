@@ -3,10 +3,8 @@
 
 namespace NotificationService.Contracts.Models.Graph.Invite
 {
-    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using System.Text;
 
     /// <summary>
     /// Graph Invite Payload.
@@ -117,7 +115,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         public bool IsReminderOn { get; set; } = false;
 
         /// <summary>
-        /// Gets or Sets OnlineMeetingUrl (A URL for an online meeting). 
+        /// Gets or Sets OnlineMeetingUrl (A URL for an online meeting).
         /// </summary>
         [DataMember(Name = "onlineMeetingUrl")]
         public string OnlineMeetingUrl { get; set; }

@@ -6,7 +6,6 @@ namespace NotificationService.FunctionalTests
     using Newtonsoft.Json;
     using NotificationService.Contracts;
     using NUnit.Framework;
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
@@ -59,7 +58,7 @@ namespace NotificationService.FunctionalTests
                     Assert.Fail();
                 }
             }
-            
+
         }
 
     }

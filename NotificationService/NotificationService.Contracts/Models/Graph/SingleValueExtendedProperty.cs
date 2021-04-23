@@ -3,9 +3,6 @@
 
 namespace NotificationService.Contracts
 {
-    using System.Collections.Generic;
-    using System.Runtime.Serialization;
-
     /// <summary>
     /// SingleValueExtendedProperty.
     /// </summary>

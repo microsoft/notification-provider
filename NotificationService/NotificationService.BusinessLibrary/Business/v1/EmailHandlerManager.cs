@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.BusinessLibrary.Business.v1
+namespace NotificationService.BusinessLibrary.Business.V1
 {
     using System;
     using System.Collections.Generic;

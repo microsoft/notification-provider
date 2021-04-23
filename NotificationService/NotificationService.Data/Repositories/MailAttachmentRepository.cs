@@ -79,11 +79,10 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string notificationType, string applicationName)
+        public async Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName)
         {
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.Application] = applicationName;
-            traceProps[AIConstants.NotificationType] = notificationType;
             traceProps[AIConstants.MeetingNotificationCount] = meetingNotificationItemEntities?.Count.ToString(CultureInfo.InvariantCulture);
 
             this.logger.TraceInformation($"Started {nameof(this.UploadMeetingInvite)} method of {nameof(MailAttachmentRepository)}.", traceProps);

@@ -6,20 +6,19 @@ namespace NotificationService.Contracts.Entities
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
-    /// MeetingNotificationItemEntity.
+    /// MeetingNotificationItemCosmosDbEntity.
     /// </summary>
-    /// <seealso cref="NotificationService.Contracts.NotificationItemBaseEntity" />
-    public class MeetingNotificationItemEntity : NotificationItemBaseEntity
+    public class MeetingNotificationItemCosmosDbEntity : CosmosDBEntity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MeetingNotificationItemEntity"/> class.
+        /// Initializes a new instance of the <see cref="MeetingNotificationItemCosmosDbEntity"/> class.
         /// </summary>
-        public MeetingNotificationItemEntity()
+        public MeetingNotificationItemCosmosDbEntity()
         {
-            this.Priority = NotificationPriority.Normal;
-            this.Attachments = Array.Empty<NotificationAttachmentEntity>();
+            this.Priority = NotificationPriority.Normal.ToString();
             this.SendOnUtcDate = DateTime.UtcNow;
             this.TrackingId = string.Empty;
         }
@@ -28,10 +27,7 @@ namespace NotificationService.Contracts.Entities
         /// Gets the type of the notify.
         /// </summary>
         [DataMember(Name = "notifyType")]
-        public override NotificationType NotifyType
-        {
-            get { return NotificationType.Meet; }
-        }
+        public static string NotifyType => NotificationType.Meet.ToString();
 
         /// <summary>
         /// Gets or sets Application associated to the notification item.
@@ -43,7 +39,7 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets the priority.
         /// </summary>
         [DataMember(Name = "priority")]
-        public NotificationPriority Priority { get; set; }
+        public string Priority { get; set; }
 
         /// <summary>
         /// Gets or sets from.
@@ -68,17 +64,6 @@ namespace NotificationService.Contracts.Entities
         /// </summary>
         [DataMember(Name = "Subject")]
         public string Subject { get; set; }
-
-        /// <summary>
-        /// Gets or sets the body.
-        /// </summary>
-        [DataMember(Name = "Body")]
-        public string Body { get; set; }
-
-        /// <summary>
-        /// Gets or sets the attachments.
-        /// </summary>
-        public IEnumerable<NotificationAttachmentEntity> Attachments { get; set; }
 
         /// <summary>
         /// Gets or sets the ReminderMinutesBeforeStart.
@@ -116,7 +101,7 @@ namespace NotificationService.Contracts.Entities
         /// Gets or sets the Recurrence pattern.
         /// </summary>
         [DataMember(Name = "RecurrencePattern")]
-        public MeetingRecurrencePattern RecurrencePattern { get; set; }
+        public string RecurrencePattern { get; set; }
 
         /// <summary>
         /// Gets or sets the ICalUid.
@@ -195,12 +180,6 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the Template Content Arguments.
         /// </summary>
-        [DataMember(Name = "TemplateData")]
-        public string TemplateData { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Template Content Arguments.
-        /// </summary>
         [DataMember(Name = "TemplateId")]
         public string TemplateId { get; set; }
 
@@ -217,6 +196,42 @@ namespace NotificationService.Contracts.Entities
         public int? SequenceNumber { get; set; }
 
         /// <summary>
+        /// Gets or sets Unique Identifier for the Notification Item.
+        /// </summary>
+        [DataMember(Name = "NotificationId")]
+        public string NotificationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the send on UTC date.
+        /// </summary>
+        [DataMember(Name = "SendOnUtcDate")]
+        public DateTime SendOnUtcDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the TrackingId.
+        /// </summary>
+        [DataMember(Name = "TrackingId")]
+        public string TrackingId { get; set; }
+
+        /// <summary>
+        /// Gets or sets status of the Notification item.
+        /// </summary>
+        [DataMember(Name = "Status")]
+        public string Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets a counter value on how many attempts made to send the notification item.
+        /// </summary>
+        [DataMember(Name = "TryCount")]
+        public int TryCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets error message when the email processing failed.
+        /// </summary>
+        [DataMember(Name = "ErrorMessage")]
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
         /// Gets or sets the attachment reference.
         /// </summary>
         [DataMember(Name = "AttachmentReference")]
@@ -229,7 +244,7 @@ namespace NotificationService.Contracts.Entities
         public string EmailAccountUsed { get; set; }
 
         /// <summary>
-        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event.
+        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event. 
         /// </summary>
         [DataMember(Name = "EventId")]
         public string EventId { get; set; }

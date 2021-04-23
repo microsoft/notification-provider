@@ -36,6 +36,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NotificationProviders", "NotificationProviders", "{2B82BA20-E61B-48C9-AC79-8881A8C6791C}"
 	ProjectSection(SolutionItems) = preProject
 		NotificationProviders\DirectSend.NetFramework\DirectSend.NetFramework.csproj = NotificationProviders\DirectSend.NetFramework\DirectSend.NetFramework.csproj
+		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EA5B17E4-9DA9-460D-B70D-1CA68F386F13}"

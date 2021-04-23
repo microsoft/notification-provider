@@ -47,11 +47,6 @@ namespace NotificationService.UnitTests.Data.Repositories
         private readonly string applicationName = "TestApp";
 
         /// <summary>
-        /// Instance of <see cref="meetingHistoryTable"/>.
-        /// </summary>
-        private Mock<CloudTable> meetingHistoryTable;
-
-        /// <summary>
         /// Instace of <see cref="CloudTable"/>
         /// </summary>
         private readonly Mock<CloudTable> cloudTable;
@@ -69,6 +64,11 @@ namespace NotificationService.UnitTests.Data.Repositories
             StartDate = DateTime.Now,
             EndDate = DateTime.Now.AddHours(2),
         };
+
+        /// <summary>
+        /// Instance of <see cref="meetingHistoryTable"/>.
+        /// </summary>
+        private Mock<CloudTable> meetingHistoryTable;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorageRepositoryTests"/> class.
@@ -131,7 +131,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             this.meetingHistoryTable = new Mock<CloudTable>(new Uri("http://unittests.localhost.com/FakeTable"), (TableClientConfiguration)null);
             _ = this.cloudStorageClient.Setup(x => x.GetCloudTable("MeetingHistory")).Returns(this.meetingHistoryTable.Object);
             IList<MeetingNotificationItemEntity> entities = new List<MeetingNotificationItemEntity> { new MeetingNotificationItemEntity { NotificationId = "notificationId1", Application = "Application", RowKey = "notificationId1" }, new MeetingNotificationItemEntity { NotificationId = "notificationId2", Application = "Application", RowKey = "notificationId2" } };
-            _ = this.mailAttachmentRepository.Setup(e => e.UploadMeetingInvite(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(entities));
+            _ = this.mailAttachmentRepository.Setup(e => e.UploadMeetingInvite(It.IsAny<IList<MeetingNotificationItemEntity>>(), It.IsAny<string>())).Returns(Task.FromResult(entities));
             this.meetingHistoryTable.Setup(x => x.ExecuteBatchAsync(It.IsAny<TableBatchOperation>())).Verifiable();
             IOptions<StorageAccountSetting> options = Options.Create<StorageAccountSetting>(new StorageAccountSetting { BlobContainerName = "Test", ConnectionString = "Test Con", MailTemplateTableName = "MailTemplate", EmailHistoryTableName = "EmailHistory", MeetingHistoryTableName = "MeetingHistory", NotificationQueueName = "test-queue" });
             var repo = new TableStorageEmailRepository(options, this.cloudStorageClient.Object, this.logger.Object, this.mailAttachmentRepository.Object);
@@ -163,7 +163,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         [Test]
         public async Task GetEmailNotificationItemEntitiesBetweenDatesTests()
         {
-            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed};
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
             var emailNotificationItemEntity = new EmailNotificationItemTableEntity()
             {
                 Application = this.applicationName,

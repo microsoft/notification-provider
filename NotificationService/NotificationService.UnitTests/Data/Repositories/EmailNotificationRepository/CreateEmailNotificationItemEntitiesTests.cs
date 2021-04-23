@@ -39,8 +39,8 @@ namespace NotificationService.UnitTests.Data.Repositories
         {
             var result = this.EmailNotificationRepository.CreateEmailNotificationItemEntities(this.NotificationEntities);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-            this.CosmosContainer.Verify(container => container.CreateItemAsync(It.IsAny<EmailNotificationItemEntity>(), null, null, It.IsAny<CancellationToken>()), Times.Exactly(2));
+            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.CreateItemAsync(It.IsAny<EmailNotificationItemCosmosDbEntity>(), null, null, It.IsAny<CancellationToken>()), Times.Exactly(2));
             Assert.Pass();
         }
     }

@@ -25,8 +25,8 @@ namespace NotificationsQueueProcessor
         /// Initializes a new instance of the <see cref="HttpClientHelper"/> class.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
-        public HttpClientHelper(HttpClient httpClient,
-            IConfiguration configuration)
+        /// <param name="configuration">The configuration.</param>
+        public HttpClientHelper(HttpClient httpClient, IConfiguration configuration)
         {
             this.httpClient = httpClient;
             this.configuration = configuration;

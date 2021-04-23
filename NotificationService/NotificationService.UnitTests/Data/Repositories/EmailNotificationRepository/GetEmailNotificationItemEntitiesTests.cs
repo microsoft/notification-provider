@@ -41,8 +41,29 @@ namespace NotificationService.UnitTests.Data.Repositories
         {
             var result = this.EmailNotificationRepository.GetEmailNotificationItemEntities(new List<string>() { Guid.NewGuid().ToString() });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-            this.CosmosContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            Assert.Pass();
+        }
+
+        /// <summary>
+        /// Tests for GetEmailNotificationItemEntity method for invalid inputs.
+        /// </summary>
+        [Test]
+        public void GetEmailNotificationItemEntityTestInvalidInput()
+        {
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailNotificationRepository.GetEmailNotificationItemEntity(null));
+        }
+
+        /// <summary>
+        /// Tests for UpdateEmailNotificationItemEntity method for valid inputs.
+        /// </summary>
+        [Test]
+        public void GetEmailNotificationItemEntityTestValidInput()
+        {
+            var result = this.EmailNotificationRepository.GetEmailNotificationItemEntity(Guid.NewGuid().ToString());
+            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
             Assert.Pass();
         }
 
@@ -65,15 +86,15 @@ namespace NotificationService.UnitTests.Data.Repositories
             var faultedResult = this.EmailNotificationRepository.GetEmailNotifications(null);
             Assert.AreEqual(faultedResult.Status.ToString(), "Faulted");
 
-            Expression<Func<EmailNotificationItemEntity, bool>> filterExpression = n => true;
-            Expression<Func<EmailNotificationItemEntity, DateTime>> sortExpression = n => n.CreatedDateTime;
+            Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> filterExpression = n => true;
+            Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> sortExpression = n => n.CreatedDateTime;
 
-            Expression<Func<EmailNotificationItemEntity, EmailNotificationItemEntity>> selectExpression = n => new EmailNotificationItemEntity() { NotificationId = n.NotificationId };
+            Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> selectExpression = n => new EmailNotificationItemCosmosDbEntity() { NotificationId = n.NotificationId };
             var result = this.EmailNotificationRepository.GetEmailNotifications(request);
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
 
-            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-            this.CosmosContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
             Assert.Pass();
         }
     }

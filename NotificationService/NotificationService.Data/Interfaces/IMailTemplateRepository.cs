@@ -5,7 +5,6 @@ namespace NotificationService.Data
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
 
     /// <summary>

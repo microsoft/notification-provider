@@ -8,7 +8,6 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Moq;
-    using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;

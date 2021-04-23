@@ -66,7 +66,7 @@ namespace NotificationService.Data
         /// Gets the meeting notification item from database for the input id.
         /// </summary>
         /// <param name="notificationId">A single notifications id.</param>
-        /// <param name="applicationName">Application Name.</param>
+        /// <param name="applicationName">applicationName.</param>
         /// <returns>notitication item corresponding to input id.</returns>
         Task<MeetingNotificationItemEntity> GetMeetingNotificationItemEntity(string notificationId, string applicationName);
 
@@ -74,7 +74,7 @@ namespace NotificationService.Data
         /// Creates entities in database for the input meeting notification items.
         /// </summary>
         /// <param name="meetingNotificationItemEntity">List of <see cref="MeetingNotificationItemEntity"/>.</param>
-        /// <param name="applicationName"> application name as container</param>
+        /// <param name="applicationName"> application name as container.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task CreateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntity, string applicationName);
 

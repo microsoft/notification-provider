@@ -5,18 +5,17 @@ namespace NotificationService.Contracts
 {
     using System;
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
-    /// Email Notification Table Entity.
+    /// Email Notification Item CosmosDb Entity.
     /// </summary>
     [DataContract]
-    public class EmailNotificationItemTableEntity : TableEntity
+    public class EmailNotificationItemCosmosDbEntity : CosmosDBEntity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="EmailNotificationItemTableEntity"/> class.
+        /// Initializes a new instance of the <see cref="EmailNotificationItemCosmosDbEntity"/> class.
         /// </summary>
-        public EmailNotificationItemTableEntity()
+        public EmailNotificationItemCosmosDbEntity()
         {
             this.Priority = "Normal";
             this.SendOnUtcDate = DateTime.UtcNow;
@@ -100,6 +99,7 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "TemplateId")]
         public string TemplateId { get; set; }
+
 
         /// <summary>
         /// Gets or sets Unique Identifier for the Notification Item.

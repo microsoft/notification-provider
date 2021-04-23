@@ -4,10 +4,7 @@
 namespace NotificationService.Contracts.Extensions
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using NotificationService.Contracts.Entities;
-    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// MeetingNotificationItemEntityExtensions.
@@ -39,6 +36,130 @@ namespace NotificationService.Contracts.Extensions
                 OptionalAttendees = meetingNotificationItemEntity?.OptionalAttendees,
                 Subject = meetingNotificationItemEntity?.Subject,
             };
+        }
+
+        /// <summary>
+        /// Converts <see cref="MeetingNotificationItemEntity"/> to a <see cref="MeetingNotificationItemTableEntity"/>.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntity"> meetingNotificationItemEntity. </param>
+        /// <returns><see cref="MeetingNotificationItemTableEntity"/>.</returns>
+        public static MeetingNotificationItemTableEntity ConvertToMeetingNotificationItemTableEntity(this MeetingNotificationItemEntity meetingNotificationItemEntity)
+        {
+            if (meetingNotificationItemEntity is null)
+            {
+                return null;
+            }
+
+            MeetingNotificationItemTableEntity meetingNotificationItemTableEntity = new MeetingNotificationItemTableEntity();
+            meetingNotificationItemTableEntity.PartitionKey = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.RowKey = meetingNotificationItemEntity.NotificationId;
+            meetingNotificationItemTableEntity.Application = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.RequiredAttendees = meetingNotificationItemEntity.RequiredAttendees;
+            meetingNotificationItemTableEntity.OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees;
+            meetingNotificationItemTableEntity.Application = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.ErrorMessage = meetingNotificationItemEntity.ErrorMessage;
+            meetingNotificationItemTableEntity.DayofMonth = meetingNotificationItemEntity.DayofMonth ?? default;
+            meetingNotificationItemTableEntity.DayOfWeekByMonth = meetingNotificationItemEntity.DayOfWeekByMonth;
+            meetingNotificationItemTableEntity.DaysOfWeek = meetingNotificationItemEntity.DaysOfWeek;
+            meetingNotificationItemTableEntity.EndDate = meetingNotificationItemEntity.EndDate;
+            meetingNotificationItemTableEntity.IsAllDayEvent = meetingNotificationItemEntity.IsAllDayEvent;
+            meetingNotificationItemTableEntity.From = meetingNotificationItemEntity.From;
+            meetingNotificationItemTableEntity.IsCancel = meetingNotificationItemEntity.IsCancel;
+            meetingNotificationItemTableEntity.IsOnlineMeeting = meetingNotificationItemEntity.IsOnlineMeeting;
+            meetingNotificationItemTableEntity.NotificationId = meetingNotificationItemEntity.NotificationId;
+            meetingNotificationItemTableEntity.Priority = meetingNotificationItemEntity.Priority.ToString();
+            meetingNotificationItemTableEntity.IsPrivate = meetingNotificationItemEntity.IsPrivate;
+            meetingNotificationItemTableEntity.IsResponseRequested = meetingNotificationItemEntity.IsResponseRequested;
+            meetingNotificationItemTableEntity.Status = meetingNotificationItemEntity.Status.ToString();
+            meetingNotificationItemTableEntity.Subject = meetingNotificationItemEntity.Subject;
+            meetingNotificationItemTableEntity.Location = meetingNotificationItemEntity.Location;
+            meetingNotificationItemTableEntity.Timestamp = meetingNotificationItemEntity.Timestamp;
+            meetingNotificationItemTableEntity.MonthOfYear = meetingNotificationItemEntity.MonthOfYear;
+            meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
+            meetingNotificationItemTableEntity.TryCount = meetingNotificationItemEntity.TryCount;
+            meetingNotificationItemTableEntity.ETag = meetingNotificationItemEntity.ETag;
+            meetingNotificationItemTableEntity.OccurrenceId = meetingNotificationItemEntity.OccurrenceId;
+            meetingNotificationItemTableEntity.Ocurrences = meetingNotificationItemEntity.Ocurrences ?? default;
+            meetingNotificationItemTableEntity.RecurrencePattern = meetingNotificationItemEntity.RecurrencePattern.ToString();
+            meetingNotificationItemTableEntity.ReminderMinutesBeforeStart = meetingNotificationItemEntity.ReminderMinutesBeforeStart;
+            meetingNotificationItemTableEntity.TemplateId = meetingNotificationItemEntity.TemplateId;
+            meetingNotificationItemTableEntity.End = meetingNotificationItemEntity.End;
+            meetingNotificationItemTableEntity.Start = meetingNotificationItemEntity.Start;
+            meetingNotificationItemTableEntity.SequenceNumber = meetingNotificationItemEntity.SequenceNumber ?? default;
+            meetingNotificationItemTableEntity.SendOnUtcDate = meetingNotificationItemEntity.SendOnUtcDate;
+            meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
+            meetingNotificationItemTableEntity.TryCount = meetingNotificationItemEntity.TryCount;
+            meetingNotificationItemTableEntity.Timestamp = meetingNotificationItemEntity.Timestamp;
+            meetingNotificationItemTableEntity.RowKey = meetingNotificationItemEntity.NotificationId;
+            meetingNotificationItemTableEntity.PartitionKey = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.Interval = meetingNotificationItemEntity.Interval;
+            meetingNotificationItemTableEntity.ICalUid = meetingNotificationItemEntity.ICalUid;
+            meetingNotificationItemTableEntity.AttachmentReference = meetingNotificationItemEntity.AttachmentReference;
+            meetingNotificationItemTableEntity.EmailAccountUsed = meetingNotificationItemEntity.EmailAccountUsed;
+            meetingNotificationItemTableEntity.EventId = meetingNotificationItemEntity.EventId;
+            return meetingNotificationItemTableEntity;
+        }
+
+        /// <summary>
+        /// Converts <see cref="MeetingNotificationItemEntity"/> to a <see cref="MeetingNotificationItemTableEntity"/>.
+        /// </summary>
+        /// <param name="meetingNotificationItemEntity"> meetingNotificationItemEntity. </param>
+        /// <returns><see cref="MeetingNotificationItemTableEntity"/>.</returns>
+        public static MeetingNotificationItemCosmosDbEntity ConvertToMeetingNotificationItemCosmosDbEntity(this MeetingNotificationItemEntity meetingNotificationItemEntity)
+        {
+            if (meetingNotificationItemEntity is null)
+            {
+                return null;
+            }
+
+            MeetingNotificationItemCosmosDbEntity meetingNotificationItemTableEntity = new MeetingNotificationItemCosmosDbEntity();
+            meetingNotificationItemTableEntity.Application = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.Id = meetingNotificationItemEntity.Id;
+            meetingNotificationItemTableEntity.PartitionKey = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.RowKey = meetingNotificationItemEntity.NotificationId;
+            meetingNotificationItemTableEntity.RequiredAttendees = meetingNotificationItemEntity.RequiredAttendees;
+            meetingNotificationItemTableEntity.OptionalAttendees = meetingNotificationItemEntity.OptionalAttendees;
+            meetingNotificationItemTableEntity.Application = meetingNotificationItemEntity.Application;
+            meetingNotificationItemTableEntity.ErrorMessage = meetingNotificationItemEntity.ErrorMessage;
+            meetingNotificationItemTableEntity.DayofMonth = meetingNotificationItemEntity.DayofMonth ?? default;
+            meetingNotificationItemTableEntity.DayOfWeekByMonth = meetingNotificationItemEntity.DayOfWeekByMonth;
+            meetingNotificationItemTableEntity.DaysOfWeek = meetingNotificationItemEntity.DaysOfWeek;
+            meetingNotificationItemTableEntity.EndDate = meetingNotificationItemEntity.EndDate;
+            meetingNotificationItemTableEntity.IsAllDayEvent = meetingNotificationItemEntity.IsAllDayEvent;
+            meetingNotificationItemTableEntity.From = meetingNotificationItemEntity.From;
+            meetingNotificationItemTableEntity.IsCancel = meetingNotificationItemEntity.IsCancel;
+            meetingNotificationItemTableEntity.IsOnlineMeeting = meetingNotificationItemEntity.IsOnlineMeeting;
+            meetingNotificationItemTableEntity.NotificationId = meetingNotificationItemEntity.NotificationId;
+            meetingNotificationItemTableEntity.Priority = meetingNotificationItemEntity.Priority.ToString();
+            meetingNotificationItemTableEntity.IsPrivate = meetingNotificationItemEntity.IsPrivate;
+            meetingNotificationItemTableEntity.IsResponseRequested = meetingNotificationItemEntity.IsResponseRequested;
+            meetingNotificationItemTableEntity.Status = meetingNotificationItemEntity.Status.ToString();
+            meetingNotificationItemTableEntity.Subject = meetingNotificationItemEntity.Subject;
+            meetingNotificationItemTableEntity.Location = meetingNotificationItemEntity.Location;
+            meetingNotificationItemTableEntity.Timestamp = meetingNotificationItemEntity.Timestamp;
+            meetingNotificationItemTableEntity.MonthOfYear = meetingNotificationItemEntity.MonthOfYear;
+            meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
+            meetingNotificationItemTableEntity.TryCount = meetingNotificationItemEntity.TryCount;
+            meetingNotificationItemTableEntity.ETag = meetingNotificationItemEntity.ETag;
+            meetingNotificationItemTableEntity.OccurrenceId = meetingNotificationItemEntity.OccurrenceId;
+            meetingNotificationItemTableEntity.Ocurrences = meetingNotificationItemEntity.Ocurrences ?? default;
+            meetingNotificationItemTableEntity.RecurrencePattern = meetingNotificationItemEntity.RecurrencePattern.ToString();
+            meetingNotificationItemTableEntity.ReminderMinutesBeforeStart = meetingNotificationItemEntity.ReminderMinutesBeforeStart;
+            meetingNotificationItemTableEntity.TemplateId = meetingNotificationItemEntity.TemplateId;
+            meetingNotificationItemTableEntity.End = meetingNotificationItemEntity.End;
+            meetingNotificationItemTableEntity.Start = meetingNotificationItemEntity.Start;
+            meetingNotificationItemTableEntity.SequenceNumber = meetingNotificationItemEntity.SequenceNumber ?? default;
+            meetingNotificationItemTableEntity.SendOnUtcDate = meetingNotificationItemEntity.SendOnUtcDate;
+            meetingNotificationItemTableEntity.TrackingId = meetingNotificationItemEntity.TrackingId;
+            meetingNotificationItemTableEntity.TryCount = meetingNotificationItemEntity.TryCount;
+            meetingNotificationItemTableEntity.Timestamp = meetingNotificationItemEntity.Timestamp;
+            meetingNotificationItemTableEntity.Interval = meetingNotificationItemEntity.Interval;
+            meetingNotificationItemTableEntity.ICalUid = meetingNotificationItemEntity.ICalUid;
+            meetingNotificationItemTableEntity.AttachmentReference = meetingNotificationItemEntity.AttachmentReference;
+            meetingNotificationItemTableEntity.EmailAccountUsed = meetingNotificationItemEntity.EmailAccountUsed;
+            meetingNotificationItemTableEntity.EventId = meetingNotificationItemEntity.EventId;
+            meetingNotificationItemTableEntity.Action = meetingNotificationItemEntity.Action;
+            return meetingNotificationItemTableEntity;
         }
     }
 }

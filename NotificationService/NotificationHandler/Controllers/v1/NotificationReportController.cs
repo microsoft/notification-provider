@@ -9,7 +9,7 @@ namespace NotificationHandler.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Cosmos.Table;
-    using NotificationHandler.Controllers.v1;
+    using NotificationHandler.Controllers.V1;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;

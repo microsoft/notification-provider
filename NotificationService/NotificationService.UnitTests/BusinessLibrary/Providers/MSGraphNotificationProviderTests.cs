@@ -1,5 +1,13 @@
-﻿namespace NotificationService.UnitTests.BusinessLibrary.Providers
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace NotificationService.UnitTests.BusinessLibrary.Providers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http.Headers;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
@@ -12,13 +20,10 @@
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Threading.Tasks;
 
+    /// <summary>
+    /// MSGraphNotificationProviderTests.
+    /// </summary>
     public class MSGraphNotificationProviderTests
     {
         private readonly Mock<IConfiguration> configuration;
@@ -52,10 +57,10 @@
         [Test]
         public async Task ProcessNotificationEntities_Tests()
         {
-            _ = this.configuration.Setup(x => x["ApplicationAccounts"]).Returns(JsonConvert.SerializeObject(new List<ApplicationAccounts> { new ApplicationAccounts { Accounts = new List<AccountCredential> { new AccountCredential { AccountName = "Test",IsEnabled = true } }, ApplicationName = "TestAppName",  } }));
+            _ = this.configuration.Setup(x => x["ApplicationAccounts"]).Returns(JsonConvert.SerializeObject(new List<ApplicationAccounts> { new ApplicationAccounts { Accounts = new List<AccountCredential> { new AccountCredential { AccountName = "Test", IsEnabled = true } }, ApplicationName = "TestAppName", } }));
             _ = this.configuration.Setup(x => x["RetrySetting:MaxRetries"]).Returns("2");
             _ = this.configuration.Setup(x => x["MailSettings"]).Returns(JsonConvert.SerializeObject(new List<MailSettings> { new MailSettings { ApplicationName = "TestAppName", SendForReal = true } }));
-            _ = this.mSGraphSetting.Setup(x => x.Value).Returns(new MSGraphSetting { EnableBatching = true , SendMailUrl = "test", BatchRequestLimit = 4 });
+            _ = this.mSGraphSetting.Setup(x => x.Value).Returns(new MSGraphSetting { EnableBatching = true, SendMailUrl = "test", BatchRequestLimit = 4 });
             _ = this.msGraphProvider.Setup(x => x.ProcessEmailRequestBatch(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<GraphBatchRequest>())).ReturnsAsync(new List<NotificationBatchItemResponse> { new NotificationBatchItemResponse { Status = System.Net.HttpStatusCode.Accepted } });
             var provider = new MSGraphNotificationProvider(this.configuration.Object, new EmailAccountManager(), this.logger.Object, this.mSGraphSetting.Object, this.tokenHelper.Object, this.msGraphProvider.Object, this.emailManager.Object);
             var notifications = new List<EmailNotificationItemEntity> { new EmailNotificationItemEntity { Application = "TestAppName", SendOnUtcDate = DateTime.Parse("2021-01-18T12:00:00Z"), To = "test@microsoft.com" } };
@@ -64,7 +69,7 @@
             Assert.IsTrue(notifications.Any(x => x.Status == NotificationItemStatus.Failed));
 
             _ = this.tokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("Test"));
-            provider = new MSGraphNotificationProvider(this.configuration.Object, new EmailAccountManager(), this.logger.Object, this.mSGraphSetting.Object, this.tokenHelper.Object, this.msGraphProvider.Object, this.emailManager.Object);            
+            provider = new MSGraphNotificationProvider(this.configuration.Object, new EmailAccountManager(), this.logger.Object, this.mSGraphSetting.Object, this.tokenHelper.Object, this.msGraphProvider.Object, this.emailManager.Object);
             await provider.ProcessNotificationEntities("TestAppName", notifications);
             Assert.IsTrue(notifications.Count == 1);
             Assert.IsTrue(notifications.Any(x => x.Status == NotificationItemStatus.Sent));

@@ -7,18 +7,13 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Localization.Internal;
-    using Microsoft.Extensions.Options;
     using Moq;
     using Newtonsoft.Json;
-    using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
-    using NotificationService.BusinessLibrary.Models;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
@@ -345,8 +340,6 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                     SaveToSent = true,
                 },
             };
-
-           
 
             Dictionary<string, string> testConfigValues = new Dictionary<string, string>()
             {
