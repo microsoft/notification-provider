@@ -89,7 +89,7 @@ namespace DirectSend
 
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
             message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
-
+            message.Priority = GetMessagePriority(emailMessage.Importance);
             message.Subject = emailMessage.Subject;
 
             // We will say we are sending HTML. But there are options for plaintext etc.
@@ -171,6 +171,7 @@ namespace DirectSend
 
             message.Subject = emailMessage.Subject;
             message.Importance = (MimeKit.MessageImportance)emailMessage.Importance;
+            message.Priority = GetMessagePriority(emailMessage.Importance);
 
             var ical = new TextPart("calendar")
             {
@@ -316,6 +317,30 @@ namespace DirectSend
 
                 this.logger.WriteMetric("DirectSendMailService_SendMailCount", 1, traceProps);
             }
+        }
+
+        /// <summary>
+        /// Get MessagePriority from ImportanceType.
+        /// </summary>
+        /// <param name="importanceType">instance of EmailMessage.ImportanceType.</param>
+        /// <returns>an instance of MessagePriority</returns>
+        private static MessagePriority GetMessagePriority(EmailMessage.ImportanceType importanceType)
+        {
+            MessagePriority messagePriority = MessagePriority.NonUrgent;
+            switch (importanceType)
+            {
+                case EmailMessage.ImportanceType.Normal:
+                    messagePriority = MessagePriority.Normal;
+                    break;
+                case EmailMessage.ImportanceType.High:
+                    messagePriority = MessagePriority.Urgent;
+                    break;
+                default:
+                    messagePriority = MessagePriority.NonUrgent;
+                    break;
+            }
+
+            return messagePriority;
         }
     }
 }
