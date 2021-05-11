@@ -310,7 +310,7 @@ namespace NotificationService.BusinessLibrary.Providers
             return str.ToString();
         }
 
-        private int GetMeetingPriority(NotificationPriority priority)
+        private static int GetMeetingPriority(NotificationPriority priority)
         {
             int meetingPriority = 0;
             switch (priority)
