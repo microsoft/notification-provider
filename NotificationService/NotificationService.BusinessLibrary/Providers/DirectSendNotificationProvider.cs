@@ -269,7 +269,7 @@ namespace NotificationService.BusinessLibrary.Providers
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "SUMMARY:{0}", meetingNotificationItem.Subject));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "LOCATION:{0}", meetingNotificationItem.Location));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ORGANIZER:MAILTO:{0}", meetingNotificationItem.From));
-            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "PRIORITY:{0}", this.GetMeetingPriority(meetingNotificationItem.Priority)));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "PRIORITY:{0}", GetMeetingPriority(meetingNotificationItem.Priority)));
 
             if (meetingNotificationItem.SequenceNumber.HasValue)
             {
