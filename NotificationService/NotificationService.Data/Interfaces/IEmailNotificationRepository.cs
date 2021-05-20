@@ -101,5 +101,17 @@ namespace NotificationService.Data
         /// <param name="loadBody"> by default it is false. if false it will not populate body, attachments etc. </param>
         /// <returns>A <see cref="Task"/> represents the return of the asynchronous operation.</returns>
         Task<IList<EmailNotificationItemEntity>> GetPendingOrFailedEmailNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
+
+        /// <summary>
+        /// Get MeetingNotification Entities for given data range.
+        /// Maximum range allowed is 10 hours. It will return data for 10 hours at a time.
+        /// </summary>
+        /// <param name="dateRange"> input param for dateRange.</param>
+        /// <param name="applicationName">application name.</param>
+        /// <param name="statusList">List of Status for which notificaiton items need to be fetched.</param>
+        /// <param name="loadBody"> by default it is false. if false it will not populate body, attachments etc. </param>
+        /// <returns>A <see cref="Task"/> represents the return of the asynchronous operation.</returns>
+        Task<IList<MeetingNotificationItemEntity>> GetPendingOrFailedMeetingNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false);
+
     }
 }
