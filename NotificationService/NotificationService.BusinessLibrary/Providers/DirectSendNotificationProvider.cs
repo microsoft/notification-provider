@@ -269,6 +269,7 @@ namespace NotificationService.BusinessLibrary.Providers
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "SUMMARY:{0}", meetingNotificationItem.Subject));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "LOCATION:{0}", meetingNotificationItem.Location));
             str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ORGANIZER:MAILTO:{0}", meetingNotificationItem.From));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "PRIORITY:{0}", GetMeetingPriority(meetingNotificationItem.Priority)));
 
             if (meetingNotificationItem.SequenceNumber.HasValue)
             {
@@ -307,6 +308,25 @@ namespace NotificationService.BusinessLibrary.Providers
 
 #pragma warning restore IDE0058 // Expression value is never used
             return str.ToString();
+        }
+
+        private static int GetMeetingPriority(NotificationPriority priority)
+        {
+            int meetingPriority = 0;
+            switch (priority)
+            {
+                case NotificationPriority.High:
+                    meetingPriority = 1;
+                    break;
+                case NotificationPriority.Low:
+                    meetingPriority = 9;
+                    break;
+                default:
+                    meetingPriority = 0;
+                    break;
+            }
+
+            return meetingPriority;
         }
 
         private string GenerateRecurrenceRuleForSMTP(MeetingNotificationItemEntity meetingNotificationItem)

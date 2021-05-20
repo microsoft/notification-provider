@@ -305,8 +305,6 @@ namespace NotificationService.Data
                 throw new ArgumentNullException($"Order Expression Cannot be null");
             }
 
-            List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
-
             var filteredNotifications = new List<EmailNotificationItemEntity>();
             var query = this.emailHistoryContainer.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>()
                             .Where(filterExpression)
@@ -615,6 +613,69 @@ namespace NotificationService.Data
 
             Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>(filteredNotifications, null);
             return tuple;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> GetPendingOrFailedMeetingNotificationsByDateRange(DateTimeRange dateRange, string applicationName, List<NotificationItemStatus> statusList, bool loadBody = false)
+        {
+            if (dateRange == null || dateRange.StartDate == null || dateRange.EndDate == null)
+            {
+                throw new ArgumentNullException(nameof(dateRange));
+            }
+
+            this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedMeetingNotificationsByDateRange)} method of {nameof(EmailNotificationRepository)}");
+
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> filterExpression = notification => true;
+
+            filterExpression = filterExpression.And(notification => notification.SendOnUtcDate >= dateRange.StartDate).And(notification => notification.SendOnUtcDate <= dateRange.EndDate);
+
+            if (!string.IsNullOrEmpty(applicationName))
+            {
+                filterExpression = filterExpression.And(notification => notification.Application == applicationName);
+            }
+
+            if (statusList?.Count > 0)
+            {
+                List<string> stringList = statusList.ConvertAll(f => f.ToString());
+                filterExpression = filterExpression.And(notification => stringList.Contains(notification.Status));
+            }
+
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> projectionExpression = this.GetMeetingProjectionExpression();
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderExpression = this.GetMeetingOrderExpression();
+            if (projectionExpression == null)
+            {
+                throw new ArgumentNullException($"Select Expression Cannot be null");
+            }
+
+            if (orderExpression == null)
+            {
+                throw new ArgumentNullException($"Order Expression Cannot be null");
+            }
+
+            var filteredNotifications = new List<MeetingNotificationItemEntity>();
+            var query = this.meetingHistoryContainer.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>()
+                            .Where(filterExpression)
+                            .OrderByDescending(orderExpression)
+                            .Select(projectionExpression);
+
+            var itemIterator = this.cosmosLinqQuery.GetFeedIterator<MeetingNotificationItemCosmosDbEntity>(query);
+
+            while (itemIterator.HasMoreResults)
+            {
+                foreach (MeetingNotificationItemCosmosDbEntity item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    filteredNotifications.Add(item.ConvertToMeetingNotificationItemEntity());
+                }
+            }
+
+            IList<MeetingNotificationItemEntity> updatedNotificationEntities = filteredNotifications;
+            if (!string.IsNullOrEmpty(applicationName) && loadBody)
+            {
+                updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(filteredNotifications, applicationName).ConfigureAwait(false);
+            }
+
+            this.logger.TraceInformation($"Finished {nameof(this.GetPendingOrFailedMeetingNotificationsByDateRange)} method of {nameof(EmailNotificationRepository)}.");
+            return updatedNotificationEntities;
         }
 
         private Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> GetMeetingProjectionExpression()
