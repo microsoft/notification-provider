@@ -6,12 +6,15 @@ namespace NotificationService.UnitTests.Data.Repositories
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos;
     using Moq;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models.Request;
     using NUnit.Framework;
 
     /// <summary>
@@ -20,6 +23,14 @@ namespace NotificationService.UnitTests.Data.Repositories
     [ExcludeFromCodeCoverage]
     public class EmailNotificationRepositoryMeetingInviteTests : EmailNotificationRepositoryTestsBase
     {
+        /// <summary>
+        /// DateRange object.
+        /// </summary>
+        private readonly DateTimeRange dateRange = new DateTimeRange
+        {
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddHours(2),
+        };
         /// <summary>
         /// Initialization for the tests.
         /// </summary>
@@ -142,6 +153,37 @@ namespace NotificationService.UnitTests.Data.Repositories
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
             this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
             Assert.Pass();
+        }
+
+
+        /// <summary>
+        /// Tests for Get Meeting Notifications for Reporting.
+        /// </summary>
+        [Test]
+        public async Task GetMeetingNotificationItemEntitiesBetweenDatesTestsCosmosDb()
+        {
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
+            var application = "TestApp";
+
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await this.EmailNotificationRepository.GetPendingOrFailedMeetingNotificationsByDateRange(null, application, statusList));
+
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> filterExpression = n => true;
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> sortExpression = n => n.CreatedDateTime;
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> selectExpression = n => new MeetingNotificationItemCosmosDbEntity() { NotificationId = n.NotificationId };
+
+            var result = await this.EmailNotificationRepository.GetPendingOrFailedMeetingNotificationsByDateRange(this.dateRange, null, statusList);
+            Assert.IsNotNull(result);
+
+            var faultedResult = await this.EmailNotificationRepository.GetPendingOrFailedMeetingNotificationsByDateRange(this.dateRange, application, null);
+            Assert.IsNotNull(result);
+
+            result = await this.EmailNotificationRepository.GetPendingOrFailedMeetingNotificationsByDateRange(this.dateRange, application, statusList);
+            Assert.IsNotNull(result);
+
+            this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
+            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Exactly(3));
+            Assert.Pass();
+
         }
     }
 }

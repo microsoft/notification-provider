@@ -313,5 +313,11 @@ namespace NotificationService.BusinessLibrary
         {
             return await this.emailNotificationRepository.GetPendingOrFailedEmailNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
         }
+
+        /// <inheritdoc/>
+        public async Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList)
+        {
+            return await this.emailNotificationRepository.GetPendingOrFailedMeetingNotificationsByDateRange(dateRange, applicationName, statusList).ConfigureAwait(false);
+        }
     }
 }

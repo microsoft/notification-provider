@@ -47,5 +47,13 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// <param name="dateRange"> daterange object containing start and end dates.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task<IList<NotificationResponse>> ResendEmailNotificationsByDateRange(string applicationName, DateTimeRange dateRange);
+
+        /// <summary>
+        /// Requeue meeting notification items to be resent basing on date range.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="dateRange"> daterange object containing start and end dates.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task<IList<NotificationResponse>> ResendMeetingNotificationsByDateRange(string applicationName, DateTimeRange dateRange);
     }
 }
