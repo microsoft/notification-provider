@@ -3,10 +3,12 @@
 
 namespace NotificationService.Contracts.Models
 {
+
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
+    using NotificationService.Common.CustomValidations;
 
     /// <summary>
     /// MeetingNotificationItem.
@@ -59,12 +61,14 @@ namespace NotificationService.Contracts.Models
         /// </summary>
         [DataMember(Name = "requiredAttendees")]
         [Required(ErrorMessage = "'RequiredAttendees' is mandatory for meeting notifications.")]
+        [EmailIdListValidation(PropertyName = "RequiredAttendees", Nullable = false)]
         public string RequiredAttendees { get; set; }
 
         /// <summary>
         /// Gets or sets the cc.
         /// </summary>
         [DataMember(Name = "optionalAttendees")]
+        [EmailIdListValidation(PropertyName = "OptionalAttendees", Nullable = true)]
         public string OptionalAttendees { get; set; }
 
         /// <summary>
