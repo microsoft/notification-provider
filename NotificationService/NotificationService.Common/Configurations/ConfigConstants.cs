@@ -154,6 +154,11 @@ namespace NotificationService.Common.Configurations
         public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
 
         /// <summary>
+        /// A constant for SMTP setting config section key from appsetting.json.
+        /// </summary>
+        public const string SMTPSettingConfigSectionKey = "SMTPSetting";
+
+        /// <summary>
         /// A constant for BearerTokenAuthenticationIssuer config key from appsetting.json.
         /// </summary>
 #pragma warning disable CA2211 // Non-constant fields should not be visible
@@ -215,5 +220,6 @@ namespace NotificationService.Common.Configurations
         public static string DirectSendSMTPServerConfigKey = $"{DirectSendSettingConfigSectionKey}:SmtpServer";
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore CA2211 // Non-constant fields should not be visible
+
     }
 }
