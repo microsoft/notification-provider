@@ -163,7 +163,27 @@ namespace NotificationService.BusinessLibrary.Providers
                     }
 
                     message.Priority = (MailPriority)Enum.Parse(typeof(MailPriority), item.Priority.ToString());
-                    message.Body = MeetingInviteUtilities.ConvertMeetingInviteToBody(item, body.Content);
+                    ContentType ctBody = new ContentType("text/html");
+                    AlternateView viewBody = AlternateView.CreateAlternateViewFromString(body.Content, ctBody);
+                    message.AlternateViews.Add(viewBody);
+
+                    string str = MeetingInviteUtilities.ConvertMeetingInviteToBody(item, body.Content);
+
+                    ContentType ct = new ContentType("text/calendar");
+                    if (item.IsCancel)
+                    {
+                        ct.Parameters.Add("method", "CANCEL");
+                    }
+                    else
+                    {
+                        ct.Parameters.Add("method", "REQUEST");
+                    }
+
+#pragma warning disable CA1305 // Specify IFormatProvider
+                    AlternateView avCal = AlternateView.CreateAlternateViewFromString(str.ToString(), ct);
+#pragma warning restore CA1305 // Specify IFormatProvider
+
+                    message.AlternateViews.Add(avCal);
 
                     await client.SendMailAsync(message).ConfigureAwait(false);
 
