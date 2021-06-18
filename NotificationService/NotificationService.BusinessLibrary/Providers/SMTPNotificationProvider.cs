@@ -110,12 +110,6 @@ namespace NotificationService.BusinessLibrary.Providers
                 throw new ArgumentNullException(nameof(notificationEntities), "notificationEntities are null.");
             }
             var client = new SmtpClient(this.smtpSetting.SmtpUrl, this.smtpSetting.SmtpPort);
-#pragma warning disable CA1307 // Specify StringComparison
-            if (!string.IsNullOrWhiteSpace(this.smtpSetting.SmtpCert) && !this.smtpSetting.SmtpCert.Equals("NA"))
-#pragma warning restore CA1307 // Specify StringComparison
-            {
-                _ = client.ClientCertificates.Add(CertKeyManager.GetCertificate(this.smtpSetting.SmtpCert, StoreLocation.LocalMachine));
-            }
 
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
             client.UseDefaultCredentials = false;
@@ -209,12 +203,6 @@ namespace NotificationService.BusinessLibrary.Providers
             }
 
             var client = new SmtpClient(this.smtpSetting.SmtpUrl, this.smtpSetting.SmtpPort);
-#pragma warning disable CA1307 // Specify StringComparison
-            if (!string.IsNullOrWhiteSpace(this.smtpSetting.SmtpCert) && !this.smtpSetting.SmtpCert.Equals("NA"))
-#pragma warning restore CA1307 // Specify StringComparison
-            {
-                _ = client.ClientCertificates.Add(CertKeyManager.GetCertificate(this.smtpSetting.SmtpCert, StoreLocation.LocalMachine));
-            }
 
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
             client.UseDefaultCredentials = false;
