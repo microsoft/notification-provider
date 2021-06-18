@@ -16,15 +16,15 @@ namespace NotificationService.BusinessLibrary.Utilities
     /// </summary>
     public static class MeetingInviteUtilities
     {
-        private static string strTimeFormat = "yyyyMMdd\\THHmmss\\Z";
+        private const string StrTimeFormat = "yyyyMMdd\\THHmmss\\Z";
 
         /// <summary>
-        /// Converts the meeting invite to body.
+        /// Converts the meeting invite to body for direct send provider.
         /// </summary>
         /// <param name="meetingNotificationItem">The meeting notification item.</param>
         /// <param name="meetingBody">meetingBody.</param>
         /// <returns>A string for meeting invite.</returns>
-        public static string ConvertMeetingInviteToBody(MeetingNotificationItemEntity meetingNotificationItem, string meetingBody)
+        public static string ConvertDirectSendMeetingInviteToBody(MeetingNotificationItemEntity meetingNotificationItem, string meetingBody)
         {
             StringBuilder str = new StringBuilder();
 #pragma warning disable IDE0058 // Expression value is never used
@@ -43,8 +43,8 @@ namespace NotificationService.BusinessLibrary.Utilities
             str.AppendLine("METHOD:REQUEST");
             str.AppendLine("X-MS-OLK-FORCEINSPECTOROPEN:TRUE");
             str.AppendLine("BEGIN:VEVENT");
-            str.AppendLine("DTSTART:" + meetingNotificationItem.Start.ToString(strTimeFormat, CultureInfo.InvariantCulture));
-            str.AppendLine("DTEND:" + meetingNotificationItem.End.ToString(strTimeFormat, CultureInfo.InvariantCulture));
+            str.AppendLine("DTSTART:" + meetingNotificationItem.Start.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
+            str.AppendLine("DTEND:" + meetingNotificationItem.End.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
 
             // if (meetingNotificationItem.OccurenceId.HasValue) str.AppendLine("RECURRENCE-ID:" + invitation.OccurenceId.Value.ToString(c_strTimeFormat));
             str.AppendLine(GenerateRecurrenceRuleForSMTP(meetingNotificationItem));
@@ -64,6 +64,91 @@ namespace NotificationService.BusinessLibrary.Utilities
             if (meetingNotificationItem.IsPrivate)
             {
                 str.AppendLine("CLASS:PRIVATE");
+            }
+
+            foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+            {
+                str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", to));
+            }
+
+            if (!string.IsNullOrEmpty(meetingNotificationItem.OptionalAttendees))
+            {
+                foreach (var cc in meetingNotificationItem.OptionalAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
+                {
+                    str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CN=\"{0}\";RSVP=FALSE:mailto:{0}", cc));
+                }
+            }
+
+            str.AppendLine("BEGIN:VALARM");
+            if (!string.IsNullOrEmpty(meetingNotificationItem.ReminderMinutesBeforeStart))
+            {
+                str.AppendLine(string.Format(CultureInfo.InvariantCulture, "TRIGGER:-P{0}M", meetingNotificationItem.ReminderMinutesBeforeStart));
+            }
+
+            str.AppendLine("ACTION:DISPLAY");
+            str.AppendLine("DESCRIPTION:Reminder");
+            str.AppendLine("END:VALARM");
+            str.AppendLine("END:VEVENT");
+            str.AppendLine("END:VCALENDAR");
+
+#pragma warning restore IDE0058 // Expression value is never used
+            return str.ToString();
+        }
+
+        /// <summary>
+        /// Converts the meeting invite to body for SMTP Provider.
+        /// </summary>
+        /// <param name="meetingNotificationItem">The meeting notification item.</param>
+        /// <param name="meetingBody">meetingBody.</param>
+        /// <param name="fromaddress">fromaddress.</param>
+        /// <returns>A string for meeting invite.</returns>
+        public static string ConvertSMTPMeetingInviteToBody(MeetingNotificationItemEntity meetingNotificationItem, string meetingBody, string fromaddress)
+        {
+            StringBuilder str = new StringBuilder();
+#pragma warning disable IDE0058 // Expression value is never used
+            str.AppendLine("BEGIN:VCALENDAR");
+
+            str.AppendLine("PRODID:-//Microsoft Corporation//Outlook 14.0 MIMEDIR//EN");
+            str.AppendLine("VERSION:2.0");
+
+            if (meetingNotificationItem.IsCancel)
+            {
+                str.AppendLine("METHOD:CANCEL");
+                str.AppendLine("STATUS:CANCELLED");
+            }
+            else
+            {
+                str.AppendLine("METHOD:REQUEST");
+            }
+
+            str.AppendLine("X-MS-OLK-FORCEINSPECTOROPEN:TRUE");
+            str.AppendLine("BEGIN:VEVENT");
+            str.AppendLine("DTSTART:" + meetingNotificationItem.Start.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
+            str.AppendLine("DTEND:" + meetingNotificationItem.End.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
+
+            // if (meetingNotificationItem.OccurenceId.HasValue) str.AppendLine("RECURRENCE-ID:" + invitation.OccurenceId.Value.ToString(c_strTimeFormat));
+            str.AppendLine(GenerateRecurrenceRuleForSMTP(meetingNotificationItem));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "UID:{0}", "icauid")); // currently harcoded as meeting invite is not being sent properly, if UID is null/empty
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "DESCRIPTION:{0}", meetingBody));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "X-ALT-DESC;FMTTYPE=text/html:{0}", meetingBody));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "SUMMARY:{0}", meetingNotificationItem.Subject));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "LOCATION:{0}", meetingNotificationItem.Location));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ORGANIZER:MAILTO:{0}", fromaddress));
+            str.AppendLine(string.Format(CultureInfo.InvariantCulture, "PRIORITY:{0}", GetMeetingPriority(meetingNotificationItem.Priority)));
+
+            if (meetingNotificationItem.SequenceNumber.HasValue)
+            {
+                str.AppendLine(string.Format(CultureInfo.InvariantCulture, "SEQUENCE:{0}", meetingNotificationItem.SequenceNumber.Value));
+            }
+
+            if (meetingNotificationItem.IsPrivate)
+            {
+                str.AppendLine("CLASS:PRIVATE");
+            }
+
+            foreach (var attach in meetingNotificationItem.Attachments)
+            {
+                str.AppendLine(string.Format(CultureInfo.InvariantCulture, "ATTACH;ENCODING=BASE64;VALUE=BINARY;X-FILENAME={0}:{1}", attach.FileName, attach.FileBase64));
             }
 
             foreach (var to in meetingNotificationItem.RequiredAttendees?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries))
@@ -139,7 +224,7 @@ namespace NotificationService.BusinessLibrary.Utilities
         {
             if (meetingNotificationItem.EndDate.HasValue)
             {
-                return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=DAILY;INTERVAL={0};UNTIL={1}", meetingNotificationItem.Interval, meetingNotificationItem.EndDate.Value.ToString(strTimeFormat, CultureInfo.InvariantCulture));
+                return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=DAILY;INTERVAL={0};UNTIL={1}", meetingNotificationItem.Interval, meetingNotificationItem.EndDate.Value.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
             }
 
             return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=DAILY;INTERVAL={0};COUNT={1}", meetingNotificationItem.Interval, meetingNotificationItem.Ocurrences.HasValue ? meetingNotificationItem.Ocurrences.Value : 1); // Default to 1 Occurrence
@@ -149,7 +234,7 @@ namespace NotificationService.BusinessLibrary.Utilities
         {
             if (meetingNotificationItem.EndDate.HasValue)
             {
-                return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=WEEKLY;BYDAY={0};INTERVAL={1};UNTIL={2}", DaysOfWeekToShortNames(GetDaysOfWeek(meetingNotificationItem.DaysOfWeek)), meetingNotificationItem.Interval, meetingNotificationItem.EndDate.Value.ToString(strTimeFormat, CultureInfo.InvariantCulture));
+                return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=WEEKLY;BYDAY={0};INTERVAL={1};UNTIL={2}", DaysOfWeekToShortNames(GetDaysOfWeek(meetingNotificationItem.DaysOfWeek)), meetingNotificationItem.Interval, meetingNotificationItem.EndDate.Value.ToString(StrTimeFormat, CultureInfo.InvariantCulture));
             }
 
             return string.Format(CultureInfo.InvariantCulture, "RRULE:FREQ=WEEKLY;BYDAY={0};INTERVAL={1};COUNT={2}", DaysOfWeekToShortNames(GetDaysOfWeek(meetingNotificationItem.DaysOfWeek)), meetingNotificationItem.Interval, meetingNotificationItem.Ocurrences.HasValue ? meetingNotificationItem.Ocurrences.Value : 1); // Default to 1 Occurrence
@@ -169,7 +254,7 @@ namespace NotificationService.BusinessLibrary.Utilities
 
             if (meetingNotificationItem.EndDate.HasValue)
             {
-                _ = sb.Append(string.Format(CultureInfo.InvariantCulture, ";UNTIL={0}", meetingNotificationItem.EndDate.Value.ToString(strTimeFormat, CultureInfo.InvariantCulture)));
+                _ = sb.Append(string.Format(CultureInfo.InvariantCulture, ";UNTIL={0}", meetingNotificationItem.EndDate.Value.ToString(StrTimeFormat, CultureInfo.InvariantCulture)));
             }
             else
             {
@@ -194,7 +279,7 @@ namespace NotificationService.BusinessLibrary.Utilities
 
             if (meetingNotificationItem.EndDate.HasValue)
             {
-                _ = sb.Append(string.Format(CultureInfo.InvariantCulture, ";UNTIL={0}", meetingNotificationItem.EndDate.Value.ToString(strTimeFormat, CultureInfo.InvariantCulture)));
+                _ = sb.Append(string.Format(CultureInfo.InvariantCulture, ";UNTIL={0}", meetingNotificationItem.EndDate.Value.ToString(StrTimeFormat, CultureInfo.InvariantCulture)));
             }
             else
             {

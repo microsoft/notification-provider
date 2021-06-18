@@ -155,19 +155,14 @@ namespace NotificationService.BusinessLibrary.Providers
                         }
                     }
 
-                    foreach (var a in item.Attachments)
-                    {
-                        var at = new System.Net.Mail.Attachment(new MemoryStream(Convert.FromBase64String(a.FileBase64)), a.FileName);
-                        at.ContentDisposition.Inline = a.IsInline;
-                        message.Attachments.Add(at);
-                    }
 
                     message.Priority = (MailPriority)Enum.Parse(typeof(MailPriority), item.Priority.ToString());
+
                     ContentType ctBody = new ContentType("text/html");
                     AlternateView viewBody = AlternateView.CreateAlternateViewFromString(body.Content, ctBody);
                     message.AlternateViews.Add(viewBody);
 
-                    string str = MeetingInviteUtilities.ConvertMeetingInviteToBody(item, body.Content);
+                    string str = MeetingInviteUtilities.ConvertSMTPMeetingInviteToBody(item, body.Content, applicationFromAddress);
 
                     ContentType ct = new ContentType("text/calendar");
                     if (item.IsCancel)
@@ -179,9 +174,7 @@ namespace NotificationService.BusinessLibrary.Providers
                         ct.Parameters.Add("method", "REQUEST");
                     }
 
-#pragma warning disable CA1305 // Specify IFormatProvider
-                    AlternateView avCal = AlternateView.CreateAlternateViewFromString(str.ToString(), ct);
-#pragma warning restore CA1305 // Specify IFormatProvider
+                    AlternateView avCal = AlternateView.CreateAlternateViewFromString(str, ct);
 
                     message.AlternateViews.Add(avCal);
 
