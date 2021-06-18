@@ -7,6 +7,7 @@ namespace NotificationService.Contracts
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
+    using NotificationService.Common.CustomValidations;
 
     /// <summary>
     /// Email notification item.
@@ -51,18 +52,21 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "to")]
         [Required(ErrorMessage = "'To' recipients is mandatory for email notifications.")]
+        [EmailIdListValidation(PropertyName = "To", Nullable = false)]
         public string To { get; set; }
 
         /// <summary>
         /// Gets or sets the cc.
         /// </summary>
         [DataMember(Name = "cc")]
+        [EmailIdListValidation(PropertyName = "CC", Nullable = true)]
         public string CC { get; set; }
 
         /// <summary>
         /// Gets or sets the BCC.
         /// </summary>
         [DataMember(Name = "bcc")]
+        [EmailIdListValidation(PropertyName = "BCC", Nullable = true)]
         public string BCC { get; set; }
 
         /// <summary>
