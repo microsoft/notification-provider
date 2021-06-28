@@ -31,6 +31,8 @@ namespace NotificationService.BusinessLibrary.Providers
                     return (INotificationProvider)this.serviceProvider.GetService(typeof(MSGraphNotificationProvider));
                 case NotificationProviderType.DirectSend:
                     return (INotificationProvider)this.serviceProvider.GetService(typeof(DirectSendNotificationProvider));
+                case NotificationProviderType.SMTP:
+                    return (INotificationProvider)this.serviceProvider.GetService(typeof(SMTPNotificationProvider));
                 default:
                     return null;
             }
