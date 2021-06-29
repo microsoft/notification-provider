@@ -17,5 +17,10 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// Direct Send API
         /// </summary>
         DirectSend,
+
+        /// <summary>
+        /// SMTP API
+        /// </summary>
+        SMTP,
     }
 }

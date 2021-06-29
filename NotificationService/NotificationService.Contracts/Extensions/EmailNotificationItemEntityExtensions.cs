@@ -7,7 +7,10 @@ namespace NotificationService.Contracts
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
+    using System.Net.Mail;
+    using System.Net.Mime;
     using NotificationService.Common.Configurations;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Reports;
@@ -98,6 +101,56 @@ namespace NotificationService.Contracts
                 FileContent = emailNotificationItemEntity.Attachments?.Select(attachment => attachment.FileBase64).ToList(),
                 Importance = (DirectSend.Models.Mail.EmailMessage.ImportanceType)Enum.Parse(typeof(DirectSend.Models.Mail.EmailMessage.ImportanceType), emailNotificationItemEntity.Priority.ToString()),
             };
+        }
+
+        /// <summary>
+        /// Converts to SmtpEmailmessage.
+        /// </summary>
+        /// <param name="emailNotificationItemEntity">The email notification item entity.</param>
+        /// <param name="body">The body.</param>
+        /// <returns>A <see cref="MailMessage"/>.</returns>
+        public static MailMessage ToSmtpMailMessage(this EmailNotificationItemEntity emailNotificationItemEntity, MessageBody body)
+        {
+            if (emailNotificationItemEntity is null)
+            {
+                return null;
+            }
+
+            MailMessage message = new MailMessage();
+
+            message.Subject = emailNotificationItemEntity?.Subject;
+            message.From = !string.IsNullOrWhiteSpace(emailNotificationItemEntity.From) ? new MailAddress(emailNotificationItemEntity?.From) : null;
+            message.Body = body?.Content;
+            if (!string.IsNullOrWhiteSpace(emailNotificationItemEntity.To))
+            {
+                message.To.Add(string.Join(",", emailNotificationItemEntity.To?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).ToList()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(emailNotificationItemEntity.CC))
+            {
+                message.CC.Add(string.Join(",", emailNotificationItemEntity.CC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).ToList()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(emailNotificationItemEntity.BCC))
+            {
+                message.Bcc.Add(string.Join(",", emailNotificationItemEntity.BCC?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).ToList()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(emailNotificationItemEntity.ReplyTo))
+            {
+                message.ReplyToList.Add(string.Join(",", emailNotificationItemEntity.ReplyTo?.Split(Common.ApplicationConstants.SplitCharacter, System.StringSplitOptions.RemoveEmptyEntries).ToList()));
+            }
+
+            foreach (var a in emailNotificationItemEntity.Attachments)
+            {
+                var at = new System.Net.Mail.Attachment(new MemoryStream(Convert.FromBase64String(a.FileBase64)), a.FileName);
+                at.ContentDisposition.Inline = a.IsInline;
+                message.Attachments.Add(at);
+            }
+
+            message.Priority = (MailPriority)Enum.Parse(typeof(MailPriority), emailNotificationItemEntity.Priority.ToString());
+
+            return message;
         }
 
         /// <summary>
