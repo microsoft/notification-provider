@@ -126,7 +126,7 @@ namespace NotificationService.BusinessLibrary.Providers
             this.logger.TraceInformation($"Started {nameof(this.ProcessNotificationEntities)} method of {nameof(MSGraphNotificationProvider)}.", traceProps);
             var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
-            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
+            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeader().ConfigureAwait(false);
             Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount = new Tuple<AuthenticationHeaderValue, AccountCredential>(authenticationHeaderValue, selectedAccountCreds);
             this.logger.TraceVerbose($"applicationFromAddress: {applicationFromAddress}", traceProps);
 
@@ -172,7 +172,7 @@ namespace NotificationService.BusinessLibrary.Providers
             traceProps[AIConstants.EmailNotificationCount] = meetingInviteEntities?.Count.ToString(CultureInfo.InvariantCulture);
             var applicationFromAddress = this.applicationAccounts.Find(a => a.ApplicationName == applicationName).FromOverride;
             AccountCredential selectedAccountCreds = this.emailAccountManager.FetchAccountToBeUsedForApplication(applicationName, this.applicationAccounts);
-            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeaderValueForSelectedAccount(selectedAccountCreds).ConfigureAwait(false);
+            AuthenticationHeaderValue authenticationHeaderValue = await this.tokenHelper.GetAuthenticationHeader().ConfigureAwait(false);
             Tuple<AuthenticationHeaderValue, AccountCredential> selectedAccount = new Tuple<AuthenticationHeaderValue, AccountCredential>(authenticationHeaderValue, selectedAccountCreds);
             this.logger.TraceVerbose($"applicationFromAddress: {applicationFromAddress}", traceProps);
             meetingInviteEntities.ToList().ForEach(nie => nie.From = applicationFromAddress);
@@ -327,7 +327,7 @@ namespace NotificationService.BusinessLibrary.Providers
                     graphRequests.Add(new GraphRequest()
                     {
                         Id = nie.NotificationId,
-                        Url = this.mSGraphSetting.SendMailUrl.StartsWith("/", StringComparison.OrdinalIgnoreCase) ? this.mSGraphSetting.SendMailUrl : $"/{this.mSGraphSetting.SendMailUrl}",
+                        Url = this.mSGraphSetting.SendMailUrl.StartsWith("/", StringComparison.OrdinalIgnoreCase) ? string.Format(CultureInfo.InvariantCulture, "users/{0}/sendMail", selectedAccount.Item2.AccountName) : string.Format(CultureInfo.InvariantCulture, "/users/{0}/sendMail", selectedAccount.Item2.AccountName),
                         Body = new EmailMessagePayload(message) { SaveToSentItems = saveToSent },
                         Headers = new GraphRequestHeaders() { ContentType = ApplicationConstants.JsonMIMEType },
                         Method = ApplicationConstants.POSTHttpVerb,

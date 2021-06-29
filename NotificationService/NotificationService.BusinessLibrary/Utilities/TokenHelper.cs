@@ -11,6 +11,7 @@ namespace NotificationService.BusinessLibrary
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Options;
+    using Microsoft.Identity.Client;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Newtonsoft.Json.Linq;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -65,101 +66,19 @@ namespace NotificationService.BusinessLibrary
             this.emailAccountManager = emailAccountManager;
         }
 
-        /// <summary>
-        /// return the authentication header for selected account.
-        /// </summary>
-        /// <param name="selectedAccountCredential">selectedAccountCredential.</param>
-        /// <returns>AuthenticationHeaderValue.</returns>
-        public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderValueForSelectedAccount(AccountCredential selectedAccountCredential)
-        {
-            AuthenticationHeaderValue authenticationHeaderValue = await this.GetAuthenticationHeaderFromToken(await this.GetAccessTokenForSelectedAccount(selectedAccountCredential).ConfigureAwait(false)).ConfigureAwait(false);
-            return authenticationHeaderValue;
-        }
-
         /// <inheritdoc/>
-        public async Task<string> GetAccessTokenForSelectedAccount(AccountCredential selectedAccountCredential)
+        public async Task<AuthenticationHeaderValue> GetAuthenticationHeader()
         {
-            var traceProps = new Dictionary<string, string>();
-            if (selectedAccountCredential == null)
-            {
-                throw new ArgumentNullException(nameof(selectedAccountCredential));
-            }
-
-            traceProps[AIConstants.EmailAccount] = selectedAccountCredential.AccountName;
-
-            this.logger.TraceInformation($"Started {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.", traceProps);
-            string authority = this.userTokenSetting.Authority;
-            string clientId = this.userTokenSetting.ClientId;
-            string userEmail = selectedAccountCredential?.AccountName;
-            string userPassword = System.Web.HttpUtility.UrlEncode(selectedAccountCredential.PrimaryPassword);
-            var token = string.Empty;
-            using (HttpClient client = new HttpClient())
-            {
-                var tokenEndpoint = $"{authority}";
-                var accept = ApplicationConstants.JsonMIMEType;
-
-                client.DefaultRequestHeaders.Add("Accept", accept);
-                string postBody = $"resource={clientId}&client_id={clientId}&grant_type=password&username={userEmail}&password={userPassword}&scope=openid";
-
-                using (var response = await client.PostAsync(tokenEndpoint, new StringContent(postBody, Encoding.UTF8, "application/x-www-form-urlencoded")).ConfigureAwait(false))
-                {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var jsonresult = JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
-                        token = (string)jsonresult["access_token"];
-                    }
-                    else
-                    {
-                        var errorResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        traceProps["Message"] = errorResponse;
-                        this.logger.TraceInformation($"An error occurred while fetching token for {selectedAccountCredential.AccountName}. Details: {errorResponse}", traceProps);
-                        this.logger.WriteCustomEvent("Unable to get Access Token", traceProps);
-                        token = null;
-                    }
-                }
-            }
-
-            this.logger.TraceInformation($"Finished {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.", traceProps);
-            return token;
-        }
-
-        /// <inheritdoc/>
-        public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderFromToken(string userAccessToken)
-        {
-            if (string.IsNullOrWhiteSpace(userAccessToken))
-            {
-                throw new System.ArgumentException("Token cannot be empty while fetching Authentication Header value.", nameof(userAccessToken));
-            }
-
-            this.logger.TraceInformation($"Started {nameof(this.GetAuthenticationHeaderFromToken)} method of {nameof(TokenHelper)}.");
-            if (userAccessToken.StartsWith($"{ApplicationConstants.BearerAuthenticationScheme.ToLower(CultureInfo.InvariantCulture)} ", System.StringComparison.InvariantCultureIgnoreCase))
-            {
-                userAccessToken = userAccessToken.Remove(0, 7);
-            }
-
-            var resourceToken = await this.GetResourceAccessTokenFromUserToken(userAccessToken).ConfigureAwait(false);
-            var authHeader = new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, resourceToken);
-            this.logger.TraceInformation($"Finished {nameof(this.GetAuthenticationHeaderFromToken)} method of {nameof(TokenHelper)}.");
+            var confidentialClientApplication = ConfidentialClientApplicationBuilder
+                         .Create(this.mSGraphSetting.ClientId)
+                         .WithTenantId(this.mSGraphSetting.TenantId)
+                         .WithClientSecret(this.mSGraphSetting.ClientCredential)
+                         .Build();
+            var scopes = new string[] { this.mSGraphSetting.GraphResourceId + "/.default" };
+            var result = await confidentialClientApplication.AcquireTokenForClient(scopes).ExecuteAsync().ConfigureAwait(false);
+            var authHeader = new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, result.AccessToken);
+            this.logger.TraceInformation($"Finished {nameof(this.GetAuthenticationHeader)} method of {nameof(TokenHelper)}.");
             return authHeader;
-        }
-
-        /// <summary>
-        /// Get an authentication token for the graph resource from the user access token.
-        /// </summary>
-        /// <param name="userAccessToken">User access token.</param>
-        /// <returns>Authentication token for the graph resource defined in the graph provider.</returns>
-        private async Task<string> GetResourceAccessTokenFromUserToken(string userAccessToken)
-        {
-            this.logger.TraceInformation($"Started {nameof(this.GetResourceAccessTokenFromUserToken)} method of {nameof(TokenHelper)}.");
-            UserAssertion userAssertion = new UserAssertion(userAccessToken, this.mSGraphSetting.UserAssertionType);
-            string clientId = this.mSGraphSetting.ClientId;
-            string clientValue = this.mSGraphSetting.ClientCredential;
-            string authority = string.Format(CultureInfo.InvariantCulture, this.mSGraphSetting.Authority, this.mSGraphSetting.TenantId);
-            AuthenticationContext authContext = new AuthenticationContext(authority);
-            ClientCredential clientCredential = new ClientCredential(clientId, clientValue);
-            var result = await authContext.AcquireTokenAsync(this.mSGraphSetting.GraphResourceId, clientCredential, userAssertion).ConfigureAwait(false);
-            this.logger.TraceInformation($"Finished {nameof(this.GetResourceAccessTokenFromUserToken)} method of {nameof(TokenHelper)}.");
-            return result?.AccessToken;
         }
     }
 }

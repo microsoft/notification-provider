@@ -99,7 +99,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 StatusCode = HttpStatusCode.OK,
             };
 
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
+            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
@@ -125,7 +125,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 Status = false,
                 StatusCode = HttpStatusCode.TooManyRequests,
             };
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
+            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             var testClass = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, this.MsGraphProvider.Object, this.EmailManager);
@@ -152,7 +152,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 StatusCode = HttpStatusCode.OK,
             };
 
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
+            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             inviteEntities.FirstOrDefault().Attachments = this.GetAttachments();
@@ -186,7 +186,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 StatusCode = HttpStatusCode.OK,
             };
 
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
+            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             inviteEntities.FirstOrDefault().TryCount = 10;
@@ -214,7 +214,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 StatusCode = HttpStatusCode.OK,
             };
 
-            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("test"));
+            _ = this.TokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("test"));
             _ = this.MsGraphProvider.Setup(x => x.SendMeetingInvite(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<InvitePayload>(), It.IsAny<string>())).ReturnsAsync(res);
             var inviteEntities = this.GetMeetingNotificationItems(NotificationItemStatus.Queued);
             inviteEntities.FirstOrDefault().Attachments = this.GetAttachments();

@@ -268,14 +268,6 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
 
-            _ = this.TokenHelper
-                .Setup(th => th.GetAccessTokenForSelectedAccount(It.IsAny<AccountCredential>()))
-                .Returns(Task.FromResult(this.TestToken));
-
-            _ = this.TokenHelper
-                .Setup(th => th.GetAuthenticationHeaderFromToken(It.IsAny<string>()))
-                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, this.TestToken)));
-
             _ = this.MsGraphProvider
                 .Setup(gp => gp.ProcessEmailRequestBatch(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<GraphBatchRequest>()))
                 .Returns(Task.FromResult(responses));
