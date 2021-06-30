@@ -264,7 +264,9 @@ namespace NotificationService.BusinessLibrary.Providers
                         item.ErrorMessage = response.Result;
                     }
                 }
-                catch (AggregateException ex)
+#pragma warning disable CA1031 // Do not catch general exception types
+                catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                 {
                     this.logger.WriteCustomEvent($"{AIConstants.CustomEventMailSendFailed} for notificationId:  {item.NotificationId}");
                     item.Status = NotificationItemStatus.Failed;
@@ -471,7 +473,9 @@ namespace NotificationService.BusinessLibrary.Providers
                         this.logger.TraceInformation($"{nameof(this.ProcessMeetingEntitiesIndividually)} of class {nameof(MSGraphNotificationProvider)} : Putting the invite back for next retry. Current request statusCode: {result.StatusCode} for notificationId {item.NotificationId}", traceProps);
                     }
                 }
-                catch (AggregateException ex)
+#pragma warning disable CA1031 // Do not catch general exception types
+                catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                 {
                     this.logger.WriteCustomEvent($"{AIConstants.CustomEventInviteSendFailed} for notificationId:  {item.NotificationId}");
                     item.Status = NotificationItemStatus.Failed;
