@@ -6,11 +6,13 @@ namespace NotificationsQueueProcessor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.AzureAppConfiguration;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Newtonsoft.Json;
     using NotificationService.Common.Logger;
@@ -49,22 +51,41 @@ namespace NotificationsQueueProcessor
         private readonly StorageType repo;
 
         /// <summary>
+        /// Instance of <see cref="IConfigurationRefresher"/>.
+        /// </summary>
+        private readonly IConfigurationRefresher configurationRefresher;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ProcessNotificationQueueItem"/> class.
         /// </summary>
         /// <param name="logger">The log.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="repositoryFactory">The repositoryFactory.</param>
         /// <param name="httpClientHelper">The httpClientHelper.</param>
+        /// <param name="refresherProvider">The IConfigurationRefresherProvider.</param>
         public ProcessNotificationQueueItem(
             ILogger logger,
             IConfiguration configuration,
             IRepositoryFactory repositoryFactory,
-            IHttpClientHelper httpClientHelper)
+            IHttpClientHelper httpClientHelper,
+            IConfigurationRefresherProvider refresherProvider)
         {
             this.logger = logger;
             this.configuration = configuration;
             this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.httpClientHelper = httpClientHelper;
+            this.configurationRefresher = refresherProvider.Refreshers.First();
+
+            //No need to await
+            RefreshKeys();
+        }
+
+        /// <summary>
+        /// Refresh the azure app configuration.
+        /// </summary>
+        private async Task RefreshKeys()
+        {
+            _ = await this.configurationRefresher.TryRefreshAsync();
         }
 
         /// <summary>

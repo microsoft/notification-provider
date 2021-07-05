@@ -66,7 +66,7 @@ namespace NotificationService.SvCommon.Common
                 .Select(KeyFilter.Any, application);
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
-                    _ = refreshOptions.Register(key: this.Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
+                    _ = refreshOptions.Register(ConfigConstants.ForceRefreshConfigKey, "Common", refreshAll: true);
                 });
             });
 
@@ -92,6 +92,8 @@ namespace NotificationService.SvCommon.Common
 
             _ = app.UseMiddleware<ExceptionMiddleware>();
 
+            _ = app.UseAzureAppConfiguration();
+
             _ = app.UseHttpsRedirection();
 
             _ = app.UseFileServer();
@@ -109,6 +111,8 @@ namespace NotificationService.SvCommon.Common
         /// <param name="services">An instance of <see cref="IServiceCollection"/>.</param>
         public void ConfigureServicesCommon(IServiceCollection services)
         {
+            _ = services.AddAzureAppConfiguration();
+
             _ = services.AddAuthorization(configure =>
             {
                 configure.AddPolicy(ApplicationConstants.AppNameAuthorizePolicy, policy =>
