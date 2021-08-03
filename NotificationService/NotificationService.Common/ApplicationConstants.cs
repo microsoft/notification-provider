@@ -94,8 +94,9 @@ namespace NotificationService.Common
         public const string AppIdV2ClaimType = "azp";
 
         /// <summary>
-        /// A constant used to insert these many items at once in a single batch to storage.
+        /// A constant used to insert these many items at once in a single batch to azure storage/azure storage queue
         /// The azure storage has a limitation of accepting only 100 items in a single batch, so keeping the count to 100.
+        /// and storage queue message has a limitation of 64kb for message size, so restricting the count of notification ids in a single message to 100.
         /// </summary>
         public const int BatchSizeToStore = 100;
     }

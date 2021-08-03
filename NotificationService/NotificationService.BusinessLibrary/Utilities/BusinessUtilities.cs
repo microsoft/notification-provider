@@ -7,6 +7,7 @@ namespace NotificationService.BusinessLibrary
     using System.Collections.Generic;
     using System.Linq;
     using Newtonsoft.Json;
+    using NotificationService.Common;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
 
@@ -45,14 +46,21 @@ namespace NotificationService.BusinessLibrary
         public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<EmailNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
         {
             IList<string> cloudMessages = new List<string>();
-            var cloudMessage = new
+
+            List<List<EmailNotificationItemEntity>> batchesToQueue = SplitList<EmailNotificationItemEntity>(notificationItemEntities.ToList(), ApplicationConstants.BatchSizeToStore).ToList();
+
+            foreach (var batch in batchesToQueue)
             {
-                NotificationIds = notificationItemEntities.Select(nie => nie.NotificationId).ToArray(),
-                Application = applicationName,
-                NotificationType = NotificationType.Mail,
-                IgnoreAlreadySent = ignoreAlreadySent,
-            };
-            cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+                var cloudMessage = new
+                {
+                    NotificationIds = batch.Select(nie => nie.NotificationId).ToArray(),
+                    Application = applicationName,
+                    NotificationType = NotificationType.Mail,
+                    IgnoreAlreadySent = ignoreAlreadySent,
+                };
+                cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+            }
+
             return cloudMessages;
         }
 
@@ -66,14 +74,20 @@ namespace NotificationService.BusinessLibrary
         public static IList<string> GetCloudMessagesForEntities(string applicationName, IList<MeetingNotificationItemEntity> notificationItemEntities, bool ignoreAlreadySent = true)
         {
             IList<string> cloudMessages = new List<string>();
-            var cloudMessage = new
+            List<List<MeetingNotificationItemEntity>> batchesToQueue = SplitList<MeetingNotificationItemEntity>(notificationItemEntities.ToList(), ApplicationConstants.BatchSizeToStore).ToList();
+
+            foreach (var batch in batchesToQueue)
             {
-                NotificationIds = notificationItemEntities.Select(nie => nie.NotificationId).ToArray(),
-                Application = applicationName,
-                NotificationType = NotificationType.Meet,
-                IgnoreAlreadySent = ignoreAlreadySent,
-            };
-            cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+                var cloudMessage = new
+                {
+                    NotificationIds = batch.Select(nie => nie.NotificationId).ToArray(),
+                    Application = applicationName,
+                    NotificationType = NotificationType.Meet,
+                    IgnoreAlreadySent = ignoreAlreadySent,
+                };
+                cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+            }
+
             return cloudMessages;
         }
 
@@ -88,15 +102,42 @@ namespace NotificationService.BusinessLibrary
         public static IList<string> GetCloudMessagesForIds(string applicationName, string[] notificationIds, NotificationType notifType, bool ignoreAlreadySent = false)
         {
             IList<string> cloudMessages = new List<string>();
-            var cloudMessage = new
+
+            var batcharrays = SplitArray<string>(notificationIds, ApplicationConstants.BatchSizeToStore);
+
+            foreach (var batch in batcharrays)
             {
-                NotificationIds = notificationIds,
-                Application = applicationName,
-                NotificationType = notifType,
-                IgnoreAlreadySent = ignoreAlreadySent,
-            };
-            cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+                var cloudMessage = new
+                {
+                    NotificationIds = batch,
+                    Application = applicationName,
+                    NotificationType = notifType,
+                    IgnoreAlreadySent = ignoreAlreadySent,
+                };
+                cloudMessages.Add(JsonConvert.SerializeObject(cloudMessage));
+            }
+
             return cloudMessages;
+        }
+
+        /// <summary>
+        /// Splits an array into several smaller arrays.
+        /// </summary>
+        /// <typeparam name="T">The type of the array.</typeparam>
+        /// <param name="array">The array to split.</param>
+        /// <param name="size">The size of the smaller arrays.</param>
+        /// <returns>An array containing smaller arrays.</returns>
+        public static IEnumerable<IEnumerable<T>> SplitArray<T>(this T[] array, int size = ApplicationConstants.BatchSizeToStore)
+        {
+            if (array is null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            for (var i = 0; i < (float)array.Length / size; i++)
+            {
+                yield return array.Skip(i * size).Take(size);
+            }
         }
     }
 }
