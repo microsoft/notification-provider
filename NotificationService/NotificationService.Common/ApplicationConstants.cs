@@ -76,7 +76,7 @@ namespace NotificationService.Common
         /// <summary>
         /// A formatter for Meeting invite Start and End Dates for Graph api base meeting invite.
         /// </summary>
-        public const string GraphMeetingInviteDateTimeFormatter = "yyyy-MM-ddThh:mm:ss";
+        public const string GraphMeetingInviteDateTimeFormatter = "yyyy-MM-ddTHH:mm:ss";
 
         /// <summary>
         /// A formatter for Meeting invite RecurrenceRangeDate for Graph api base meeting invite.
