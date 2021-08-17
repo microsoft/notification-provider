@@ -17,7 +17,7 @@ namespace NotificationService.Contracts
         /// Gets the attachment type.
         /// </summary>
         [DataMember(Name = "@odata.type")]
-        public string Type { get; } = "#Microsoft.OutlookServices.FileAttachment";
+        public string Type { get; } = "#microsoft.graph.fileAttachment";
 
         /// <summary>
         /// Gets or sets base-64 encoded contents of the file.
