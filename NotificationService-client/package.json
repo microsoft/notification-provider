@@ -7,7 +7,7 @@
     "@azure/msal-browser": "^2.12.1",
     "@cseo/controls": "^2.7.0",
     "axios": "^0.21.1",
-    "immer": "^8.0.1",
+    "immer": "^9.0.6",
     "moment": "^2.29.1",
     "office-ui-fabric-react": "^7.164.1",
     "react": "^17.0.1",
@@ -18,7 +18,7 @@
     "react-toastify": "^7.0.3"
   },
   "resolutions": {
-    "immer": "8.0.1",
+    "immer": "9.0.6",
     "react-dev-utils": "^11.0.4",
     "postcss-svgo": "^4.0.3"
   },
