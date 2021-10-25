@@ -575,6 +575,7 @@ namespace NotificationService.BusinessLibrary.Providers
             payload.TransactionId = meetingNotificationEntity.NotificationId;
             payload.HasAttachments = meetingNotificationEntity.Attachments != null && meetingNotificationEntity.Attachments.Any() ? true : false;
             payload.ICallUid = meetingNotificationEntity.ICalUid;
+            payload.ShowAs = meetingNotificationEntity.ShowAs ?? ApplicationConstants.DefaultInviteStatus;
             return payload;
         }
 

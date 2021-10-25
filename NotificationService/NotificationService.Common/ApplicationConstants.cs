@@ -99,5 +99,10 @@ namespace NotificationService.Common
         /// and storage queue message has a limitation of 64kb for message size, so restricting the count of notification ids in a single message to 100.
         /// </summary>
         public const int BatchSizeToStore = 100;
+
+        /// <summary>
+        /// A constant used to show the meeting invite state as free.
+        /// </summary>
+        public const string DefaultInviteStatus = "free";
     }
 }
