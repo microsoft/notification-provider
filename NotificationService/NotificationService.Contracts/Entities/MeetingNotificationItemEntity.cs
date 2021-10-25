@@ -127,7 +127,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the ShowAs.
         /// </summary>
-        [DataMember(Name = "ICalUid")]
+        [DataMember(Name = "ShowAs")]
         public string ShowAs { get; set; }
 
         /// <summary>

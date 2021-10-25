@@ -227,5 +227,11 @@ namespace NotificationService.Contracts.Models
         /// </summary>
         [DataMember(Name = "SequenceNumber")]
         public int? SequenceNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ShowAs.
+        /// </summary>
+        [DataMember(Name = "ShowAs")]
+        public string ShowAs { get; set; }
     }
 }

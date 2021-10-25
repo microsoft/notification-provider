@@ -103,6 +103,6 @@ namespace NotificationService.Common
         /// <summary>
         /// A constant used to show the meeting invite state as free.
         /// </summary>
-        public const string DefaultInviteStatus = "free";
+        public const string DefaultInviteStatus = "busy";
     }
 }

@@ -70,6 +70,7 @@ namespace NotificationService.Contracts.Extensions
             meetingNotificationItemEntity.EventId = meetingNotificationItemTableEntity.EventId;
             meetingNotificationItemEntity.EmailAccountUsed = meetingNotificationItemTableEntity.EmailAccountUsed;
             meetingNotificationItemEntity.Action = meetingNotificationItemTableEntity.Action;
+            meetingNotificationItemEntity.ShowAs = meetingNotificationItemTableEntity.ShowAs;
             return meetingNotificationItemEntity;
         }
     }
