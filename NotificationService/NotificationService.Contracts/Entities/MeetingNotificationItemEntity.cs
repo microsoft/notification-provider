@@ -125,6 +125,12 @@ namespace NotificationService.Contracts.Entities
         public string ICalUid { get; set; }
 
         /// <summary>
+        /// Gets or sets the ShowAs.
+        /// </summary>
+        [DataMember(Name = "ShowAs")]
+        public string ShowAs { get; set; }
+
+        /// <summary>
         /// Gets or sets the Interval.
         /// </summary>
         [DataMember(Name = "Interval")]

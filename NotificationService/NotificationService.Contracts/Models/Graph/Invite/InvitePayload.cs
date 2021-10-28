@@ -149,5 +149,11 @@ namespace NotificationService.Contracts.Models.Graph.Invite
         /// </summary>
         [DataMember(Name = "iCalUId")]
         public string ICallUid { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ICallUid.
+        /// </summary>
+        [DataMember(Name = "showAs")]
+        public string ShowAs { get; set; }
     }
 }

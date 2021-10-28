@@ -224,5 +224,10 @@ namespace NotificationService.Contracts.Entities
         /// Gets or Sets Action.
         /// </summary>
         public string Action { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ShowAs
+        /// </summary>
+        public string ShowAs { get; set; }
     }
 }

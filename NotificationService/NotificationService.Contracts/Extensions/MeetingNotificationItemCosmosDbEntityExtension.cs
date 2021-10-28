@@ -66,6 +66,7 @@ namespace NotificationService.Contracts.Extensions
             meetingNotificationItemEntity.PartitionKey = meetingNotificationItemDbEntity.Application;
             meetingNotificationItemEntity.Interval = meetingNotificationItemDbEntity.Interval;
             meetingNotificationItemEntity.ICalUid = meetingNotificationItemDbEntity.ICalUid;
+            meetingNotificationItemEntity.ShowAs = meetingNotificationItemDbEntity.ShowAs;
             meetingNotificationItemEntity.AttachmentReference = meetingNotificationItemDbEntity.AttachmentReference;
             meetingNotificationItemEntity.EventId = meetingNotificationItemDbEntity.EventId;
             meetingNotificationItemEntity.EmailAccountUsed = meetingNotificationItemDbEntity.EmailAccountUsed;
