@@ -382,7 +382,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     {
                         await this.notificationProvider.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
                     }
-                    catch (ArgumentNullException ex)
+                    catch (Exception ex)
                     {
                         foreach (var item in notificationEntities)
                         {
@@ -467,7 +467,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     {
                         await this.notificationProvider.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
                     }
-                    catch (ArgumentNullException ex)
+                    catch (Exception ex)
                     {
                         foreach (var item in notificationEntities)
                         {
