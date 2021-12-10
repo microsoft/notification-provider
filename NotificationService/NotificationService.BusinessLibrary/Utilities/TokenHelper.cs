@@ -128,7 +128,7 @@ namespace NotificationService.BusinessLibrary
         {
             if (string.IsNullOrWhiteSpace(userAccessToken))
             {
-                throw new System.ArgumentException("Token cannot be empty while fetching Authentication Header value.", nameof(userAccessToken));
+                throw new ArgumentNullException(nameof(userAccessToken), "Token cannot be empty while fetching Authentication Header value.");
             }
 
             this.logger.TraceInformation($"Started {nameof(this.GetAuthenticationHeaderFromToken)} method of {nameof(TokenHelper)}.");
