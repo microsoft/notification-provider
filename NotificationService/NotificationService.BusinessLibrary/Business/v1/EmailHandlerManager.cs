@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace NotificationService.BusinessLibrary.Business.v1
+namespace NotificationService.BusinessLibrary.Business.V1
 {
     using System;
     using System.Collections.Generic;
@@ -151,6 +151,16 @@ namespace NotificationService.BusinessLibrary.Business.v1
             }
         }
 
+        /// <summary>
+        /// Queue email notification items.
+        /// </summary>
+        /// <param name="applicationName">Application sourcing the email notification.</param>
+        /// <param name="meetingNotificationItems">Array of email notification items.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the result of the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentException">Application Name cannot be null or empty. - applicationName.</exception>
+        /// <exception cref="ArgumentNullException">meetingNotificationItems.</exception>
         public async Task<IList<NotificationResponse>> QueueMeetingNotifications(string applicationName, MeetingNotificationItem[] meetingNotificationItems)
         {
             var stopwatch = new Stopwatch();
@@ -274,6 +284,29 @@ namespace NotificationService.BusinessLibrary.Business.v1
             var notificationIds = failedNotificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
             var result = await this.ResendNotifications(applicationName, notificationIds.ToArray(), NotificationType.Mail, true).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.ResendEmailNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<NotificationResponse>> ResendMeetingNotificationsByDateRange(string applicationName, DateTimeRange dateRange)
+        {
+            this.logger.TraceInformation($"Started {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
+            var allowedMaxResendDurationInDays = (double)this.configuration.GetValue(typeof(double), ConfigConstants.AllowedMaxResendDurationInDays);
+            if (dateRange != null && (dateRange.EndDate - dateRange.StartDate).TotalDays >= allowedMaxResendDurationInDays)
+            {
+                throw new DataException($"Date-range must not be less or equal to {allowedMaxResendDurationInDays}");
+            }
+
+            var statusList = new List<NotificationItemStatus>() { NotificationItemStatus.Failed };
+            var failedNotificationEntities = await this.emailManager.GetMeetingNotificationsByDateRangeAndStatus(applicationName, dateRange, statusList).ConfigureAwait(false);
+            if (failedNotificationEntities == null || failedNotificationEntities.Count == 0)
+            {
+                return null;
+            }
+
+            var notificationIds = failedNotificationEntities.Select(notificationEntity => notificationEntity.NotificationId);
+            var result = await this.ResendNotifications(applicationName, notificationIds.ToArray(), NotificationType.Meet, true).ConfigureAwait(false);
+            this.logger.TraceInformation($"Finished {nameof(this.ResendMeetingNotificationsByDateRange)} method of {nameof(EmailHandlerManager)}.");
             return result;
         }
     }

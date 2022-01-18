@@ -69,12 +69,14 @@ namespace NotificationService.FunctionalTests
                         int delayTime = int.TryParse(Configuration[FunctionalConstants.DelayTimeInMilliSeconds], out delayTime) ? delayTime : 5000;
 
 
-                        for (int i = 0; i < retryCount; i++) {
+                        for (int i = 0; i < retryCount; i++)
+                        {
                             NotificationReportResponse notificationReportResponse = await GetNotificationReportTest(notificationId, httpClient);
                             if (notificationReportResponse != null)
                             {
                                 NotificationItemStatus notificationItemStatus = Enum.TryParse<NotificationItemStatus>(notificationReportResponse.Status, out notificationItemStatus) ? notificationItemStatus : NotificationItemStatus.Queued;
-                                switch (notificationItemStatus) {
+                                switch (notificationItemStatus)
+                                {
                                     case NotificationItemStatus.Failed:
                                     case NotificationItemStatus.FakeMail:
                                     case NotificationItemStatus.Invalid:
@@ -126,7 +128,7 @@ namespace NotificationService.FunctionalTests
         private async Task<NotificationReportResponse> GetNotificationReportTest(string notificationId, HttpClient httpClient)
         {
             NotificationReportResponse reportResponse = null;
-         
+
             var reqcontent = "{\"applicationFilter\":[\"" + this.Configuration[FunctionalConstants.Application] + "\"], \"notificationIdsFilter\":[\"" + notificationId + "\"] }";
             var stringContent = new StringContent(reqcontent, Encoding.UTF8, FunctionalConstants.ContentType);
 

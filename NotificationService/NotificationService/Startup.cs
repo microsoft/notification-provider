@@ -19,7 +19,7 @@ namespace NotificationService
     using DirectSend;
     using DirectSend.Models.Configurations;
     using NotificationService.BusinessLibrary;
-    using NotificationService.BusinessLibrary.Business.v1;
+    using NotificationService.BusinessLibrary.Business.V1;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.BusinessLibrary.Providers;
     using NotificationService.BusinessLibrary.Utilities;
@@ -109,6 +109,10 @@ namespace NotificationService
             {
                 this.ConfigureDirectSendServices(services);
             }
+            else if(NotificationProviderType.SMTP == providerType)
+            {
+                this.ConfigureSMTPServices(services);
+            }
             else
             {
                 this.ConfigureGraphServices(services);
@@ -157,6 +161,17 @@ namespace NotificationService
                 .AddScoped<INotificationProvider, DirectSendNotificationProvider>();
 
         }
+
+        /// <summary>
+        /// Configure SMTP services.
+        /// </summary>
+        /// <param name="services">IServiceCollection instance.</param>
+        private void ConfigureSMTPServices(IServiceCollection services)
+        {
+            _ = services.AddScoped<SMTPNotificationProvider>(s => new SMTPNotificationProvider(s.GetService<IEmailAccountManager>(), s.GetService<ILogger>(), this.Configuration, s.GetService<IEmailManager>()))
+            .AddScoped<INotificationProvider, SMTPNotificationProvider>();
+        }
+
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>

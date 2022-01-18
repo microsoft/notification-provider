@@ -14,6 +14,7 @@ namespace NotificationService.UnitTests.Controllers.V1.MeetingInviteController
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
+    using NotificationService.Contracts.Models.Request;
     using NUnit.Framework;
 
     /// <summary>
@@ -111,7 +112,74 @@ namespace NotificationService.UnitTests.Controllers.V1.MeetingInviteController
         /// <returns><see cref="IList{NotificationResponse}"/>.</returns>
         private IList<NotificationResponse> GetResendMeetingInvitesResponse()
         {
-            return this.notificationIds.Select(c => new NotificationResponse() { NotificationId = c, Status = NotificationItemStatus.Queued}).ToList();
+            return this.notificationIds.Select(c => new NotificationResponse() { NotificationId = c, Status = NotificationItemStatus.Queued }).ToList();
+        }
+
+        /// <summary>
+        /// Tests for ResendMeetingNotifications By Date Range.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ResendEmailNotificationsByDateRangeTest_ValidInput()
+        {
+            MeetingInviteController classUnderTest = new MeetingInviteController(this.emailHandlerManager.Object, this.logger.Object);
+            IList<NotificationResponse> responses = new List<NotificationResponse>() { new NotificationResponse() { NotificationId = Guid.NewGuid().ToString(), Status = NotificationItemStatus.Queued, } };
+            var dateRange = new DateTimeRange()
+            {
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddHours(4),
+            };
+
+            _ = this.emailHandlerManager
+                .Setup(emailHandlerManager => emailHandlerManager.ResendMeetingNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>()))
+                .Returns(Task.FromResult(responses));
+
+            var result = await classUnderTest.ResendMeetingNotificationsByDateRange(this.applicationName, dateRange);
+            var res = (AcceptedResult)result;
+            Assert.IsNotNull(res.Value);
+            Assert.IsTrue(((List<NotificationResponse>)res.Value).Count == 1);
+        }
+
+        /// <summary>
+        /// Tests for ResendMeetingNotifications By Date Range.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task ResendEmailNotificationsByDateRangeTest_ValidInput_NoRecordToProcess()
+        {
+            MeetingInviteController classUnderTest = new MeetingInviteController(this.emailHandlerManager.Object, this.logger.Object);
+            IList<NotificationResponse> responses = new List<NotificationResponse>();
+            var dateRange = new DateTimeRange()
+            {
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddHours(4),
+            };
+
+            _ = this.emailHandlerManager
+                .Setup(emailHandlerManager => emailHandlerManager.ResendMeetingNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>()))
+                .Returns(Task.FromResult(responses));
+
+            var result = await classUnderTest.ResendMeetingNotificationsByDateRange(this.applicationName, dateRange);
+            var res = (AcceptedResult)result;
+            Assert.IsNotNull(res.Value);
+            responses = null;
+            _ = this.emailHandlerManager
+               .Setup(emailHandlerManager => emailHandlerManager.ResendMeetingNotificationsByDateRange(It.IsAny<string>(), It.IsAny<DateTimeRange>()))
+               .Returns(Task.FromResult(responses));
+            result = await classUnderTest.ResendMeetingNotificationsByDateRange(this.applicationName, dateRange);
+            res = (AcceptedResult)result;
+            Assert.IsNull(res.Value);
+        }
+
+        /// <summary>
+        /// Tests for ResendMeetingNotifications By Date Range with invalid input.
+        /// </summary>
+        [Test]
+        public void ResendMeetingNotificationsByDateRangeTest_InvalidInput()
+        {
+            MeetingInviteController classUnderTest = new MeetingInviteController(this.emailHandlerManager.Object, this.logger.Object);
+            _ = Assert.ThrowsAsync<ArgumentException>(async () => await classUnderTest.ResendMeetingNotificationsByDateRange(null, null));
+            _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await classUnderTest.ResendMeetingNotificationsByDateRange(this.applicationName, null));
         }
     }
 }

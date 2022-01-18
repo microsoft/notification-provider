@@ -35,42 +35,15 @@ namespace NotificationsQueueProcessor
         /// </summary>
         public static IConfigurationSection MaxDequeueCount { get; private set; }
 
-        /// <summary>
-        /// Gets the application configuration.
-        /// </summary>
-        public IConfiguration Configuration { get; }
-
         /// <inheritdoc/>
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var azureFuncConfig = builder?.Services?.BuildServiceProvider()?.GetService<IConfiguration>();
-            var configBuilder = new ConfigurationBuilder();
-            _ = configBuilder.AddConfiguration(azureFuncConfig);
-            var configFolder = Directory.GetParent(Assembly.GetExecutingAssembly().Location).Parent?.FullName;
-            _ = configBuilder.SetBasePath(configFolder);
-            _ = configBuilder.AddJsonFile("functionSettings.json");
-            _ = configBuilder.AddEnvironmentVariables();
 
-            var configuration = configBuilder.Build();
+            var configuration = builder?.Services?.BuildServiceProvider()?.GetService<IConfiguration>();
+
             MaxDequeueCount = configuration.GetSection(ConfigConstants.MaxDequeueCountConfigKey);
 
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration[ConfigConstants.KeyVaultUrlConfigKey])
-            {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
-            };
-            _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
-            configuration = configBuilder.Build();
-            _ = configBuilder.AddAzureAppConfiguration(options =>
-            {
-                var settings = options.Connect(configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey])
-                 .Select(KeyFilter.Any, "Common").Select(KeyFilter.Any, "QueueProcessor");
-                _ = settings.ConfigureRefresh(refreshOptions =>
-                {
-                    _ = refreshOptions.Register(key: configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
-                });
-            });
-
-            configuration = configBuilder.Build();
+            _ = builder.Services.AddAzureAppConfiguration();
 
             ITelemetryInitializer[] itm = new ITelemetryInitializer[1];
             var envInitializer = new EnvironmentInitializer
@@ -116,12 +89,46 @@ namespace NotificationsQueueProcessor
 
             _ = builder.Services.Configure<StorageAccountSetting>(configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
             _ = builder.Services.Configure<StorageAccountSetting>(s => s.ConnectionString = configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
-            _ = builder.Services.AddSingleton<IConfiguration>(configuration);
             _ = builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
             _ = builder.Services.AddScoped<TableStorageEmailRepository>();
             _ = builder.Services.AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>());
             _ = builder.Services.AddScoped<ITableStorageClient, TableStorageClient>();
             _ = builder.Services.AddHttpClient<IHttpClientHelper, HttpClientHelper>();
+
+            _ = builder.Services.BuildServiceProvider();
+        }
+
+        /// <inheritdoc/>
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+        {
+
+            var configBuilder = builder.ConfigurationBuilder;
+
+            var configFolder = Directory.GetParent(Assembly.GetExecutingAssembly().Location).Parent?.FullName;
+            _ = configBuilder.SetBasePath(configFolder);
+            _ = configBuilder.AddJsonFile("functionSettings.json");
+            _ = configBuilder.AddEnvironmentVariables();
+
+            var configuration = configBuilder.Build();
+
+            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration[ConfigConstants.KeyVaultUrlConfigKey])
+            {
+                ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
+            };
+            _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
+            configuration = configBuilder.Build();
+            IConfigurationRefresher configurationRefresher = null;
+
+            _ = configBuilder.AddAzureAppConfiguration((options) =>
+              {
+                  _ = options.Connect(configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]);
+                  _ = options.ConfigureRefresh(refreshOptions =>
+                    {
+                        _ = refreshOptions.Register(ConfigConstants.ForceRefreshConfigKey, "Common", refreshAll: true);
+                    })
+                  .Select(KeyFilter.Any, "Common").Select(KeyFilter.Any, "QueueProcessor");
+                  configurationRefresher = options.GetRefresher();
+              });
         }
     }
 }

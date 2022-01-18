@@ -73,5 +73,14 @@ namespace NotificationService.BusinessLibrary
         /// <param name="statusList">Status List of Notification items.</param>
         /// <returns>A <see cref="EmailNotificationItemTableEntity"/>.</returns>
         Task<IList<EmailNotificationItemEntity>> GetEmailNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList);
+
+        /// <summary>
+        /// Get MeetingNotification object from storage/database.
+        /// </summary>
+        /// <param name="applicationName">applicatoin Name for the notification.</param>
+        /// <param name="dateRange">daterange for notification search.</param>
+        /// <param name="statusList">Status List of Notification items.</param>
+        /// <returns>A <see cref="MeetingNotificationItemEntity"/>.</returns>
+        Task<IList<MeetingNotificationItemEntity>> GetMeetingNotificationsByDateRangeAndStatus(string applicationName, DateTimeRange dateRange, List<NotificationItemStatus> statusList);
     }
 }

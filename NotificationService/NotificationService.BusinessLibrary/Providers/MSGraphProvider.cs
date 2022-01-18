@@ -229,7 +229,8 @@ namespace NotificationService.BusinessLibrary
             IList<Task> tasks = new List<Task>();
             foreach (var attachment in attachments)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     int count = 0;
                     ResponseData<string> response = null;
                     do
@@ -245,7 +246,9 @@ namespace NotificationService.BusinessLibrary
 
                             result.Add(attachment.Name, response);
                         }
+#pragma warning disable CA1031 // Do not catch general exception types
                         catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                         {
                             this.logger.TraceError($"Error {nameof(this.SendMeetingInviteAttachments)} method: sending attachment [{attachment.Name}] and notificationId [{notificationId}] in trial [{count}] with exception {ex}");
                         }
@@ -256,6 +259,25 @@ namespace NotificationService.BusinessLibrary
 
             Task.WaitAll(tasks.ToArray());
 
+            return result;
+        }
+
+        /// <summary>
+        /// Gets ResponseData from httpResponse.
+        /// </summary>
+        /// <param name="response"> HttpResponse Object. </param>
+        /// <returns> ResponseData.</returns>
+        private static async Task<ResponseData<string>> GetResponseData(HttpResponseMessage response)
+        {
+            if (response == null)
+            {
+                return null;
+            }
+
+            var result = new ResponseData<string>();
+            result.Status = response.IsSuccessStatusCode;
+            result.StatusCode = response.StatusCode;
+            result.Result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return result;
         }
 
@@ -283,25 +305,6 @@ namespace NotificationService.BusinessLibrary
 
             this.logger.TraceInformation($"Finished {nameof(this.SendMeetingInviteAttachment)} method of {nameof(MSGraphProvider)}.");
             return responseData;
-        }
-
-        /// <summary>
-        /// Gets ResponseData from httpResponse.
-        /// </summary>
-        /// <param name="response"> HttpResponse Object. </param>
-        /// <returns> ResponseData </returns>
-        private static async Task<ResponseData<string>> GetResponseData(HttpResponseMessage response)
-        {
-            if (response == null)
-            {
-                return null;
-            }
-
-            var result = new ResponseData<string>();
-            result.Status = response.IsSuccessStatusCode;
-            result.StatusCode = response.StatusCode;
-            result.Result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return result;
         }
     }
 }

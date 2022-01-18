@@ -10,7 +10,6 @@ namespace NotificationService.Contracts.Entities
     /// <summary>
     /// MeetingNotificationItemEntity.
     /// </summary>
-    /// <seealso cref="NotificationService.Contracts.NotificationItemBaseEntity" />
     public class MeetingNotificationItemTableEntity : TableEntity
     {
         /// <summary>
@@ -217,7 +216,7 @@ namespace NotificationService.Contracts.Entities
         public string EmailAccountUsed { get; set; }
 
         /// <summary>
-        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event. 
+        /// Gets or Sets EventId. An unique Id from Graph API to send attachments to the same event.
         /// </summary>
         public string EventId { get; set; }
 
@@ -225,5 +224,10 @@ namespace NotificationService.Contracts.Entities
         /// Gets or Sets Action.
         /// </summary>
         public string Action { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ShowAs
+        /// </summary>
+        public string ShowAs { get; set; }
     }
 }

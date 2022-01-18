@@ -24,7 +24,9 @@ namespace NotificationService.Common.Utility
         {
             if (expr1 == null || expr2 == null)
             {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentNullException($"Expression cannot be null");
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             }
 
             var secondBody = expr2.Body.Replace(expr2.Parameters[0], expr1.Parameters[0]);

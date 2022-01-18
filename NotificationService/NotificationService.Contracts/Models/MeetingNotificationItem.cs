@@ -3,16 +3,18 @@
 
 namespace NotificationService.Contracts.Models
 {
+
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
+    using NotificationService.Common.CustomValidations;
 
     /// <summary>
     /// MeetingNotificationItem.
     /// </summary>
-    [DataContract]
     /// <seealso cref="NotificationService.Contracts.NotificationItemBase" />
+    [DataContract]
     public class MeetingNotificationItem : NotificationItemBase
     {
         /// <summary>
@@ -38,7 +40,7 @@ namespace NotificationService.Contracts.Models
         /// <summary>
         /// Gets or Sets Action.
         /// </summary>
-        [DataMember(Name="action")]
+        [DataMember(Name = "action")]
         public string Action { get; set; }
 
         /// <summary>
@@ -59,12 +61,14 @@ namespace NotificationService.Contracts.Models
         /// </summary>
         [DataMember(Name = "requiredAttendees")]
         [Required(ErrorMessage = "'RequiredAttendees' is mandatory for meeting notifications.")]
+        [EmailIdListValidation(PropertyName = "RequiredAttendees", Nullable = false)]
         public string RequiredAttendees { get; set; }
 
         /// <summary>
         /// Gets or sets the cc.
         /// </summary>
         [DataMember(Name = "optionalAttendees")]
+        [EmailIdListValidation(PropertyName = "OptionalAttendees", Nullable = true)]
         public string OptionalAttendees { get; set; }
 
         /// <summary>
@@ -223,5 +227,11 @@ namespace NotificationService.Contracts.Models
         /// </summary>
         [DataMember(Name = "SequenceNumber")]
         public int? SequenceNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ShowAs.
+        /// </summary>
+        [DataMember(Name = "ShowAs")]
+        public string ShowAs { get; set; }
     }
 }

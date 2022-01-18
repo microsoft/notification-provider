@@ -66,7 +66,7 @@ namespace NotificationService.SvCommon.Common
                 .Select(KeyFilter.Any, application);
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
-                    _ = refreshOptions.Register(key: this.Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
+                    _ = refreshOptions.Register(ConfigConstants.ForceRefreshConfigKey, "Common", refreshAll: true);
                 });
             });
 
@@ -92,6 +92,8 @@ namespace NotificationService.SvCommon.Common
 
             _ = app.UseMiddleware<ExceptionMiddleware>();
 
+            _ = app.UseAzureAppConfiguration();
+
             _ = app.UseHttpsRedirection();
 
             _ = app.UseFileServer();
@@ -109,6 +111,8 @@ namespace NotificationService.SvCommon.Common
         /// <param name="services">An instance of <see cref="IServiceCollection"/>.</param>
         public void ConfigureServicesCommon(IServiceCollection services)
         {
+            _ = services.AddAzureAppConfiguration();
+
             _ = services.AddAuthorization(configure =>
             {
                 configure.AddPolicy(ApplicationConstants.AppNameAuthorizePolicy, policy =>
@@ -186,16 +190,36 @@ namespace NotificationService.SvCommon.Common
                 EnvironmentName = this.Configuration[AIConstants.EnvironmentName],
             };
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
             var tconfig = TelemetryConfiguration.CreateDefault();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             tconfig.InstrumentationKey = this.Configuration[ConfigConstants.AIInsrumentationConfigKey];
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
             DependencyTrackingTelemetryModule depModule = new DependencyTrackingTelemetryModule();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             depModule.Initialize(tconfig);
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
             RequestTrackingTelemetryModule requestTrackingTelemetryModule = new RequestTrackingTelemetryModule();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             requestTrackingTelemetryModule.Initialize(tconfig);
 
             _ = services.AddSingleton<ILogger>(_ => new AILogger(loggingConfiguration, tconfig, itm));
+        }
+
+        /// <summary>
+        /// Configure storage account services.
+        /// </summary>
+        /// <param name="services"> IServiceCollection instance.</param>
+        private static void ConfigureStorageAccountServices(IServiceCollection services)
+        {
+            _ = services.AddScoped<TableStorageEmailRepository>()
+                .AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>())
+                .AddScoped<ITableStorageClient, TableStorageClient>()
+                .AddScoped<IMailTemplateManager, MailTemplateManager>()
+                .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
+                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>();
         }
 
         /// <summary>
@@ -211,20 +235,6 @@ namespace NotificationService.SvCommon.Common
                 .AddSingleton<ICosmosDBQueryClient, CosmosDBQueryClient>()
                 .AddScoped<EmailNotificationRepository>()
                 .AddScoped<IEmailNotificationRepository, EmailNotificationRepository>(s => s.GetService<EmailNotificationRepository>());
-        }
-
-        /// <summary>
-        /// Configure storage account services.
-        /// </summary>
-        /// <param name="services"> IServiceCollection instance.</param>
-        private static void ConfigureStorageAccountServices(IServiceCollection services)
-        {
-            _ = services.AddScoped<TableStorageEmailRepository>()
-                .AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>())
-                .AddScoped<ITableStorageClient, TableStorageClient>()
-                .AddScoped<IMailTemplateManager, MailTemplateManager>()
-                .AddScoped<IMailTemplateRepository, MailTemplateRepository>()
-                .AddScoped<IMailAttachmentRepository, MailAttachmentRepository>();
         }
     }
 }

@@ -3,7 +3,6 @@
 
 namespace NotificationService.Contracts.Models.Graph.Invite
 {
-    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
@@ -41,7 +40,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
 
         /// <summary>
         /// Gets or Sets Index.
-        /// which day of the month.  
+        /// which day of the month.
         /// used with Monthly Type.
         /// like if daysofWeek is "Wednesday" and index= second => second Wednesday of the month.
         /// </summary>
@@ -50,7 +49,7 @@ namespace NotificationService.Contracts.Models.Graph.Invite
 
         /// <summary>
         /// Gets or Sets Month.
-        /// Used with Yearly Types. 
+        /// Used with Yearly Types.
         /// same like index => define month of the year.
         /// </summary>
         [DataMember(Name = "month")]

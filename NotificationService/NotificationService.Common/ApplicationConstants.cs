@@ -21,11 +21,6 @@ namespace NotificationService.Common
         /// <summary>
         /// Claim Type for the Audience Claim in JWT token.
         /// </summary>
-        //public const string AudienceClaimType = "aud";
-
-        /// <summary>
-        /// Claim Type for the Audience Claim in JWT token.
-        /// </summary>
         public const string AppIdClaimType = "appid";
 
         /// <summary>
@@ -81,7 +76,7 @@ namespace NotificationService.Common
         /// <summary>
         /// A formatter for Meeting invite Start and End Dates for Graph api base meeting invite.
         /// </summary>
-        public const string GraphMeetingInviteDateTimeFormatter = "yyyy-MM-ddThh:mm:ss";
+        public const string GraphMeetingInviteDateTimeFormatter = "yyyy-MM-ddTHH:mm:ss";
 
         /// <summary>
         /// A formatter for Meeting invite RecurrenceRangeDate for Graph api base meeting invite.
@@ -99,9 +94,15 @@ namespace NotificationService.Common
         public const string AppIdV2ClaimType = "azp";
 
         /// <summary>
-        /// A constant used to insert these many items at once in a single batch to storage.
+        /// A constant used to insert these many items at once in a single batch to azure storage/azure storage queue
         /// The azure storage has a limitation of accepting only 100 items in a single batch, so keeping the count to 100.
+        /// and storage queue message has a limitation of 64kb for message size, so restricting the count of notification ids in a single message to 100.
         /// </summary>
         public const int BatchSizeToStore = 100;
+
+        /// <summary>
+        /// A constant used to show the meeting invite state as free.
+        /// </summary>
+        public const string DefaultInviteStatus = "busy";
     }
 }

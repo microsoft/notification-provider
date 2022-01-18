@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 namespace NotificationService.BusinessLibrary
-   {
+{
     using System.Collections.Generic;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Contracts;

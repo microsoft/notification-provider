@@ -34,10 +34,9 @@ namespace NotificationService.Data
         /// UploadEmail to blob.
         /// </summary>
         /// <param name="meetingNotificationItemEntities">List of <see cref="MeetingNotificationItemEntity"/>.</param>
-        /// <param name="notificationType">notificationType.</param>
         /// <param name="applicationName">applicationName.</param>
         /// <returns>AA List of <see cref="MeetingNotificationItemEntity"/>.</returns>
-        Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string notificationType, string applicationName);
+        Task<IList<MeetingNotificationItemEntity>> UploadMeetingInvite(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities, string applicationName);
 
         /// <summary>
         /// Downloads email from blob.

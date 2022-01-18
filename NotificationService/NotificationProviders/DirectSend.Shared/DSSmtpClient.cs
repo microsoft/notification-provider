@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="DSSmtpClient.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend
 {
@@ -21,12 +22,12 @@ namespace DirectSend
     {
         private readonly ILogger logger;
         private readonly int timeout = 5;
+        private readonly ISmtpConfiguration config;
 
-        private bool disposedValue = false; // To detect redundant calls
+        private bool disposedValue; // To detect redundant calls
 
         private DateTime lastSend;
         private SmtpClient smtpClient;
-        private ISmtpConfiguration config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DSSmtpClient"/> class.

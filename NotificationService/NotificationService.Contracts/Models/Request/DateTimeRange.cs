@@ -16,14 +16,14 @@ namespace NotificationService.Contracts.Models.Request
         /// Gets or Sets Start DateTime.
         /// </summary>
         [Required(ErrorMessage = "StartDate is a mandatory parameter.")]
-        [DataMember(Name ="startDate")]
+        [DataMember(Name = "startDate")]
         public DateTime StartDate { get; set; }
 
         /// <summary>
         /// Gets or Sets End DateTime.
         /// </summary>
         [Required(ErrorMessage = "EndDate is a mandatory parameter.")]
-        [DataMember(Name="endDate")]
+        [DataMember(Name = "endDate")]
         public DateTime EndDate { get; set; }
     }
 }

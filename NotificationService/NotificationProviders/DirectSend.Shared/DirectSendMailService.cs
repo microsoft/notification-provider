@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// <copyright file="DirectSendMailService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DirectSend
 {
@@ -79,6 +80,11 @@ namespace DirectSend
             if (emailMessage.CcAddresses != null && emailMessage.CcAddresses.Any())
             {
                 message.Cc.AddRange(emailMessage.CcAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            }
+
+            if (emailMessage.ReplyTo != null && emailMessage.ReplyTo.Any())
+            {
+                message.ReplyTo.AddRange(emailMessage.ReplyTo.Select(x => new MailboxAddress(x.Name, x.Address)));
             }
 
             message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(this.mailConfiguration.FromAddressDisplayName, x.Address)));
