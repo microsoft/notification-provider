@@ -109,7 +109,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                 List<List<EmailNotificationItemEntity>> entitiesToQueue;
                 if (string.Equals(this.configuration?[ConfigConstants.NotificationProviderType], NotificationProviderType.Graph.ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
-                    entitiesToQueue = BusinessUtilities.SplitList<EmailNotificationItemEntity>(notificationItemEntities.ToList(), this.mSGraphSetting.BatchRequestLimit).ToList();
+                    entitiesToQueue = BusinessUtilities.SplitList<EmailNotificationItemEntity>(notificationItemEntities.ToList(), this.configuration.GetValue<int>(ConfigConstants.NotificationQueueBatchSize)).ToList();
                 }
                 else
                 {
