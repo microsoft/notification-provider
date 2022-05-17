@@ -6,7 +6,7 @@
   "dependencies": {
     "@azure/msal-browser": "^2.12.1",
     "@cseo/controls": "^2.7.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "immer": "^8.0.1",
     "moment": "^2.29.1",
     "office-ui-fabric-react": "^7.164.1",
