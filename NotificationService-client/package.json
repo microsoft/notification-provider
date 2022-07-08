@@ -8,7 +8,7 @@
     "@cseo/controls": "^2.7.0",
     "axios": "^0.21.1",
     "immer": "^8.0.1",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "office-ui-fabric-react": "^7.164.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
