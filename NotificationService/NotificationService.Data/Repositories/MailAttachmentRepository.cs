@@ -167,7 +167,7 @@ namespace NotificationService.Data.Repositories
             return notificationEntities;
         }
 
-        private string GetBlobPath(string applicationName, string notificationId, string folderName)
+        private static string GetBlobPath(string applicationName, string notificationId, string folderName)
         {
             return $"{applicationName}/{folderName}/{notificationId}";
         }

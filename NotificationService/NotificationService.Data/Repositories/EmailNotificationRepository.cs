@@ -331,7 +331,7 @@ namespace NotificationService.Data
             return updatedNotificationEntities;
         }
 
-        private Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> GetMailFilterExpression(NotificationReportRequest notificationReportRequest)
+        private static Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> GetMailFilterExpression(NotificationReportRequest notificationReportRequest)
         {
 
             Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> filterExpression = notification => true;
