@@ -183,7 +183,7 @@ namespace NotificationService.UnitTests.Data.Repositories
                 .Returns(Task.FromResult(mockEmailItemResponse.Object));
 
             _ = this.EmailHistoryContainer
-                .Setup(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+                .Setup(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default))
                 .Returns(queryableEmailEntityReponse);
 
             _ = this.CosmosDBQueryClient
@@ -206,7 +206,7 @@ namespace NotificationService.UnitTests.Data.Repositories
                 .Returns(Task.FromResult(mockMeetingItemResponse.Object));
 
             _ = this.MeetingHistoryContainer
-                .Setup(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
+                .Setup(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default))
                 .Returns(queryableMeetingEntityReponse);
 
             _ = this.CosmosDBQueryClient

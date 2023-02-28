@@ -62,7 +62,7 @@ namespace NotificationService.Data
 
             this.logger.TraceInformation($"Started {nameof(this.GetMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
-            string blobName = this.GetBlobName(applicationName, templateName);
+            string blobName = GetBlobName(applicationName, templateName);
             var contentTask = this.cloudStorageClient.DownloadBlobAsync(blobName).ConfigureAwait(false);
 
             TableOperation retrieveOperation = TableOperation.Retrieve<MailTemplateEntity>(applicationName, templateName);
@@ -117,7 +117,7 @@ namespace NotificationService.Data
                 throw new ArgumentNullException(nameof(mailTemplateEntity));
             }
 
-            string blobName = this.GetBlobName(mailTemplateEntity.Application, mailTemplateEntity.TemplateId);
+            string blobName = GetBlobName(mailTemplateEntity.Application, mailTemplateEntity.TemplateId);
             string blobUri = await this.cloudStorageClient.UploadBlobAsync(
                 blobName,
                 mailTemplateEntity.Content)
@@ -144,7 +144,7 @@ namespace NotificationService.Data
 
             this.logger.TraceInformation($"Started {nameof(this.DeleteMailTemplate)} method of {nameof(MailTemplateRepository)}.", traceProps);
             bool result = false;
-            string blobName = this.GetBlobName(applicationName, templateName);
+            string blobName = GetBlobName(applicationName, templateName);
             var status = await this.cloudStorageClient.DeleteBlobsAsync(blobName).ConfigureAwait(false);
 
             if (status)

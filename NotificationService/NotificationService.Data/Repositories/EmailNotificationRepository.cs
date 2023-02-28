@@ -213,9 +213,9 @@ namespace NotificationService.Data
                 throw new System.ArgumentNullException(nameof(notificationReportRequest));
             }
 
-            Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> filterExpression = this.GetMailFilterExpression(notificationReportRequest);
-            Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> projectionExpression = this.GetEmailProjectionExpression();
-            Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> orderExpression = this.GetEmailOrderExpression();
+            Expression<Func<EmailNotificationItemCosmosDbEntity, bool>> filterExpression = GetMailFilterExpression(notificationReportRequest);
+            Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> projectionExpression = GetEmailProjectionExpression();
+            Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> orderExpression = GetEmailOrderExpression();
 
             int skip = notificationReportRequest.Skip;
             int take = notificationReportRequest.Take > 0 ? notificationReportRequest.Take : 100;
@@ -293,8 +293,8 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => stringList.Contains(notification.Status));
             }
 
-            Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> projectionExpression = this.GetEmailProjectionExpression();
-            Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> orderExpression = this.GetEmailOrderExpression();
+            Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> projectionExpression = GetEmailProjectionExpression();
+            Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> orderExpression = GetEmailOrderExpression();
             if (projectionExpression == null)
             {
                 throw new ArgumentNullException($"Select Expression Cannot be null");
@@ -401,13 +401,13 @@ namespace NotificationService.Data
             return filterExpression;
         }
 
-        private Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> GetEmailOrderExpression()
+        private static Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> GetEmailOrderExpression()
         {
             Expression<Func<EmailNotificationItemCosmosDbEntity, DateTime>> orderBy = notification => notification.SendOnUtcDate;
             return orderBy;
         }
 
-        private Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> GetEmailProjectionExpression()
+        private static Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> GetEmailProjectionExpression()
         {
             Expression<Func<EmailNotificationItemCosmosDbEntity, EmailNotificationItemCosmosDbEntity>> selectExpression = n => new EmailNotificationItemCosmosDbEntity
             {
@@ -571,9 +571,9 @@ namespace NotificationService.Data
             {
                 throw new System.ArgumentNullException(nameof(meetingInviteReportRequest));
             }
-            Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> filterExpression = this.GetMeetingFilterExpression(meetingInviteReportRequest);
-            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> projectionExpression = this.GetMeetingProjectionExpression();
-            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderExpression = this.GetMeetingOrderExpression();
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> filterExpression = GetMeetingFilterExpression(meetingInviteReportRequest);
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> projectionExpression = GetMeetingProjectionExpression();
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderExpression = GetMeetingOrderExpression();
             int skip = meetingInviteReportRequest.Skip;
             int take = meetingInviteReportRequest.Take > 0 ? meetingInviteReportRequest.Take : 100;
             if (filterExpression == null)
@@ -640,8 +640,8 @@ namespace NotificationService.Data
                 filterExpression = filterExpression.And(notification => stringList.Contains(notification.Status));
             }
 
-            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> projectionExpression = this.GetMeetingProjectionExpression();
-            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderExpression = this.GetMeetingOrderExpression();
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> projectionExpression = GetMeetingProjectionExpression();
+            Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderExpression = GetMeetingOrderExpression();
             if (projectionExpression == null)
             {
                 throw new ArgumentNullException($"Select Expression Cannot be null");
@@ -678,7 +678,7 @@ namespace NotificationService.Data
             return updatedNotificationEntities;
         }
 
-        private Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> GetMeetingProjectionExpression()
+        private static Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> GetMeetingProjectionExpression()
         {
             Expression<Func<MeetingNotificationItemCosmosDbEntity, MeetingNotificationItemCosmosDbEntity>> selectExpression = n => new MeetingNotificationItemCosmosDbEntity
             {
@@ -727,13 +727,13 @@ namespace NotificationService.Data
             return selectExpression;
         }
 
-        private Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> GetMeetingOrderExpression()
+        private static Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> GetMeetingOrderExpression()
         {
             Expression<Func<MeetingNotificationItemCosmosDbEntity, DateTime>> orderBy = notification => notification.SendOnUtcDate;
             return orderBy;
         }
 
-        private Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> GetMeetingFilterExpression(NotificationReportRequest notificationReportRequest)
+        private static Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> GetMeetingFilterExpression(NotificationReportRequest notificationReportRequest)
         {
 
             Expression<Func<MeetingNotificationItemCosmosDbEntity, bool>> filterExpression = notification => true;
