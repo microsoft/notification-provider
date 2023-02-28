@@ -42,7 +42,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             var result = this.EmailNotificationRepository.GetEmailNotificationItemEntities(new List<string>() { Guid.NewGuid().ToString() });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
-            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
 
@@ -63,7 +63,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         {
             var result = this.EmailNotificationRepository.GetEmailNotificationItemEntity(Guid.NewGuid().ToString());
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
-            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
 
@@ -94,7 +94,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
 
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MailHistoryContainerName), Times.Once);
-            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.EmailHistoryContainer.Verify(container => container.GetItemLinqQueryable<EmailNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
     }

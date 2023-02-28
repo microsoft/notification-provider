@@ -101,7 +101,7 @@ namespace NotificationService.Data.Repositories
                 updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadEmail(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).ConfigureAwait(false);
             }
 
-            var batchesToCreate = this.SplitList<EmailNotificationItemEntity>((List<EmailNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
+            var batchesToCreate = SplitList<EmailNotificationItemEntity>((List<EmailNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
 
             foreach (var batch in batchesToCreate)
             {
@@ -202,8 +202,8 @@ namespace NotificationService.Data.Repositories
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotifications)} method of {nameof(TableStorageEmailRepository)}.");
             var entities = new List<EmailNotificationItemTableEntity>();
             var notificationEntities = new List<EmailNotificationItemEntity>();
-            string filterDateExpression = this.GetDateFilterExpression(notificationReportRequest);
-            string filterExpression = this.GetFilterExpression(notificationReportRequest);
+            string filterDateExpression = GetDateFilterExpression(notificationReportRequest);
+            string filterExpression = GetFilterExpression(notificationReportRequest);
             string finalFilter = filterDateExpression != null && filterDateExpression.Length > 0 ? filterDateExpression : filterExpression;
             if (filterDateExpression != null && filterDateExpression.Length > 0 && filterExpression != null && filterExpression.Length > 0)
             {
@@ -327,7 +327,7 @@ namespace NotificationService.Data.Repositories
             this.logger.TraceInformation($"Started {nameof(this.CreateMeetingNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
             IList<MeetingNotificationItemEntity> updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadMeetingInvite(meetingNotificationItemEntities, applicationName).ConfigureAwait(false);
 
-            var batchesToCreate = this.SplitList<MeetingNotificationItemEntity>((List<MeetingNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
+            var batchesToCreate = SplitList<MeetingNotificationItemEntity>((List<MeetingNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
 
             foreach (var batch in batchesToCreate)
             {
@@ -377,8 +377,8 @@ namespace NotificationService.Data.Repositories
             this.logger.TraceInformation($"Started {nameof(this.GetMeetingInviteNotifications)} method of {nameof(TableStorageEmailRepository)}.");
             var entities = new List<MeetingNotificationItemTableEntity>();
             var notificationEntities = new List<MeetingNotificationItemEntity>();
-            string filterDateExpression = this.GetDateFilterExpression(meetingInviteReportRequest);
-            string filterExpression = this.GetFilterExpression(meetingInviteReportRequest);
+            string filterDateExpression = GetDateFilterExpression(meetingInviteReportRequest);
+            string filterExpression = GetFilterExpression(meetingInviteReportRequest);
             string finalFilter = filterDateExpression != null && filterDateExpression.Length > 0 ? filterDateExpression : filterExpression;
             if (filterDateExpression != null && filterDateExpression.Length > 0 && filterExpression != null && filterExpression.Length > 0)
             {
@@ -540,7 +540,7 @@ namespace NotificationService.Data.Repositories
             return statusStr;
         }
 
-        private string GetFilterExpression(NotificationReportRequest notificationReportRequest)
+        private static string GetFilterExpression(NotificationReportRequest notificationReportRequest)
         {
             var filterSet = new HashSet<string>();
             string filterExpression = null;
@@ -611,7 +611,7 @@ namespace NotificationService.Data.Repositories
             }
         }
 
-        private string GetDateFilterExpression(NotificationReportRequest notificationReportRequest)
+        private static string GetDateFilterExpression(NotificationReportRequest notificationReportRequest)
         {
             string filterExpression = null;
             if (DateTime.TryParse(notificationReportRequest.CreatedDateTimeStart, out DateTime createdDateTimeStart))
@@ -654,7 +654,7 @@ namespace NotificationService.Data.Repositories
         /// <param name="listItems">List of objects.</param>
         /// <param name="nSize">Chunk size.</param>
         /// <returns>An enumerable collection of chunks.</returns>
-        private IEnumerable<IList<T>> SplitList<T>(List<T> listItems, int nSize = 4)
+        private static IEnumerable<IList<T>> SplitList<T>(List<T> listItems, int nSize = 4)
         {
             if (listItems is null)
             {

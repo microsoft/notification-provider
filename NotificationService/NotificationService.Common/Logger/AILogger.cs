@@ -130,7 +130,7 @@ namespace NotificationService.Common.Logger
         /// <param name="expressionOfParameters">comma separated expressions of parameters Ex: () => ParameterVariable.</param>
         public void WriteException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null, string eventCode = null, params Expression<Func<object>>[] expressionOfParameters)
         {
-            var methodParameters = this.GetParameters(expressionOfParameters);
+            var methodParameters = GetParameters(expressionOfParameters);
             if (methodParameters != null && methodParameters.Count > 0)
             {
                 if (properties == null)
@@ -366,7 +366,7 @@ namespace NotificationService.Common.Logger
         /// </summary>
         /// <param name="expressionOfParameters">comma separated expressions of parameters Ex: () => ParameterVariable.</param>
         /// <returns>dictionary of properties.</returns>
-        private Dictionary<string, string> GetParameters(params Expression<Func<object>>[] expressionOfParameters)
+        private static Dictionary<string, string> GetParameters(params Expression<Func<object>>[] expressionOfParameters)
         {
             var result = new Dictionary<string, string>();
             MemberExpression memberExpression;

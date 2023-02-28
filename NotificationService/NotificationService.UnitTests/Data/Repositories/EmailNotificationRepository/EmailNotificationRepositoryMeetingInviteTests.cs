@@ -99,7 +99,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             var result = this.EmailNotificationRepository.GetMeetingNotificationItemEntities(new List<string>() { Guid.NewGuid().ToString() });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
-            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
 
@@ -120,7 +120,7 @@ namespace NotificationService.UnitTests.Data.Repositories
         {
             var result = this.EmailNotificationRepository.GetMeetingNotificationItemEntity(Guid.NewGuid().ToString());
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
-            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
 
@@ -151,7 +151,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
 
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
-            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Once);
+            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Once);
             Assert.Pass();
         }
 
@@ -181,7 +181,7 @@ namespace NotificationService.UnitTests.Data.Repositories
             Assert.IsNotNull(result);
 
             this.CosmosDBQueryClient.Verify(cdq => cdq.GetCosmosContainer(It.IsAny<string>(), this.MeetingHistoryContainerName), Times.Once);
-            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()), Times.Exactly(3));
+            this.MeetingHistoryContainer.Verify(container => container.GetItemLinqQueryable<MeetingNotificationItemCosmosDbEntity>(It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>(), default), Times.Exactly(3));
             Assert.Pass();
 
         }

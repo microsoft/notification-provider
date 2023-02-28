@@ -68,7 +68,7 @@ namespace NotificationService.Data.Repositories
                         Attachments = item.Attachments,
                         TemplateData = item.TemplateData,
                     };
-                    var blobpath = this.GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.EmailNotificationsFolderName);
+                    var blobpath = GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.EmailNotificationsFolderName);
                     var uloadedblobpath = await this.cloudStorageClient.UploadBlobAsync(blobpath, this.encryptionService.Encrypt(JsonConvert.SerializeObject(blobEmailData))).ConfigureAwait(false);
                     notificationEntities.Add(notificationEntity);
                 }
@@ -99,7 +99,7 @@ namespace NotificationService.Data.Repositories
                         Attachments = item.Attachments,
                         TemplateData = item.TemplateData,
                     };
-                    var blobpath = this.GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.MeetingNotificationsFolderName);
+                    var blobpath = GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.MeetingNotificationsFolderName);
                     var uloadedblobpath = await this.cloudStorageClient.UploadBlobAsync(blobpath, this.encryptionService.Encrypt(JsonConvert.SerializeObject(blobEmailData))).ConfigureAwait(false);
                     notificationEntities.Add(item);
                 }
@@ -123,7 +123,7 @@ namespace NotificationService.Data.Repositories
                 foreach (var item in emailNotificationItemEntities)
                 {
                     EmailNotificationItemEntity notificationEntity = item;
-                    var blobPath = this.GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.EmailNotificationsFolderName);
+                    var blobPath = GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.EmailNotificationsFolderName);
                     var encryptedData = await this.cloudStorageClient.DownloadBlobAsync(blobPath).ConfigureAwait(false);
                     var decryptedData = this.encryptionService.Decrypt(encryptedData);
                     var blobEmailData = JsonConvert.DeserializeObject<BlobEmailData>(decryptedData);
@@ -152,7 +152,7 @@ namespace NotificationService.Data.Repositories
                 foreach (var item in meetingNotificationItemEntities)
                 {
                     MeetingNotificationItemEntity notificationEntity = item;
-                    var blobPath = this.GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.MeetingNotificationsFolderName);
+                    var blobPath = GetBlobPath(applicationName, item.NotificationId, ApplicationConstants.MeetingNotificationsFolderName);
                     var encryptedData = await this.cloudStorageClient.DownloadBlobAsync(blobPath).ConfigureAwait(false);
                     var decryptedData = this.encryptionService.Decrypt(encryptedData);
                     var blobEmailData = JsonConvert.DeserializeObject<BlobEmailData>(decryptedData);
@@ -167,7 +167,7 @@ namespace NotificationService.Data.Repositories
             return notificationEntities;
         }
 
-        private string GetBlobPath(string applicationName, string notificationId, string folderName)
+        private static string GetBlobPath(string applicationName, string notificationId, string folderName)
         {
             return $"{applicationName}/{folderName}/{notificationId}";
         }
