@@ -8,14 +8,15 @@ namespace NotificationService.Data.Repositories
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Options;
+    using Microsoft.Identity.Client;
     using Newtonsoft.Json;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Extensions;
+    using NotificationService.Contracts.Models;
     using NotificationService.Contracts.Models.Request;
 
     /// <summary>
@@ -33,15 +34,10 @@ namespace NotificationService.Data.Repositories
         /// </summary>
         private readonly ITableStorageClient cloudStorageClient;
 
-        /// <summary>
-        /// Instance of <see cref="emailHistoryTable"/>.
-        /// </summary>
-        private readonly CloudTable emailHistoryTable;
+        private readonly string _emailHistoryTableName;
 
-        /// <summary>
-        /// Instance of <see cref="meetingHistoryTable"/>.
-        /// </summary>
-        private readonly CloudTable meetingHistoryTable;
+        private readonly string _meetingHistoryTableName;
+
 
         /// <summary>
         /// Instance of <see cref="ILogger"/>.
@@ -64,20 +60,17 @@ namespace NotificationService.Data.Repositories
         {
             this.storageAccountSetting = storageAccountSetting?.Value ?? throw new System.ArgumentNullException(nameof(storageAccountSetting));
             this.cloudStorageClient = cloudStorageClient ?? throw new System.ArgumentNullException(nameof(cloudStorageClient));
-            var emailHistoryTableName = storageAccountSetting?.Value?.EmailHistoryTableName;
-            var meetingHistoryTableName = storageAccountSetting?.Value?.MeetingHistoryTableName;
-            if (string.IsNullOrEmpty(emailHistoryTableName))
+            this._emailHistoryTableName = storageAccountSetting?.Value?.EmailHistoryTableName;
+            this._meetingHistoryTableName = storageAccountSetting?.Value?.MeetingHistoryTableName;
+            if (string.IsNullOrEmpty(this._emailHistoryTableName))
             {
                 throw new ArgumentNullException(nameof(storageAccountSetting), "EmailHistoryTableName property from StorageAccountSetting can't be null/empty. Please provide the value in appsettings.json file.");
             }
 
-            if (string.IsNullOrEmpty(meetingHistoryTableName))
+            if (string.IsNullOrEmpty(this._meetingHistoryTableName))
             {
                 throw new ArgumentNullException(nameof(storageAccountSetting), "MeetingHistoryTableName property from StorageAccountSetting can't be null/empty. Please provide the value in appsettings.json file");
             }
-
-            this.emailHistoryTable = this.cloudStorageClient.GetCloudTable(emailHistoryTableName);
-            this.meetingHistoryTable = this.cloudStorageClient.GetCloudTable(meetingHistoryTableName);
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
             this.mailAttachmentRepository = mailAttachmentRepository;
         }
@@ -100,22 +93,17 @@ namespace NotificationService.Data.Repositories
             {
                 updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadEmail(emailNotificationItemEntities, NotificationType.Mail.ToString(), applicationName).ConfigureAwait(false);
             }
-
             var batchesToCreate = this.SplitList<EmailNotificationItemEntity>((List<EmailNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
-
             foreach (var batch in batchesToCreate)
             {
-                TableBatchOperation batchOperation = new TableBatchOperation();
+                IList<EmailNotificationItemTableEntity> lstEmailNotificationItemTable = new List<EmailNotificationItemTableEntity>();
                 foreach (var item in batch)
                 {
-                    batchOperation.Insert(item.ConvertToEmailNotificationItemTableEntity());
+                    lstEmailNotificationItemTable.Add(item.ConvertToEmailNotificationItemTableEntity());
                 }
-
-                Task.WaitAll(this.emailHistoryTable.ExecuteBatchAsync(batchOperation));
+                await cloudStorageClient.InsertRecordsAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, lstEmailNotificationItemTable.ToList());
             }
-
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-
             return;
         }
 
@@ -127,20 +115,18 @@ namespace NotificationService.Data.Repositories
                 throw new System.ArgumentNullException(nameof(notificationIds));
             }
 
-            string filterExpression = null;
-            foreach (var item in notificationIds)
-            {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : filterExpression + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
-            }
-
-            var traceProps = new Dictionary<string, string>();
-            traceProps[AIConstants.Application] = applicationName;
-            traceProps[AIConstants.NotificationIds] = JsonConvert.SerializeObject(notificationIds);
+             var traceProps = new Dictionary<string, string>();
+             traceProps[AIConstants.Application] = applicationName;
+             traceProps[AIConstants.NotificationIds] = JsonConvert.SerializeObject(notificationIds);
 
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
             List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
-            emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            foreach (var item in notificationIds)
+            {
+                var tableResult = await cloudStorageClient.GetRecordAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, applicationName, item);
+                emailNotificationItemEntities.Add((EmailNotificationItemTableEntity)tableResult);
+            }
+
             IList<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => e.ConvertToEmailNotificationItemEntity()).ToList();
             IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
             if (applicationName != null)
@@ -163,12 +149,14 @@ namespace NotificationService.Data.Repositories
             var traceprops = new Dictionary<string, string>();
             traceprops[AIConstants.Application] = applicationName;
             traceprops[AIConstants.NotificationIds] = notificationId;
-            string filterExpression = TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, notificationId);
+            string filterExpression = $"NotificationId eq '{notificationId}'";
 
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceprops);
-            List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
-            emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+          
+            var emailNotificationItemEntities = await cloudStorageClient.GetRecordsAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, filterExpression);
+            emailNotificationItemEntities = emailNotificationItemEntities.Select(ent => ent).ToList();
+
+
             List<EmailNotificationItemEntity> notificationEntities = emailNotificationItemEntities.Select(e => e.ConvertToEmailNotificationItemEntity()).ToList();
             IList<EmailNotificationItemEntity> updatedNotificationEntities = notificationEntities;
             if (applicationName != null)
@@ -192,7 +180,7 @@ namespace NotificationService.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public Task<Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
+        public Task<Tuple<IList<EmailNotificationItemEntity>, string>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
         {
             if (notificationReportRequest == null)
             {
@@ -205,25 +193,22 @@ namespace NotificationService.Data.Repositories
             string filterDateExpression = this.GetDateFilterExpression(notificationReportRequest);
             string filterExpression = this.GetFilterExpression(notificationReportRequest);
             string finalFilter = filterDateExpression != null && filterDateExpression.Length > 0 ? filterDateExpression : filterExpression;
+            
             if (filterDateExpression != null && filterDateExpression.Length > 0 && filterExpression != null && filterExpression.Length > 0)
             {
-                finalFilter = TableQuery.CombineFilters(filterDateExpression, TableOperators.And, filterExpression);
+                finalFilter = CombineFilters(filterDateExpression, "and", filterExpression);
             }
 
-            var tableQuery = new TableQuery<EmailNotificationItemTableEntity>()
-                     .Where(finalFilter)
-                     .OrderByDesc(notificationReportRequest.SendOnUtcDateStart)
-                     .Take(notificationReportRequest.Take == 0 ? 100 : notificationReportRequest.Take);
-            var queryResult = this.emailHistoryTable.ExecuteQuerySegmented(tableQuery, notificationReportRequest.Token);
-            entities.AddRange(queryResult.Results);
-            notificationEntities = entities.Select(e => e.ConvertToEmailNotificationItemEntity()).ToList();
-            var token = queryResult.ContinuationToken;
-            Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken>(notificationEntities, token);
+            var mailTemplateEntities = cloudStorageClient.GetRecordsAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, finalFilter).Result;
+
+            notificationEntities = mailTemplateEntities.Select(e => e.ConvertToEmailNotificationItemEntity()).ToList();
+            var token = notificationReportRequest.Token;
+            Tuple<IList<EmailNotificationItemEntity>, string> tuple = new Tuple<IList<EmailNotificationItemEntity>, string>(notificationEntities, token);
             return Task.FromResult(tuple);
         }
 
         /// <inheritdoc/>
-        public Task UpdateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities)
+        public async Task UpdateEmailNotificationItemEntities(IList<EmailNotificationItemEntity> emailNotificationItemEntities)
         {
             if (emailNotificationItemEntities is null || emailNotificationItemEntities.Count == 0)
             {
@@ -231,17 +216,16 @@ namespace NotificationService.Data.Repositories
             }
 
             this.logger.TraceInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            TableBatchOperation batchOperation = new TableBatchOperation();
+            IList<EmailNotificationItemTableEntity> lstEmailNotificationItem = new List<EmailNotificationItemTableEntity>();
             foreach (var item in emailNotificationItemEntities)
             {
-                batchOperation.Merge(item.ConvertToEmailNotificationItemTableEntity());
+                lstEmailNotificationItem.Add(item.ConvertToEmailNotificationItemTableEntity());
             }
-
-            Task.WaitAll(this.emailHistoryTable.ExecuteBatchAsync(batchOperation));
+            await cloudStorageClient.AddsOrUpdatesAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, lstEmailNotificationItem.ToList());
 
             this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
 
-            return Task.FromResult(true);
+            return;
         }
 
         /// <inheritdoc/>
@@ -255,7 +239,7 @@ namespace NotificationService.Data.Repositories
             string filterExpression = null;
             foreach (var item in notificationIds)
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : filterExpression + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
+                filterExpression = filterExpression == null ? $"NotificationId eq '{item}'" : filterExpression + " or " + $"NotificationId eq '{item}'";
             }
 
             var traceProps = new Dictionary<string, string>();
@@ -263,9 +247,8 @@ namespace NotificationService.Data.Repositories
             traceProps[AIConstants.NotificationIds] = JsonConvert.SerializeObject(notificationIds);
 
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
-            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            var meetingNotificationItemEntities = await cloudStorageClient.GetRecordsAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, filterExpression);
+            meetingNotificationItemEntities = meetingNotificationItemEntities.Select(ent => ent).ToList();
 
             IList<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => e.ConvertToMeetingNotificationItemEntity()).ToList();
             IList<MeetingNotificationItemEntity> updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
@@ -283,12 +266,13 @@ namespace NotificationService.Data.Repositories
 
             var traceProps = new Dictionary<string, string>();
             traceProps[AIConstants.NotificationIds] = notificationId;
+            string filterExpression = $"NotificationId eq '{notificationId}'";
 
-            string filterExpression = TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, notificationId);
             this.logger.TraceInformation($"Started {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
-            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+          
+            var meetingNotificationItemEntities = await cloudStorageClient.GetRecordsAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, filterExpression);
+            meetingNotificationItemEntities = meetingNotificationItemEntities.Select(ent => ent).ToList();
+
             List<MeetingNotificationItemEntity> notificationEntities = meetingNotificationItemEntities.Select(e => e.ConvertToMeetingNotificationItemEntity()).ToList();
             IList<MeetingNotificationItemEntity> updatedNotificationEntities = await this.mailAttachmentRepository.DownloadMeetingInvite(notificationEntities, applicationName).ConfigureAwait(false);
             this.logger.TraceInformation($"Finished {nameof(this.GetEmailNotificationItemEntity)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
@@ -328,24 +312,21 @@ namespace NotificationService.Data.Repositories
             IList<MeetingNotificationItemEntity> updatedEmailNotificationItemEntities = await this.mailAttachmentRepository.UploadMeetingInvite(meetingNotificationItemEntities, applicationName).ConfigureAwait(false);
 
             var batchesToCreate = this.SplitList<MeetingNotificationItemEntity>((List<MeetingNotificationItemEntity>)updatedEmailNotificationItemEntities, ApplicationConstants.BatchSizeToStore).ToList();
-
             foreach (var batch in batchesToCreate)
             {
-                TableBatchOperation batchOperation = new TableBatchOperation();
+                IList<MeetingNotificationItemTableEntity> lstConvertedMeetingNotificationItem = new List<MeetingNotificationItemTableEntity>();
                 foreach (var item in batch)
                 {
-                    batchOperation.Insert(item.ConvertToMeetingNotificationItemTableEntity());
+                    lstConvertedMeetingNotificationItem.Add(item.ConvertToMeetingNotificationItemTableEntity());
                 }
-
-                Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
+                await cloudStorageClient.InsertRecordsAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, lstConvertedMeetingNotificationItem.ToList());
             }
-
             this.logger.TraceInformation($"Finished {nameof(this.CreateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
             return;
         }
 
         /// <inheritdoc/>
-        public Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities)
+        public async Task UpdateMeetingNotificationItemEntities(IList<MeetingNotificationItemEntity> meetingNotificationItemEntities)
         {
             if (meetingNotificationItemEntities is null || meetingNotificationItemEntities.Count == 0)
             {
@@ -353,21 +334,20 @@ namespace NotificationService.Data.Repositories
             }
 
             this.logger.TraceInformation($"Started {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
-            TableBatchOperation batchOperation = new TableBatchOperation();
+            IList<MeetingNotificationItemTableEntity> lstMeetingNotificationItem = new List<MeetingNotificationItemTableEntity>();
             foreach (var item in meetingNotificationItemEntities)
             {
-                batchOperation.Merge(item.ConvertToMeetingNotificationItemTableEntity());
+                lstMeetingNotificationItem.Add(item.ConvertToMeetingNotificationItemTableEntity());
             }
-
-            Task.WaitAll(this.meetingHistoryTable.ExecuteBatchAsync(batchOperation));
+            await cloudStorageClient.AddsOrUpdatesAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, lstMeetingNotificationItem.ToList());
 
             this.logger.TraceInformation($"Finished {nameof(this.UpdateEmailNotificationItemEntities)} method of {nameof(TableStorageEmailRepository)}.");
 
-            return Task.FromResult(true);
+            return;
         }
 
         /// <inheritdoc/>
-        public Task<Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest)
+        public Task<Tuple<IList<MeetingNotificationItemEntity>, string>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest)
         {
             if (meetingInviteReportRequest == null)
             {
@@ -382,18 +362,13 @@ namespace NotificationService.Data.Repositories
             string finalFilter = filterDateExpression != null && filterDateExpression.Length > 0 ? filterDateExpression : filterExpression;
             if (filterDateExpression != null && filterDateExpression.Length > 0 && filterExpression != null && filterExpression.Length > 0)
             {
-                finalFilter = TableQuery.CombineFilters(filterDateExpression, TableOperators.And, filterExpression);
+                finalFilter = CombineFilters(filterDateExpression, " and ", filterExpression);
             }
 
-            var tableQuery = new TableQuery<MeetingNotificationItemTableEntity>()
-                     .Where(finalFilter)
-                     .OrderByDesc(meetingInviteReportRequest.SendOnUtcDateStart)
-                     .Take(meetingInviteReportRequest.Take == 0 ? 100 : meetingInviteReportRequest.Take);
-            var queryResult = this.meetingHistoryTable.ExecuteQuerySegmented(tableQuery, meetingInviteReportRequest.Token);
-            entities.AddRange(queryResult.Results);
-            notificationEntities = entities.Select(e => e.ConvertToMeetingNotificationItemEntity()).ToList();
-            var token = queryResult.ContinuationToken;
-            Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>(notificationEntities, token);
+            var mailTemplateEntities = cloudStorageClient.GetRecordsAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, finalFilter).Result;
+
+            notificationEntities = mailTemplateEntities.Select(e => e.ConvertToMeetingNotificationItemEntity()).ToList();
+            Tuple<IList<MeetingNotificationItemEntity>, string> tuple = new Tuple<IList<MeetingNotificationItemEntity>, string>(notificationEntities, meetingInviteReportRequest.Token);
             return Task.FromResult(tuple);
         }
 
@@ -405,15 +380,13 @@ namespace NotificationService.Data.Repositories
                 throw new ArgumentNullException(nameof(dateRange));
             }
 
-            string filterExpression = TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, dateRange.StartDate)
-                    + " and "
-                    + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThan, dateRange.EndDate);
+            string filterExpression = $"SendOnUtcDate ge {GenerateFilterForDate(dateRange.StartDate)} and SendOnUtcDate lt {GenerateFilterForDate(dateRange.EndDate)}";
 
             if (!string.IsNullOrEmpty(applicationName))
             {
                 filterExpression = filterExpression
                     + " and "
-                    + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, applicationName);
+                    + $"Application eq '{applicationName}'";
             }
 
             if (statusList != null && statusList.Count > 0)
@@ -421,11 +394,11 @@ namespace NotificationService.Data.Repositories
                 string statusFilterExpression = null;
                 foreach (var status in statusList)
                 {
-                    string filter = TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status.ToString());
+                    string filter = $"Status eq '{status.ToString()}'";
                     statusFilterExpression = statusFilterExpression == null ? filter : " or " + filter;
                 }
 
-                filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
+                filterExpression = $"{filterExpression} and {statusFilterExpression}";
             }
 
             var traceProps = new Dictionary<string, string>();
@@ -433,9 +406,10 @@ namespace NotificationService.Data.Repositories
             traceProps[AIConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
 
             this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedEmailNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-            List<EmailNotificationItemTableEntity> emailNotificationItemEntities = new List<EmailNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<EmailNotificationItemTableEntity>().Where(filterExpression);
-            emailNotificationItemEntities = this.emailHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+            
+            var emailNotificationItemEntities = await cloudStorageClient.GetRecordsAsync<EmailNotificationItemTableEntity>(this._emailHistoryTableName, filterExpression);
+
+
             if (emailNotificationItemEntities == null || emailNotificationItemEntities.Count == 0)
             {
                 return null;
@@ -459,16 +433,14 @@ namespace NotificationService.Data.Repositories
             {
                 throw new ArgumentNullException(nameof(dateRange));
             }
+            string filterExpression = $"SendOnUtcDate ge {GenerateFilterForDate(dateRange.StartDate)} and SendOnUtcDate lt {GenerateFilterForDate(dateRange.EndDate)}";
 
-            string filterExpression = TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, dateRange.StartDate)
-                    + " and "
-                    + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThan, dateRange.EndDate);
 
             if (!string.IsNullOrEmpty(applicationName))
             {
                 filterExpression = filterExpression
                     + " and "
-                    + TableQuery.GenerateFilterCondition("Application", QueryComparisons.Equal, applicationName);
+                    + $"Application eq '{applicationName}'";
             }
 
             if (statusList != null && statusList.Count > 0)
@@ -476,11 +448,11 @@ namespace NotificationService.Data.Repositories
                 string statusFilterExpression = null;
                 foreach (var status in statusList)
                 {
-                    string filter = TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status.ToString());
+                    string filter = $"Status eq '{status.ToString()}'";
                     statusFilterExpression = statusFilterExpression == null ? filter : " or " + filter;
                 }
 
-                filterExpression = TableQuery.CombineFilters(filterExpression, TableOperators.And, statusFilterExpression);
+                filterExpression = $"{filterExpression} and {statusFilterExpression}";
             }
 
             var traceProps = new Dictionary<string, string>();
@@ -488,9 +460,10 @@ namespace NotificationService.Data.Repositories
             traceProps[AIConstants.ResendDateRange] = JsonConvert.SerializeObject(dateRange);
 
             this.logger.TraceInformation($"Started {nameof(this.GetPendingOrFailedMeetingNotificationsByDateRange)} method of {nameof(TableStorageEmailRepository)}.", traceProps);
-            List<MeetingNotificationItemTableEntity> meetingNotificationItemEntities = new List<MeetingNotificationItemTableEntity>();
-            var linqQuery = new TableQuery<MeetingNotificationItemTableEntity>().Where(filterExpression);
-            meetingNotificationItemEntities = this.meetingHistoryTable.ExecuteQuery(linqQuery)?.Select(ent => ent).ToList();
+          
+            var meetingNotificationItemEntities = await cloudStorageClient.GetRecordsAsync<MeetingNotificationItemTableEntity>(this._meetingHistoryTableName, filterExpression);
+            meetingNotificationItemEntities = meetingNotificationItemEntities?.Select(ent => ent).ToList();
+
             if (meetingNotificationItemEntities == null || meetingNotificationItemEntities.Count == 0)
             {
                 return null;
@@ -554,7 +527,7 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in notificationReportRequest.ApplicationFilter)
                 {
-                    applicationFilter = applicationFilter == null ? TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item) : applicationFilter + " or " + TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, item);
+                    applicationFilter = applicationFilter == null ? $"PartitionKey eq '{item}'" : applicationFilter + " or " + $"PartitionKey eq '{item}'";
                 }
 
                 _ = filterSet.Add("(" + applicationFilter + ")");
@@ -564,7 +537,7 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in notificationReportRequest.AccountsUsedFilter)
                 {
-                    accountFilter = accountFilter == null ? TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item) : accountFilter + " or " + TableQuery.GenerateFilterCondition("EmailAccountUsed", QueryComparisons.Equal, item);
+                    accountFilter = accountFilter == null ? $"EmailAccountUsed eq '{item}'" : accountFilter + " or " + $"EmailAccountUsed eq '{item}'";
                 }
 
                 _ = filterSet.Add("(" + accountFilter + ")");
@@ -574,7 +547,7 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in notificationReportRequest.NotificationIdsFilter)
                 {
-                    notificationFilter = notificationFilter == null ? TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item) : notificationFilter + " or " + TableQuery.GenerateFilterCondition("NotificationId", QueryComparisons.Equal, item);
+                    notificationFilter = notificationFilter == null ? $"NotificationId eq '{item}'" : notificationFilter + " or " + $"NotificationId eq '{item}'";
                 }
 
                 _ = filterSet.Add("(" + notificationFilter + ")");
@@ -584,7 +557,7 @@ namespace NotificationService.Data.Repositories
             {
                 foreach (var item in notificationReportRequest.TrackingIdsFilter)
                 {
-                    trackingIdFilter = trackingIdFilter == null ? TableQuery.GenerateFilterCondition("TrackingId", QueryComparisons.Equal, item) : trackingIdFilter + " or " + TableQuery.GenerateFilterCondition("TrackingId", QueryComparisons.Equal, item);
+                    trackingIdFilter = trackingIdFilter == null ? $"TrackingId eq '{item}'" : trackingIdFilter + " or " + $"TrackingId eq '{item}'";
                 }
 
                 _ = filterSet.Add("(" + trackingIdFilter + ")");
@@ -595,7 +568,7 @@ namespace NotificationService.Data.Repositories
                 foreach (int item in notificationReportRequest.NotificationStatusFilter)
                 {
                     string status = GetStatus(item);
-                    statusFilter = statusFilter == null ? TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status) : statusFilter + " or " + TableQuery.GenerateFilterCondition("Status", QueryComparisons.Equal, status);
+                    statusFilter = statusFilter == null ? $"Status eq '{status}'" : statusFilter + " or " + $"Status eq '{status}'";
                 }
 
                 _ = filterSet.Add("(" + statusFilter + ")");
@@ -616,32 +589,32 @@ namespace NotificationService.Data.Repositories
             string filterExpression = null;
             if (DateTime.TryParse(notificationReportRequest.CreatedDateTimeStart, out DateTime createdDateTimeStart))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("CreatedDateTimeStart", QueryComparisons.GreaterThanOrEqual, createdDateTimeStart) : filterExpression + TableQuery.GenerateFilterConditionForDate("CreatedDateTimeStart", QueryComparisons.GreaterThanOrEqual, createdDateTimeStart);
+                filterExpression = filterExpression == null ? $"CreatedDateTimeStart ge {GenerateFilterForDate(createdDateTimeStart)}" : filterExpression + " and " + $"CreatedDateTimeStart ge {GenerateFilterForDate(createdDateTimeStart)}";
             }
 
             if (DateTime.TryParse(notificationReportRequest.CreatedDateTimeEnd, out DateTime createdDateTimeEnd))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("CreatedDateTimeEnd", QueryComparisons.LessThanOrEqual, createdDateTimeEnd) : filterExpression + TableQuery.GenerateFilterConditionForDate("CreatedDateTimeEnd", QueryComparisons.LessThanOrEqual, createdDateTimeEnd);
+                filterExpression = filterExpression == null ? $" CreatedDateTimeEnd le {GenerateFilterForDate(createdDateTimeEnd)}" : filterExpression + " and " + $"CreatedDateTimeEnd le {GenerateFilterForDate(createdDateTimeEnd)}";
             }
 
             if (DateTime.TryParse(notificationReportRequest.SendOnUtcDateStart, out DateTime sentTimeStart))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, sentTimeStart) : filterExpression + " and " + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.GreaterThanOrEqual, sentTimeStart);
+                filterExpression = filterExpression == null ? $" SendOnUtcDate ge {GenerateFilterForDate(sentTimeStart)}" : filterExpression + " and " + $"SendOnUtcDate ge {GenerateFilterForDate(sentTimeStart)}";
             }
 
             if (DateTime.TryParse(notificationReportRequest.SendOnUtcDateEnd, out DateTime sentTimeEnd))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThanOrEqual, sentTimeEnd) : filterExpression + " and " + TableQuery.GenerateFilterConditionForDate("SendOnUtcDate", QueryComparisons.LessThanOrEqual, sentTimeEnd);
+                filterExpression = filterExpression == null ? $" SendOnUtcDate le {GenerateFilterForDate(sentTimeEnd)}" : filterExpression + " and " + $"SendOnUtcDate le {GenerateFilterForDate(sentTimeEnd)}";
             }
 
             if (DateTime.TryParse(notificationReportRequest.UpdatedDateTimeStart, out DateTime updatedTimeStart))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("UpdatedDateTimeStart", QueryComparisons.GreaterThanOrEqual, updatedTimeStart) : filterExpression + TableQuery.GenerateFilterConditionForDate("UpdatedDateTimeStart", QueryComparisons.GreaterThanOrEqual, updatedTimeStart);
+                filterExpression = filterExpression == null ? $" UpdatedDateTimeStart ge {GenerateFilterForDate(updatedTimeStart)}" : filterExpression + " and " + $"UpdatedDateTimeStart ge {GenerateFilterForDate(updatedTimeStart)}";
             }
 
             if (DateTime.TryParse(notificationReportRequest.UpdatedDateTimeEnd, out DateTime updatedTimeEnd))
             {
-                filterExpression = filterExpression == null ? TableQuery.GenerateFilterConditionForDate("UpdatedDateTimeEnd", QueryComparisons.LessThanOrEqual, updatedTimeEnd) : filterExpression + TableQuery.GenerateFilterConditionForDate("UpdatedDateTimeEnd", QueryComparisons.LessThanOrEqual, updatedTimeEnd);
+                filterExpression = filterExpression == null ? $" UpdatedDateTimeEnd le {GenerateFilterForDate(updatedTimeEnd)}" : filterExpression + " and " + $"UpdatedDateTimeEnd le {GenerateFilterForDate(updatedTimeEnd)}";
             }
 
             return filterExpression;
@@ -665,6 +638,16 @@ namespace NotificationService.Data.Repositories
             {
                 yield return listItems.GetRange(i, Math.Min(nSize, listItems.Count - i));
             }
+        }
+
+        private string GenerateFilterForDate(DateTimeOffset filterDate)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "datetime'{0}'", filterDate.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
+        }
+
+        private string CombineFilters(string filterOne, string operatorString, string filterTwo)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "({0}) {1} ({2})", filterOne, operatorString, filterTwo);
         }
     }
 }

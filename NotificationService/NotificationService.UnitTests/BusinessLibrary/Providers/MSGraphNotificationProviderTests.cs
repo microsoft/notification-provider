@@ -68,7 +68,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.Providers
             Assert.IsTrue(notifications.Count == 1);
             Assert.IsTrue(notifications.Any(x => x.Status == NotificationItemStatus.Failed));
 
-            _ = this.tokenHelper.Setup(x => x.GetAuthenticationHeader()).ReturnsAsync(new AuthenticationHeaderValue("Test"));
+            _ = this.tokenHelper.Setup(x => x.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>())).ReturnsAsync(new AuthenticationHeaderValue("Test"));
             provider = new MSGraphNotificationProvider(this.configuration.Object, new EmailAccountManager(), this.logger.Object, this.mSGraphSetting.Object, this.tokenHelper.Object, this.msGraphProvider.Object, this.emailManager.Object);
             await provider.ProcessNotificationEntities("TestAppName", notifications);
             Assert.IsTrue(notifications.Count == 1);

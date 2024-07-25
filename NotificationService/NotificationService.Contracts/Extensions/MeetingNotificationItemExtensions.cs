@@ -58,6 +58,7 @@ namespace NotificationService.Contracts.Extensions
                     Application = applicationName,
                     TrackingId = meetingNotificationItem.TrackingId,
                     Action = meetingNotificationItem.Action,
+                    ShowAs = meetingNotificationItem.ShowAs,
                 };
             }
             else

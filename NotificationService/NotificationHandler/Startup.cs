@@ -8,6 +8,7 @@ namespace NotificationHandler
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
     using NotificationService.BusinessLibrary;
@@ -50,10 +51,13 @@ namespace NotificationHandler
             });
 
             _ = app.UseSwagger();
-            _ = app.UseSwaggerUI(c =>
+            if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationHandler");
-            });
+                _ = app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationHandler");
+                });
+            }
         }
 
         /// <summary>

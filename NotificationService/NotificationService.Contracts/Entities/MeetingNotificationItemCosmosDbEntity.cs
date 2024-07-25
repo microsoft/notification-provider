@@ -6,7 +6,6 @@ namespace NotificationService.Contracts.Entities
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// MeetingNotificationItemCosmosDbEntity.
@@ -38,7 +37,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the priority.
         /// </summary>
-        [DataMember(Name = "priority")]
+        [DataMember(Name = "Priority")]
         public string Priority { get; set; }
 
         /// <summary>
@@ -108,6 +107,12 @@ namespace NotificationService.Contracts.Entities
         /// </summary>
         [DataMember(Name = "ICalUid")]
         public string ICalUid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ShowAs.
+        /// </summary>
+        [DataMember(Name = "ShowAs")]
+        public string ShowAs { get; set; }
 
         /// <summary>
         /// Gets or sets the Interval.

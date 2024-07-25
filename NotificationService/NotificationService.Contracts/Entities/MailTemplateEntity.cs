@@ -4,13 +4,14 @@
 namespace NotificationService.Contracts.Entities
 {
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
+    using NotificationService.Contracts.Models;
+    using Azure.Data.Tables;
 
     /// <summary>
     /// Mail template entity.
     /// </summary>
     [DataContract]
-    public class MailTemplateEntity : TableEntity
+    public class MailTemplateEntity : TableEntityBase
     {
         /// <summary>
         /// Gets or sets the template name.
@@ -21,19 +22,19 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets or sets the template description.
         /// </summary>
-        [DataMember(Name = "description")]
+        [DataMember(Name = "Description")]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the template content.
         /// </summary>
-        [DataMember(Name = "content")]
+        [DataMember(Name = "Content")]
         public string Content { get; set; }
 
         /// <summary>
         /// Gets or sets the template type.
         /// </summary>
-        [DataMember(Name = "templateType")]
+        [DataMember(Name = "TemplateType")]
         public string TemplateType { get; set; }
 
         /// <summary>

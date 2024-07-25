@@ -6,8 +6,11 @@ namespace NotificationsQueueProcessor
     using System;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using Azure.Core;
+    using Azure.Identity;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.Identity.Client;
+    using Microsoft.Identity.Web;
     using NotificationService.Common;
 
     /// <summary>
@@ -45,7 +48,7 @@ namespace NotificationsQueueProcessor
         /// <returns>A <see cref="Task"/>.</returns>
         public async Task<HttpResponseMessage> PostAsync(string url, HttpContent content)
         {
-            string bearerToken = await this.HttpAuthenticationAsync(this.configuration?[Constants.Authority], this.configuration?[Constants.ClientId]);
+            string bearerToken = await this.HttpAuthenticationAsync(this.configuration?[Constants.Authority], this.configuration?[Constants.ClientId]).ConfigureAwait(false);
             if (bearerToken != null)
             {
                 this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, bearerToken);
@@ -59,9 +62,26 @@ namespace NotificationsQueueProcessor
 
         private async Task<string> HttpAuthenticationAsync(string authority, string clientId)
         {
-            var authContext = new AuthenticationContext(authority);
-            var authResult = await authContext.AcquireTokenAsync(clientId, new ClientCredential(clientId, this.configuration?[Constants.ClientSecret]));
-            return authResult.AccessToken;
+            bool isLocalBuild = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_RUN_FROM_PACKAGE"));
+            if (isLocalBuild)
+            {
+                var credential = new DefaultAzureCredential();
+                TokenRequestContext context = new TokenRequestContext(new[] { $"{clientId}/.default" });
+                var accessToken = await credential.GetTokenAsync(context);
+                return accessToken.Token;
+            }
+            else
+            {
+                ManagedIdentityClientAssertion managedIdentityClientAssertion = new ManagedIdentityClientAssertion(this.configuration?[Constants.ManagedIdentity]);
+                IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
+               .Create(clientId)
+               .WithClientAssertion(managedIdentityClientAssertion.GetSignedAssertion)
+               .WithAuthority(new Uri(authority))
+               .Build();
+                var result = await app
+                .AcquireTokenForClient(new[] { $"{clientId}/.default" }).ExecuteAsync();
+                return result.AccessToken;
+            }
         }
     }
 }

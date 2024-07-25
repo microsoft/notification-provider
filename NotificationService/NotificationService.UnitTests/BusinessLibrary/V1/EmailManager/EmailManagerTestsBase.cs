@@ -9,8 +9,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Configuration;
+    using Azure.Storage.Queues.Models;
+
     using Microsoft.Extensions.Options;
     using Moq;
     using Newtonsoft.Json;
@@ -268,6 +269,14 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .AddInMemoryCollection(testConfigValues)
                 .Build();
 
+            _ = this.TokenHelper
+                .Setup(th => th.GetAccessTokenForSelectedAccount(It.IsAny<AccountCredential>()))
+                .Returns(Task.FromResult(this.TestToken));
+
+            _ = this.TokenHelper
+                .Setup(th => th.GetAuthenticationHeaderFromToken(It.IsAny<string>()))
+                .Returns(Task.FromResult(new System.Net.Http.Headers.AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, this.TestToken)));
+
             _ = this.MsGraphProvider
                 .Setup(gp => gp.ProcessEmailRequestBatch(It.IsAny<AuthenticationHeaderValue>(), It.IsAny<GraphBatchRequest>()))
                 .Returns(Task.FromResult(responses));
@@ -289,11 +298,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.CloudStorageClient
-                .Setup(csa => csa.GetCloudQueue(It.IsAny<string>()))
-                .Returns(new CloudQueue(new Uri(this.cloudQueueUri)));
-
-            _ = this.CloudStorageClient
-                .Setup(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null))
+                .Setup(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()))
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailAccountManager

@@ -263,7 +263,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Returns(this.MSGraphNotificationProvider);
 
             _ = this.TokenHelper
-                .Setup(th => th.GetAuthenticationHeader())
+                .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
                 .ReturnsAsync(new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, "Test"));
 
             this.EmailServiceManager = new EmailServiceManager(this.Configuration, this.EmailNotificationRepository.Object, this.CloudStorageClient.Object, this.Logger, this.NotificationProviderFactory.Object, this.EmailManager);

@@ -149,9 +149,9 @@ namespace NotificationService.Common.Configurations
         public const string NotificationProviderType = "NotificationProviderType";
 
         /// <summary>
-        /// A constant for AzureAppConfigConnectionstring config key from appsetting.json.
+        /// A constant for AzureAppConfigEndPoint config key from appsetting.json.
         /// </summary>
-        public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
+        public const string AzureAppConfigEndPoint = "AzureAppConfigEndPoint";
 
         /// <summary>
         /// A constant for SMTP setting config section key from appsetting.json.
@@ -221,5 +221,13 @@ namespace NotificationService.Common.Configurations
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
+        /// <summary>
+        /// The direct send SMTP server configuration key
+        /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+#pragma warning disable SA1401 // Fields should be private
+        public static string NotificationQueueBatchSize = $"NotificationQueueBatchSize";
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore CA2211 // Non-constant fields should not be visible
     }
 }

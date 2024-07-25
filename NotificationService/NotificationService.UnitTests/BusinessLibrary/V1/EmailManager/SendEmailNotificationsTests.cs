@@ -10,7 +10,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Storage.Queue;
+    using Azure.Storage.Queues.Models;
     using Moq;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Business.V1;
@@ -128,7 +128,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Returns(Task.FromResult(this.response));
 
             _ = this.TokenHelper
-                .Setup(th => th.GetAuthenticationHeader())
+                .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
                 .ReturnsAsync(new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, "Test"));
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
@@ -143,7 +143,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             Assert.AreEqual(result.Result.Count(x => x.Status == NotificationItemStatus.Retrying), notificationItems.Count());
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
-            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
+            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()), Times.Once);
 
             // When Graph calls succeed
             this.response.Status = true;
@@ -161,7 +161,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Exactly(2));
 
             // This is called when retrying the transient failed items previously, count not changed
-            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
+            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()), Times.Once);
 
             // When graph call throws exception
             _ = graphProvider
@@ -177,7 +177,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Exactly(3));
 
             // This is called when retrying the transient failed items previously, count not changed
-            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
+            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()), Times.Once);
 
             Assert.Pass();
         }
@@ -248,7 +248,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.TokenHelper
-                .Setup(th => th.GetAuthenticationHeader())
+                .Setup(th => th.GetAuthenticationHeaderValueForSelectedAccount(It.IsAny<AccountCredential>()))
                 .ReturnsAsync(new AuthenticationHeaderValue(ApplicationConstants.BearerAuthenticationScheme, "Test"));
 
             this.MSGraphNotificationProvider = new MSGraphNotificationProvider(this.Configuration, this.EmailAccountManager.Object, this.Logger, this.MsGraphSetting, this.TokenHelper.Object, graphProvider.Object, this.EmailManager);
@@ -263,7 +263,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
             Assert.AreEqual(result.Result.Count(x => x.Status == NotificationItemStatus.Retrying), 2);
             this.EmailNotificationRepository.Verify(repo => repo.GetRepository(StorageType.StorageAccount).UpdateEmailNotificationItemEntities(It.IsAny<IList<EmailNotificationItemEntity>>()), Times.Once);
-            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null), Times.Once);
+            this.CloudStorageClient.Verify(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()), Times.Once);
             Assert.Pass();
         }
     }

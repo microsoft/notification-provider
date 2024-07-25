@@ -57,5 +57,9 @@ namespace NotificationsQueueProcessor
         /// Seconds to wait between attempts at polling the Azure KeyVault for changes in configuration.
         /// </summary>
         public const string KeyVaultConfigRefreshDurationSeconds = "KeyVaultConfigRefreshDurationSeconds";
+        /// <summary>
+        /// ManagedIdentity Id
+        /// </summary>
+        public const string ManagedIdentity = "ManagedIdentity";
     }
 }

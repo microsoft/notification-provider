@@ -3,18 +3,25 @@
 
 namespace NotificationService.Data
 {
-    using Microsoft.Azure.Cosmos.Table;
+    using Azure;
+    using Azure.Data.Tables;
+    using NotificationService.Contracts.Models;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Interface to Azure Cloud Storage.
     /// </summary>
     public interface ITableStorageClient
     {
-        /// <summary>
-        /// Gets an instance of <see cref="CloudTable"/> for the input queue name.
-        /// </summary>
-        /// <param name="tableName">Name of queue.</param>
-        /// <returns><see cref="CloudTable"/>.</returns>
-        CloudTable GetCloudTable(string tableName);
+        TableServiceClient GetTableServiceClient(string storageAccountUri);
+        TableClient GetTableClient(TableServiceClient tableServiceClient, string tableName);
+        Task<bool> AddOrUpdateAsync<T>(string tableName, T entity) where T : TableEntityBase;
+        Task<bool> AddsOrUpdatesAsync<T>(string tableName, List<T> entity) where T : TableEntityBase;
+        Task<bool> InsertRecordsAsync<T>(string tableName, List<T> records) where T : TableEntityBase;
+        Task<List<T>> GetRecordsAsync<T>(string tableName, string filter) where T : TableEntityBase;
+        Task<T?> GetRecordAsync<T>(string tableName, string partitionKey, string rowKey) where T : TableEntityBase;
+        Task<bool> DeleteRecordAsync(string tableName, string partitionKey, string rowKey);
     }
 }

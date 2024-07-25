@@ -22,11 +22,6 @@ namespace NotificationService.Common.Configurations
         public int SmtpPort { get; set; }
 
         /// <summary>
-        /// Gets or sets SmtpCert.
-        /// </summary>
-        public string SmtpCert { get; set; }
-
-        /// <summary>
         /// Gets or sets SmtpDomain.
         /// </summary>
         public string SmtpDomain { get; set; }

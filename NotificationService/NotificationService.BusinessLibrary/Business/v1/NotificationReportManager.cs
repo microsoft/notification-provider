@@ -7,7 +7,6 @@ namespace NotificationService.BusinessLibrary
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using NotificationService.BusinessLibrary.Interfaces;
@@ -88,7 +87,7 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task<Tuple<IList<NotificationReportResponse>, TableContinuationToken>> GetReportNotifications(NotificationReportRequest notificationReportRequest)
+        public async Task<Tuple<IList<NotificationReportResponse>, string>> GetReportNotifications(NotificationReportRequest notificationReportRequest)
         {
             // Map the request object to filters
             if (notificationReportRequest == null)
@@ -97,14 +96,14 @@ namespace NotificationService.BusinessLibrary
             }
 
             var emailNotificationItemEntities = await this.emailNotificationRepository.GetEmailNotifications(notificationReportRequest).ConfigureAwait(false);
-            TableContinuationToken token = emailNotificationItemEntities.Item2;
+            string token = emailNotificationItemEntities.Item2;
             List<NotificationReportResponse> responseList = new List<NotificationReportResponse>();
             foreach (var item in emailNotificationItemEntities.Item1)
             {
                 responseList.Add(EmailNotificationItemEntityExtensions.ToNotificationReportResponse(item));
             }
 
-            Tuple<IList<NotificationReportResponse>, TableContinuationToken> tuple = new Tuple<IList<NotificationReportResponse>, TableContinuationToken>(responseList, token);
+            Tuple<IList<NotificationReportResponse>, string> tuple = new Tuple<IList<NotificationReportResponse>, string>(responseList, token);
             return tuple;
         }
 
@@ -139,7 +138,7 @@ namespace NotificationService.BusinessLibrary
         }
 
         /// <inheritdoc/>
-        public async Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest)
+        public async Task<Tuple<IList<MeetingInviteReportResponse>, string>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest)
         {
             // Map the request object to filters
             if (notificationReportRequest == null)
@@ -148,14 +147,14 @@ namespace NotificationService.BusinessLibrary
             }
 
             var meetingNotificationItemEntities = await this.emailNotificationRepository.GetMeetingInviteNotifications(notificationReportRequest).ConfigureAwait(false);
-            TableContinuationToken token = meetingNotificationItemEntities.Item2;
+            string token = meetingNotificationItemEntities.Item2;
             List<MeetingInviteReportResponse> responseList = new List<MeetingInviteReportResponse>();
             foreach (var item in meetingNotificationItemEntities.Item1)
             {
                 responseList.Add(MeetingNotificationItemEntityExtensions.ToMeetingInviteReportResponse(item));
             }
 
-            Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken> tuple = new Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>(responseList, token);
+            Tuple<IList<MeetingInviteReportResponse>, string> tuple = new Tuple<IList<MeetingInviteReportResponse>, string>(responseList, token);
             return tuple;
         }
 

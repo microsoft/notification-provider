@@ -29,6 +29,7 @@ namespace NotificationService
     using NotificationService.Data.Interfaces;
     using NotificationService.SvCommon.Common;
     using NotificationService.Common.Configurations;
+    using Microsoft.Extensions.Hosting;
 
     /// <summary>
     /// Startup configuration for the service.
@@ -187,10 +188,13 @@ namespace NotificationService
             });
 
             _ = app.UseSwagger();
-            _ = app.UseSwaggerUI(c =>
+            if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationService");
-            });
+                _ = app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "NotificationService");
+                });
+            }
         }
     }
 }

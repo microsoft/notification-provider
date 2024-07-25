@@ -7,7 +7,8 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Storage.Queue;
+    using Azure.Storage.Queues.Models;
+
     using Moq;
     using NotificationService.Contracts;
     using NotificationService.UnitTests.BusinessLibrary.V1.EmailManager;
@@ -33,8 +34,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.EmailManager
         {
             Task<IList<NotificationResponse>> result = this.EmailHandlerManager.ResendNotifications(this.ApplicationName, new string[] { Guid.NewGuid().ToString() });
             Assert.AreEqual(result.Status.ToString(), "RanToCompletion");
-            this.CloudStorageClient.Verify(csc => csc.GetCloudQueue(It.IsAny<string>()), Times.Once);
-            this.CloudStorageClient.Verify(csc => csc.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IList<string>>(), null), Times.Once);
+            this.CloudStorageClient.Verify(csc => csc.QueueCloudMessages(It.IsAny<IList<string>>()), Times.Once);
             Assert.Pass();
         }
 

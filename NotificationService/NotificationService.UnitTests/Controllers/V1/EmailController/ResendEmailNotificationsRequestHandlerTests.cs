@@ -8,7 +8,8 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Storage.Queue;
+    using Azure.Storage.Queues;
+    using Azure.Storage.Queues.Models;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
     using Moq;
@@ -48,7 +49,7 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         private Mock<ICloudStorageClient> cloudStorageClient;
         private Mock<IEmailManager> emailManager;
         private Mock<ILogger> logger;
-        private CloudQueue cloudQueue;
+        private QueueClient cloudQueue;
         private IConfiguration configuration;
         private Mock<IOptions<MSGraphSetting>> msGraphSettingOptions;
 
@@ -71,9 +72,8 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
             };
 
             this.configuration = new ConfigurationBuilder().AddInMemoryCollection(config).Build();
-            this.cloudQueue = new CloudQueue(new Uri("https://test.com/endpoint"));
-            _ = this.cloudStorageClient.Setup(x => x.GetCloudQueue(It.IsAny<string>())).Returns(this.cloudQueue);
-            _ = this.cloudStorageClient.Setup(x => x.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), It.IsAny<TimeSpan>()));
+            this.cloudQueue = new QueueClient(new Uri("https://test.com/endpoint"));
+            _ = this.cloudStorageClient.Setup(x => x.QueueCloudMessages(It.IsAny<IEnumerable<string>>()));
             _ = this.logger.Setup(x => x.TraceInformation(It.IsAny<string>(), It.IsAny<IDictionary<string, string>>()));
         }
 
@@ -103,7 +103,6 @@ namespace NotificationService.UnitTests.Controllers.V1.EmailController
         public void ResendEmailNotificationsTestInvalidInput()
         {
             EmailController emailController = new EmailController(this.emailHandlerManager.Object, this.mailTemplateManager.Object, this.logger.Object);
-
             _ = Assert.ThrowsAsync<ArgumentException>(async () => await emailController.ResendEmailNotifications(null, this.notificationIds));
             _ = Assert.ThrowsAsync<ArgumentNullException>(async () => await emailController.ResendEmailNotifications(this.applicationName, null));
         }

@@ -3,9 +3,11 @@
 
 namespace NotificationService.Contracts
 {
+    using NotificationService.Contracts.Models;
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Azure.Data.Tables;
 
     /// <summary>
     /// Email Notification Entity.
@@ -127,5 +129,9 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "EmailBodyBlobPath")]
         public string EmailBodyBlobPath { get; set; }
+
+
+        [DataMember(Name = "mailMetaData")]
+        public string MailMetaData { get; set; }
     }
 }

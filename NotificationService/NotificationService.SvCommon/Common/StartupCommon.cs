@@ -6,22 +6,27 @@ namespace NotificationService.SvCommon.Common
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.Threading.Tasks;
     using Azure.Core.Cryptography;
+    using Azure.Extensions.AspNetCore.Configuration.Secrets;
     using Azure.Identity;
     using Azure.Security.KeyVault.Keys.Cryptography;
+    using Azure.Security.KeyVault.Secrets;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-    using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IdentityModel.Tokens;
+    using Microsoft.IdentityModel.Validators;
     using NotificationService.BusinessLibrary;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
@@ -30,6 +35,7 @@ namespace NotificationService.SvCommon.Common
     using NotificationService.Common.Exceptions;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
+    using NotificationService.Data.Helper;
     using NotificationService.Data.Interfaces;
     using NotificationService.Data.Repositories;
     using NotificationService.SvCommon.Attributes;
@@ -51,22 +57,24 @@ namespace NotificationService.SvCommon.Common
                 .AddEnvironmentVariables();
 
             var config = builder.Build();
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(
-                config[ConfigConstants.KeyVaultUrlConfigKey])
-            {
+            _ = builder.AddAzureKeyVault(
+                new SecretClient(
+                    new Uri(config[ConfigConstants.KeyVaultUrlConfigKey]),
+                    new DefaultAzureCredential()),
+                new AzureKeyVaultConfigurationOptions()
+                {
                 ReloadInterval = TimeSpan.FromSeconds(double.Parse(config[ConfigConstants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
-            };
-            _ = builder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
+                });
 
             this.Configuration = builder.Build();
 
             _ = builder.AddAzureAppConfiguration(options =>
             {
-                var settings = options.Connect(this.Configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]).Select(KeyFilter.Any, "Common")
+                var settings = options.Connect(new Uri(this.Configuration[ConfigConstants.AzureAppConfigEndPoint]), AzureCredentialHelper.AzureCredentials).Select(KeyFilter.Any, "Common")
                 .Select(KeyFilter.Any, application);
                 _ = settings.ConfigureRefresh(refreshOptions =>
                 {
-                    _ = refreshOptions.Register(key: this.Configuration[ConfigConstants.ForceRefreshConfigKey], refreshAll: true, label: LabelFilter.Null);
+                    _ = refreshOptions.Register(ConfigConstants.ForceRefreshConfigKey, "Common", refreshAll: true);
                 });
             });
 
@@ -92,6 +100,8 @@ namespace NotificationService.SvCommon.Common
 
             _ = app.UseMiddleware<ExceptionMiddleware>();
 
+            _ = app.UseAzureAppConfiguration();
+
             _ = app.UseHttpsRedirection();
 
             _ = app.UseFileServer();
@@ -109,6 +119,8 @@ namespace NotificationService.SvCommon.Common
         /// <param name="services">An instance of <see cref="IServiceCollection"/>.</param>
         public void ConfigureServicesCommon(IServiceCollection services)
         {
+            _ = services.AddAzureAppConfiguration();
+
             _ = services.AddAuthorization(configure =>
             {
                 configure.AddPolicy(ApplicationConstants.AppNameAuthorizePolicy, policy =>
@@ -130,7 +142,6 @@ namespace NotificationService.SvCommon.Common
             _ = services.AddOptions();
 
             _ = services.Configure<StorageAccountSetting>(this.Configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
-            _ = services.Configure<StorageAccountSetting>(s => s.ConnectionString = this.Configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
             _ = services.Configure<UserTokenSetting>(this.Configuration.GetSection(ConfigConstants.UserTokenSettingConfigSectionKey));
             _ = services.Configure<RetrySetting>(this.Configuration.GetSection(ConfigConstants.RetrySettingConfigSectionKey));
 
@@ -161,8 +172,18 @@ namespace NotificationService.SvCommon.Common
                 options.ClaimsIssuer = this.Configuration[ConfigConstants.BearerTokenIssuerConfigKey];
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                 {
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
                     ValidAudiences = this.Configuration[ConfigConstants.BearerTokenValidAudiencesConfigKey].Split(ApplicationConstants.SplitCharacter),
+                };
+
+                options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = async context =>
+                    {
+                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
+                        await Task.CompletedTask.ConfigureAwait(false);
+                    }
                 };
             });
 

@@ -382,7 +382,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     {
                         await this.notificationProvider.ProcessNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
                     }
-                    catch (ArgumentNullException ex)
+                    catch (Exception ex)
                     {
                         foreach (var item in notificationEntities)
                         {
@@ -401,13 +401,9 @@ namespace NotificationService.BusinessLibrary.Business.V1
 
             if (retryItemsToBeQueued?.Count > 0)
             {
-                this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
-                this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
-
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count}", traceProps);
                 IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
-                await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
+                await this.cloudStorageClient.QueueCloudMessages(cloudMessages).ConfigureAwait(false);
                 this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count}", traceProps);
             }
 
@@ -467,7 +463,7 @@ namespace NotificationService.BusinessLibrary.Business.V1
                     {
                         await this.notificationProvider.ProcessMeetingNotificationEntities(applicationName, notificationEntities).ConfigureAwait(false);
                     }
-                    catch (ArgumentNullException ex)
+                    catch (Exception ex)
                     {
                         foreach (var item in notificationEntities)
                         {
@@ -486,13 +482,9 @@ namespace NotificationService.BusinessLibrary.Business.V1
 
             if (retryItemsToBeQueued?.Count > 0)
             {
-                this.logger.TraceVerbose("Fetching Cloud Queue", traceProps);
-                var cloudQueue = this.cloudStorageClient.GetCloudQueue(this.notificationQueue);
-                this.logger.TraceVerbose("Cloud Queue Fetched", traceProps);
-
                 this.logger.TraceVerbose($"Items to be retried exists. Re-queuing. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);
                 IList<string> cloudMessages = BusinessUtilities.GetCloudMessagesForEntities(applicationName, retryItemsToBeQueued);
-                await this.cloudStorageClient.QueueCloudMessages(cloudQueue, cloudMessages).ConfigureAwait(false);
+                await this.cloudStorageClient.QueueCloudMessages(cloudMessages).ConfigureAwait(false);
                 this.logger.TraceVerbose($"Items Re-queued. Count:{retryItemsToBeQueued?.Count.ToString(CultureInfo.InvariantCulture)}", traceProps);
             }
 

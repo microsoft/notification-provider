@@ -6,11 +6,12 @@ namespace NotificationService.Data
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Options;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
+    using NotificationService.Contracts;
     using NotificationService.Contracts.Entities;
+    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// Repository for mail templates.
@@ -20,8 +21,7 @@ namespace NotificationService.Data
         private readonly ILogger logger;
         private readonly ICloudStorageClient cloudStorageClient;
         private readonly ITableStorageClient tableStorageClient;
-        private readonly CloudTable cloudTable;
-
+        private string _tableName;
         /// <summary>
         /// Initializes a new instance of the <see cref="MailTemplateRepository"/> class.
         /// </summary>
@@ -49,8 +49,7 @@ namespace NotificationService.Data
                 this.logger.WriteException(new ArgumentException("MailTemplateTableName"));
                 throw new ArgumentException("MailTemplateTableName");
             }
-
-            this.cloudTable = this.tableStorageClient.GetCloudTable(storageAccountSetting.Value.MailTemplateTableName);
+            this._tableName = storageAccountSetting.Value.MailTemplateTableName;
         }
 
         /// <inheritdoc/>
@@ -65,11 +64,7 @@ namespace NotificationService.Data
             string blobName = this.GetBlobName(applicationName, templateName);
             var contentTask = this.cloudStorageClient.DownloadBlobAsync(blobName).ConfigureAwait(false);
 
-            TableOperation retrieveOperation = TableOperation.Retrieve<MailTemplateEntity>(applicationName, templateName);
-
-            TableResult retrievedResult = await this.cloudTable.ExecuteAsync(retrieveOperation).ConfigureAwait(false);
-
-            MailTemplateEntity templateEntity = retrievedResult?.Result as MailTemplateEntity;
+            var templateEntity = await tableStorageClient.GetRecordAsync<MailTemplateEntity>(this._tableName, applicationName, templateName).ConfigureAwait(false); 
 
             if (templateEntity != null)
             {
@@ -88,19 +83,8 @@ namespace NotificationService.Data
             traceProps[AIConstants.Application] = applicationName;
 
             this.logger.TraceInformation($"Started {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.", traceProps);
-
-            List<MailTemplateEntity> mailTemplateEntities = new List<MailTemplateEntity>();
-            var filterPartitionkey = TableQuery.GenerateFilterCondition(nameof(MailTemplateEntity.PartitionKey), QueryComparisons.Equal, applicationName);
-            var query = new TableQuery<MailTemplateEntity>().Where(filterPartitionkey);
-            TableContinuationToken continuationToken = null;
-            do
-            {
-                var page = await this.cloudTable.ExecuteQuerySegmentedAsync(query, continuationToken).ConfigureAwait(false);
-                continuationToken = page.ContinuationToken;
-                mailTemplateEntities.AddRange(page.Results);
-            }
-            while (continuationToken != null);
-
+            var mailTemplateEntities = await tableStorageClient.GetRecordsAsync<MailTemplateEntity>(this._tableName, $"PartitionKey eq '{applicationName}'");
+           
             this.logger.TraceInformation($"Finished {nameof(this.GetAllTemplateEntities)} method of {nameof(MailTemplateRepository)}.", traceProps);
 
             return mailTemplateEntities;
@@ -127,8 +111,7 @@ namespace NotificationService.Data
             mailTemplateEntity.Content = null;
 
             // Create the TableOperation object that inserts the entity.
-            TableOperation insertOperation = TableOperation.InsertOrReplace(mailTemplateEntity);
-            var response = await this.cloudTable.ExecuteAsync(insertOperation).ConfigureAwait(false);
+            var response = await tableStorageClient.AddOrUpdateAsync(this._tableName, mailTemplateEntity);
             result = true;
             this.logger.TraceInformation($"Finished {nameof(this.UpsertEmailTemplateEntities)} method of {nameof(MailTemplateRepository)}.");
 
@@ -149,14 +132,7 @@ namespace NotificationService.Data
 
             if (status)
             {
-                // Retrieve the entity to be deleted.
-                TableOperation retrieveOperation = TableOperation.Retrieve<MailTemplateEntity>(applicationName, templateName);
-                TableResult tableResult = await this.cloudTable.ExecuteAsync(retrieveOperation).ConfigureAwait(false);
-                MailTemplateEntity mailTemplateEntity = tableResult.Result as MailTemplateEntity;
-
-                // Create the TableOperation object that Delets the entity.
-                TableOperation deleteOperation = TableOperation.Delete(mailTemplateEntity);
-                var response = await this.cloudTable.ExecuteAsync(deleteOperation).ConfigureAwait(false);
+                await tableStorageClient.DeleteRecordAsync(this._tableName, applicationName, templateName).ConfigureAwait(false);
                 result = true;
             }
 

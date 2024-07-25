@@ -9,7 +9,6 @@ namespace NotificationService.Data
     using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Microsoft.Azure.Cosmos;
-    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Options;
     using Newtonsoft.Json;
     using NotificationService.Common;
@@ -206,7 +205,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public async Task<Tuple<IList<EmailNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
+        public async Task<Tuple<IList<EmailNotificationItemEntity>, string>> GetEmailNotifications(NotificationReportRequest notificationReportRequest)
         {
             if (notificationReportRequest == null)
             {
@@ -260,7 +259,7 @@ namespace NotificationService.Data
                 }
             }
 
-            Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<EmailNotificationItemEntity>, TableContinuationToken>(filteredNotifications, null);
+            Tuple<IList<EmailNotificationItemEntity>, string> tuple = new Tuple<IList<EmailNotificationItemEntity>, string>(filteredNotifications, null);
             return tuple;
         }
 
@@ -565,7 +564,7 @@ namespace NotificationService.Data
         }
 
         /// <inheritdoc/>
-        public async Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest)
+        public async Task<Tuple<IList<MeetingNotificationItemEntity>, string>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest)
         {
             if (meetingInviteReportRequest is null)
             {
@@ -611,7 +610,7 @@ namespace NotificationService.Data
                 }
             }
 
-            Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken> tuple = new Tuple<IList<MeetingNotificationItemEntity>, TableContinuationToken>(filteredNotifications, null);
+            Tuple<IList<MeetingNotificationItemEntity>, string> tuple = new Tuple<IList<MeetingNotificationItemEntity>, string>(filteredNotifications, null);
             return tuple;
         }
 

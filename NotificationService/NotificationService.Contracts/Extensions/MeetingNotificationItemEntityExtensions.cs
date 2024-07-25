@@ -94,9 +94,11 @@ namespace NotificationService.Contracts.Extensions
             meetingNotificationItemTableEntity.PartitionKey = meetingNotificationItemEntity.Application;
             meetingNotificationItemTableEntity.Interval = meetingNotificationItemEntity.Interval;
             meetingNotificationItemTableEntity.ICalUid = meetingNotificationItemEntity.ICalUid;
+            meetingNotificationItemTableEntity.ShowAs = meetingNotificationItemEntity.ShowAs;
             meetingNotificationItemTableEntity.AttachmentReference = meetingNotificationItemEntity.AttachmentReference;
             meetingNotificationItemTableEntity.EmailAccountUsed = meetingNotificationItemEntity.EmailAccountUsed;
             meetingNotificationItemTableEntity.EventId = meetingNotificationItemEntity.EventId;
+            meetingNotificationItemTableEntity.ShowAs = meetingNotificationItemEntity.ShowAs;
             return meetingNotificationItemTableEntity;
         }
 

@@ -5,13 +5,14 @@ namespace NotificationService.Contracts
 {
     using System;
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
+    using NotificationService.Contracts.Models;
+    using Azure.Data.Tables;
 
     /// <summary>
     /// Cosmos DB Base entity.
     /// </summary>
     [DataContract]
-    public abstract class CosmosDBEntity : TableEntity
+    public abstract class CosmosDBEntity: TableEntityBase
     {
         /// <summary>Gets or sets the id.</summary>
         [DataMember(Name = "id")]

@@ -5,6 +5,7 @@ namespace NotificationService.Contracts
 {
     using System;
     using System.Runtime.Serialization;
+    using Azure.Data.Tables;
 
     /// <summary>
     /// Base class for Notification Items.
