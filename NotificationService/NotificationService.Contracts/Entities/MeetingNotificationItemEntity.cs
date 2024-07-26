@@ -3,9 +3,11 @@
 
 namespace NotificationService.Contracts.Entities
 {
+    using NotificationService.Contracts.Models;
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Azure.Data.Tables;
 
     /// <summary>
     /// MeetingNotificationItemEntity.
@@ -27,7 +29,7 @@ namespace NotificationService.Contracts.Entities
         /// <summary>
         /// Gets the type of the notify.
         /// </summary>
-        [DataMember(Name = "notifyType")]
+        [DataMember(Name = "NotifyType")]
         public override NotificationType NotifyType
         {
             get { return NotificationType.Meet; }

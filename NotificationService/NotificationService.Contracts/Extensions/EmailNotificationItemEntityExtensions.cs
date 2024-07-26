@@ -11,6 +11,7 @@ namespace NotificationService.Contracts
     using System.Linq;
     using System.Net.Mail;
     using System.Net.Mime;
+    using Newtonsoft.Json;
     using NotificationService.Common.Configurations;
     using NotificationService.Contracts.Entities;
     using NotificationService.Contracts.Models.Reports;
@@ -211,6 +212,7 @@ namespace NotificationService.Contracts
             emailNotificationItemTableEntity.TryCount = emailNotificationItemEntity.TryCount;
             emailNotificationItemTableEntity.ETag = emailNotificationItemEntity.ETag;
             emailNotificationItemTableEntity.SendOnUtcDate = emailNotificationItemEntity.SendOnUtcDate;
+            emailNotificationItemTableEntity.MailMetaData = emailNotificationItemEntity.MailMetaData;
             return emailNotificationItemTableEntity;
         }
 

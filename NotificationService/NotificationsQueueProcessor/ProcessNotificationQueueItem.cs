@@ -13,12 +13,14 @@ namespace NotificationsQueueProcessor
     using Microsoft.Azure.WebJobs;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-    using Microsoft.WindowsAzure.Storage.Queue;
+    using Azure.Storage.Queues.Models;
     using Newtonsoft.Json;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
     using NotificationService.Data;
     using NotificationService.Data.Interfaces;
+    using Azure.Storage.Queues;
+    using Azure.Identity;
 
     /// <summary>
     /// Function to process notification queue items.
@@ -54,6 +56,8 @@ namespace NotificationsQueueProcessor
         /// Instance of <see cref="IConfigurationRefresher"/>.
         /// </summary>
         private readonly IConfigurationRefresher configurationRefresher;
+        
+        private readonly QueueClient _queueClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessNotificationQueueItem"/> class.
@@ -75,7 +79,6 @@ namespace NotificationsQueueProcessor
             this.emailNotificationRepository = repositoryFactory.GetRepository(Enum.TryParse<StorageType>(this.configuration?[Constants.StorageType], out this.repo) ? this.repo : throw new Exception());
             this.httpClientHelper = httpClientHelper;
             this.configurationRefresher = refresherProvider.Refreshers.First();
-
             //No need to await
             RefreshKeys();
         }
@@ -85,7 +88,7 @@ namespace NotificationsQueueProcessor
         /// </summary>
         private async Task RefreshKeys()
         {
-            _ = await this.configurationRefresher.TryRefreshAsync();
+            _ = await this.configurationRefresher.TryRefreshAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -94,15 +97,15 @@ namespace NotificationsQueueProcessor
         /// <param name="inputQueueItem">Serialized queue item.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         [FunctionName("ProcessNotificationQueueItem")]
-        public async Task Run([QueueTrigger("%NotificationQueueName%", Connection = "AzureWebJobsStorage")] CloudQueueMessage inputQueueItem)
+        public async Task Run([QueueTrigger("%NotificationQueueName%", Connection = "StorageConnection")] QueueMessage inputQueueItem)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var notifQueueItem = inputQueueItem.AsString;
+            var notifQueueItem = inputQueueItem.MessageText;
             var traceProps = new Dictionary<string, string>();
             traceProps["DequeueCount"] = inputQueueItem.DequeueCount.ToString();
-            traceProps["QueueMessageId"] = inputQueueItem.Id;
-            traceProps["InsertionTime"] = inputQueueItem.InsertionTime.ToString();
+            traceProps["QueueMessageId"] = inputQueueItem.MessageId;
+            traceProps["InsertionTime"] = inputQueueItem.InsertedOn.ToString();
             this.logger.TraceInformation($"ProcessNotificationQueueItem started processing: {notifQueueItem}");
             QueueNotificationItem queueNotificationItem = null;
             try
@@ -132,11 +135,11 @@ namespace NotificationsQueueProcessor
                     this.logger.TraceVerbose($"ProcessNotificationQueueItem fetching token to call notification service endpoint...", traceProps);
 
                     this.logger.TraceInformation($"ProcessNotificationQueueItem calling notification service endpoint...", traceProps);
-                    var response = await this.httpClientHelper.PostAsync($"{notificationServiceEndpoint}/v1/{notifType}/process/{queueNotificationItem.Application}", stringContent);
+                    var response = await this.httpClientHelper.PostAsync($"{notificationServiceEndpoint}/v1/{notifType}/process/{queueNotificationItem.Application}", stringContent).ConfigureAwait(false);
                     this.logger.TraceInformation($"ProcessNotificationQueueItem received response from notification service endpoint.", traceProps);
                     if (!response.IsSuccessStatusCode)
                     {
-                        var content = await response.Content.ReadAsStringAsync();
+                        var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                         this.logger.WriteException(new Exception($"An error occurred while processing {notifQueueItem} in ProcessNotificationQueueItem. Details: [StatusCode = {response.StatusCode}, Content = {content}]."), traceProps);
                     }
                 }
@@ -166,7 +169,7 @@ namespace NotificationsQueueProcessor
                 }
 
                 this.logger.WriteException(ex, traceProps);
-                await this.UpdateStatusOfNotificationItemsAsync(queueNotificationItem.NotificationIds, NotificationItemStatus.Failed, ex.Message);
+                await this.UpdateStatusOfNotificationItemsAsync(queueNotificationItem.NotificationIds, NotificationItemStatus.Failed, ex.Message).ConfigureAwait(false);
             }
             finally
             {

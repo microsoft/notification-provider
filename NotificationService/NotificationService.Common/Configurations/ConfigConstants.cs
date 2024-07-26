@@ -149,9 +149,9 @@ namespace NotificationService.Common.Configurations
         public const string NotificationProviderType = "NotificationProviderType";
 
         /// <summary>
-        /// A constant for AzureAppConfigConnectionstring config key from appsetting.json.
+        /// A constant for AzureAppConfigEndPoint config key from appsetting.json.
         /// </summary>
-        public const string AzureAppConfigConnectionstringConfigKey = "AzureAppConfigConnectionstring";
+        public const string AzureAppConfigEndPoint = "AzureAppConfigEndPoint";
 
         /// <summary>
         /// A constant for SMTP setting config section key from appsetting.json.

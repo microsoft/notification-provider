@@ -9,6 +9,7 @@ namespace NotificationService.BusinessLibrary.Utilities
     using System.IO;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Web;
     using System.Xml;
     using System.Xml.Xsl;
     using Newtonsoft.Json;
@@ -108,7 +109,7 @@ namespace NotificationService.BusinessLibrary.Utilities
             this.logger.TraceInformation($"Finished {nameof(this.ConvertXSLT)} method of {nameof(TemplateMerge)}.");
 
             // return message
-            return stringBuilder.ToString();
+            return HttpUtility.HtmlDecode(stringBuilder.ToString());
         }
 
         /// <summary>

@@ -5,7 +5,6 @@ namespace NotificationService.Contracts
 {
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
 
     /// <summary>
     /// Base class for Notification Items.
@@ -101,6 +100,6 @@ namespace NotificationService.Contracts
         /// Gets or sets TableContinuationToken.
         /// </summary>
         [DataMember(Name = "Token")]
-        public TableContinuationToken Token { get; set; }
+        public string Token { get; set; }
     }
 }

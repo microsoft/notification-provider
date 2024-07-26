@@ -40,8 +40,8 @@ namespace DirectSend.Tests
             _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendEmailAsync(emailMessage);
 
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.Subject.Equals("emailSubject")), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
         }
 
@@ -62,8 +62,8 @@ namespace DirectSend.Tests
             _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendMeetingInviteAsync(emailMessage);
 
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.Subject.Equals("emailSubject")), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
         }
 
@@ -86,8 +86,8 @@ namespace DirectSend.Tests
             _ = this.mockedClientPool.Setup(x => x.GetClient(It.IsAny<Dictionary<string, string>>())).ReturnsAsync(this.mockedClient.Object);
             await directSendMailService.SendEmailAsync(emailMessage);
 
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
-            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com"))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.To.Mailboxes.Any(t => t.Address.Equals("toAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
+            this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.From.Mailboxes.Any(t => t.Address.Equals("fromAddress@microsoft.com", StringComparison.InvariantCulture))), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
             this.mockedClient.Verify(x => x.SendAsync(It.Is<MimeMessage>(q => q.Subject.Equals("emailSubject")), It.IsAny<Dictionary<string, string>>(), null, default), Times.Once);
         }
 

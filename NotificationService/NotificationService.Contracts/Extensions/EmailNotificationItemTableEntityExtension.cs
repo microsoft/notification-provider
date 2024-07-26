@@ -48,6 +48,7 @@ namespace NotificationService.Contracts.Extensions
             emailNotificationItemEntity.TryCount = emailNotificationItemTableEntity.TryCount;
             emailNotificationItemEntity.ETag = emailNotificationItemTableEntity.ETag;
             emailNotificationItemEntity.SendOnUtcDate = emailNotificationItemTableEntity.SendOnUtcDate;
+            emailNotificationItemEntity.MailMetaData = emailNotificationItemTableEntity.MailMetaData;
             return emailNotificationItemEntity;
         }
     }

@@ -85,13 +85,6 @@ namespace NotificationService.BusinessLibrary
             new StringContent(requestPayLoad, Encoding.UTF8, ApplicationConstants.JsonMIMEType)).ConfigureAwait(false);
 
             this.logger.TraceInformation($"Method {nameof(this.ProcessEmailRequestBatch)}:Completed Graph Batch Call");
-            var traceProps = new Dictionary<string, string>();
-            traceProps["GraphRequest"] = requestPayLoad;
-            traceProps["GraphResponse"] = JsonConvert.SerializeObject(response, this.jsonSerializerSettings);
-            this.logger.TraceInformation($"Graph Request and Graph Response", traceProps);
-
-            _ = traceProps.Remove("GraphRequest");
-            _ = traceProps.Remove("GraphResponse");
 
             if (response?.IsSuccessStatusCode ?? false)
             {
@@ -101,6 +94,7 @@ namespace NotificationService.BusinessLibrary
                 {
                     if (graphResponse?.Body?.Error?.Code != null)
                     {
+                        var traceProps = new Dictionary<string, string>();
                         traceProps["NotificationId"] = graphResponse?.Id;
                         traceProps["ErrorCode"] = graphResponse?.Body?.Error?.Code;
                         this.logger.WriteCustomEvent("Error Sending Notification", traceProps);

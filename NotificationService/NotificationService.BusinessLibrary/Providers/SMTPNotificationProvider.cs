@@ -11,8 +11,6 @@ namespace NotificationService.BusinessLibrary.Providers
     using System.Net;
     using System.Net.Mail;
     using System.Net.Mime;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;

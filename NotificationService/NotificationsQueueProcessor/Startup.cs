@@ -8,20 +8,24 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 namespace NotificationsQueueProcessor
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using Azure.Extensions.AspNetCore.Configuration.Secrets;
+    using Azure.Identity;
+    using Azure.Security.KeyVault.Secrets;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-    using Microsoft.Extensions.Configuration.AzureKeyVault;
     using Microsoft.Extensions.DependencyInjection;
     using NotificationService.Common;
     using NotificationService.Common.Configurations;
     using NotificationService.Common.Logger;
     using NotificationService.Data;
+    using NotificationService.Data.Helper;
     using NotificationService.Data.Interfaces;
     using NotificationService.Data.Repositories;
 
@@ -88,7 +92,6 @@ namespace NotificationsQueueProcessor
             }
 
             _ = builder.Services.Configure<StorageAccountSetting>(configuration.GetSection(ConfigConstants.StorageAccountConfigSectionKey));
-            _ = builder.Services.Configure<StorageAccountSetting>(s => s.ConnectionString = configuration[ConfigConstants.StorageAccountConnectionStringConfigKey]);
             _ = builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
             _ = builder.Services.AddScoped<TableStorageEmailRepository>();
             _ = builder.Services.AddScoped<IEmailNotificationRepository, TableStorageEmailRepository>(s => s.GetService<TableStorageEmailRepository>());
@@ -110,18 +113,20 @@ namespace NotificationsQueueProcessor
             _ = configBuilder.AddEnvironmentVariables();
 
             var configuration = configBuilder.Build();
-
-            AzureKeyVaultConfigurationOptions azureKeyVaultConfigurationOptions = new AzureKeyVaultConfigurationOptions(configuration[ConfigConstants.KeyVaultUrlConfigKey])
-            {
-                ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[Constants.KeyVaultConfigRefreshDurationSeconds])),
-            };
-            _ = configBuilder.AddAzureKeyVault(azureKeyVaultConfigurationOptions);
+            _ = configBuilder.AddAzureKeyVault(
+                new SecretClient(
+                    new Uri(configuration[ConfigConstants.KeyVaultUrlConfigKey]),
+                    new DefaultAzureCredential()),
+                new AzureKeyVaultConfigurationOptions()
+                {
+                    ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[ConfigConstants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
+                });
             configuration = configBuilder.Build();
             IConfigurationRefresher configurationRefresher = null;
 
             _ = configBuilder.AddAzureAppConfiguration((options) =>
               {
-                  _ = options.Connect(configuration[ConfigConstants.AzureAppConfigConnectionstringConfigKey]);
+                  _ = options.Connect(new Uri(configuration[ConfigConstants.AzureAppConfigEndPoint]), AzureCredentialHelper.AzureCredentials);
                   _ = options.ConfigureRefresh(refreshOptions =>
                     {
                         _ = refreshOptions.Register(ConfigConstants.ForceRefreshConfigKey, "Common", refreshAll: true);

@@ -3,6 +3,7 @@
 
 namespace NotificationService.Contracts.Extensions
 {
+    using Newtonsoft.Json;
     using System.Linq;
 
     /// <summary>
@@ -37,6 +38,7 @@ namespace NotificationService.Contracts.Extensions
                     TemplateData = emailNotificationItem?.TemplateData,
                     TemplateId = emailNotificationItem?.TemplateId,
                     TrackingId = emailNotificationItem?.TrackingId,
+                    MailMetaData = emailNotificationItem?.MailMetaData != null ? JsonConvert.SerializeObject(emailNotificationItem.MailMetaData) : null,
                 };
             }
 

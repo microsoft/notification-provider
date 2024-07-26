@@ -4,7 +4,7 @@
 namespace NotificationService.FunctionalTests
 {
     using Microsoft.Extensions.Configuration;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.Identity.Client;
     using System.Threading.Tasks;
 
     public class TokenUtility
@@ -19,8 +19,15 @@ namespace NotificationService.FunctionalTests
 
         public async Task<string> GetTokenAsync()
         {
-            var authContext = new AuthenticationContext(this.Configuration[FunctionalConstants.Authority]);
-            var authResult = await authContext.AcquireTokenAsync(this.Configuration[FunctionalConstants.ClientId], new ClientCredential(this.Configuration[FunctionalConstants.ClientId], this.Configuration[FunctionalConstants.ClientSecret]));
+            var app = ConfidentialClientApplicationBuilder.Create(this.Configuration[FunctionalConstants.ClientId])
+            .WithClientSecret(this.Configuration[FunctionalConstants.ClientSecret])
+            .WithAuthority(this.Configuration[FunctionalConstants.Authority])
+            .Build();
+
+            var authResult = await app.AcquireTokenForClient(
+            new[] { $"{this.Configuration[FunctionalConstants.ClientId]}/.default" })
+            .ExecuteAsync()
+            .ConfigureAwait(false);
             return authResult.AccessToken;
         }
     }

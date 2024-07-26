@@ -6,7 +6,6 @@ namespace NotificationService.BusinessLibrary.Interfaces
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Cosmos.Table;
     using NotificationService.Contracts;
     using NotificationService.Contracts.Models.Reports;
 
@@ -20,7 +19,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="notificationReportRequest">Request to filter Notifications.</param>
         /// <returns>List of Notifications based on filters passed.</returns>
-        Task<Tuple<IList<NotificationReportResponse>, TableContinuationToken>> GetReportNotifications(NotificationReportRequest notificationReportRequest);
+        Task<Tuple<IList<NotificationReportResponse>, string>> GetReportNotifications(NotificationReportRequest notificationReportRequest);
 
         /// <summary>
         /// Gets the Notification Message corresponding to the NotificationId.
@@ -48,7 +47,7 @@ namespace NotificationService.BusinessLibrary.Interfaces
         /// </summary>
         /// <param name="notificationReportRequest"> notification filter request. </param>
         /// <returns> notifications filtered based on input.</returns>
-        Task<Tuple<IList<MeetingInviteReportResponse>, TableContinuationToken>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest);
+        Task<Tuple<IList<MeetingInviteReportResponse>, string>> GetMeetingInviteReportNotifications(NotificationReportRequest notificationReportRequest);
 
         /// <summary>
         /// Gets the Meeting Notification Message corresponding to the NotificationId.

@@ -9,8 +9,9 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
     using System.Net;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Configuration;
+    using Azure.Storage.Queues.Models;
+
     using Microsoft.Extensions.Options;
     using Moq;
     using Newtonsoft.Json;
@@ -297,11 +298,7 @@ namespace NotificationService.UnitTests.BusinessLibrary.V1.EmailManager
                 .Returns(Task.FromResult(emailNotificationItemEntities));
 
             _ = this.CloudStorageClient
-                .Setup(csa => csa.GetCloudQueue(It.IsAny<string>()))
-                .Returns(new CloudQueue(new Uri(this.cloudQueueUri)));
-
-            _ = this.CloudStorageClient
-                .Setup(csa => csa.QueueCloudMessages(It.IsAny<CloudQueue>(), It.IsAny<IEnumerable<string>>(), null))
+                .Setup(csa => csa.QueueCloudMessages(It.IsAny<IEnumerable<string>>()))
                 .Returns(Task.CompletedTask);
 
             _ = this.EmailAccountManager

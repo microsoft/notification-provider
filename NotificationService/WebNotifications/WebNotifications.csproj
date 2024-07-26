@@ -22,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\NotificationService.BusinessLibrary\NotificationService.BusinessLibrary.csproj" />
     <ProjectReference Include="..\NotificationService.Common\NotificationService.Common.csproj" />
     <ProjectReference Include="..\NotificationService.Contracts\NotificationService.Contracts.csproj" />

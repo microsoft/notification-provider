@@ -7,7 +7,6 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using Moq;
     using NotificationService.BusinessLibrary;
@@ -91,7 +90,7 @@ namespace NotificationService.UnitTests.BusinesLibrary.V1.NotificationReportMana
             dbEntities.Add(new EmailNotificationItemEntity() { NotificationId = "1", Application = "SelectedApp" });
             dbEntities.Add(new EmailNotificationItemEntity() { NotificationId = "2", Application = "SelectedApp" });
 
-            var tuple = Tuple.Create<IList<EmailNotificationItemEntity>, TableContinuationToken>(dbEntities, null);
+            var tuple = Tuple.Create<IList<EmailNotificationItemEntity>, string>(dbEntities, null);
 
             _ = this.EmailNotificationRepository
                 .Setup(repository => repository.GetEmailNotifications(request))

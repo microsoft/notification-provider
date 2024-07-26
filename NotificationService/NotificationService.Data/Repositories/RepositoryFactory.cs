@@ -31,8 +31,8 @@ namespace NotificationService.Data.Repositories
         {
             switch (type)
             {
-                case StorageType.DocumentDB:
-                    return (IEmailNotificationRepository)this.serviceProvider.GetService(typeof(EmailNotificationRepository));
+                //case StorageType.DocumentDB:
+                //    return (IEmailNotificationRepository)this.serviceProvider.GetService(typeof(EmailNotificationRepository));
                 case StorageType.StorageAccount:
                     return (IEmailNotificationRepository)this.serviceProvider.GetService(typeof(TableStorageEmailRepository));
                 default:

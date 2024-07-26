@@ -111,5 +111,8 @@ namespace NotificationService.Contracts
         /// </summary>
         [DataMember(Name = "templateData")]
         public string TemplateData { get; set; }
+
+        [DataMember(Name = "mailMetaData")]
+        public Dictionary<string, string> MailMetaData { get; set; }
     }
 }

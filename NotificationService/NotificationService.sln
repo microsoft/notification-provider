@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29905.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService", "NotificationService\NotificationService.csproj", "{085F56FC-E964-44F6-B252-AA6FD6F513F5}"
 EndProject
@@ -35,7 +35,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationsQueueProcessor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NotificationProviders", "NotificationProviders", "{2B82BA20-E61B-48C9-AC79-8881A8C6791C}"
 	ProjectSection(SolutionItems) = preProject
-		NotificationProviders\DirectSend.NetFramework\DirectSend.NetFramework.csproj = NotificationProviders\DirectSend.NetFramework\DirectSend.NetFramework.csproj
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
@@ -52,11 +51,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService.FunctionalTests", "NotificationService.FunctionalTests\NotificationService.FunctionalTests.csproj", "{7159519C-758B-4E95-B4E0-0DB8F1641162}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{63dd255d-4c9f-4ea7-9f3b-5f7b32657058}*SharedItemsImports = 13
-		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{9017774a-0c22-41a2-9e47-4677746942f8}*SharedItemsImports = 5
-		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{d7518bf7-c321-4a9e-855f-d1bb3ec82f8c}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -130,5 +124,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EB791A4E-C651-4F37-8BAB-9035CC67E359}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{63dd255d-4c9f-4ea7-9f3b-5f7b32657058}*SharedItemsImports = 13
+		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{9017774a-0c22-41a2-9e47-4677746942f8}*SharedItemsImports = 5
+		NotificationProviders\DirectSend.Shared\DirectSend.Shared.projitems*{d7518bf7-c321-4a9e-855f-d1bb3ec82f8c}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

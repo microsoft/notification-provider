@@ -75,5 +75,10 @@ namespace NotificationService.Common
         /// Gets or sets the Graph Base Url.
         /// </summary>
         public string BaseUrl { get; set; }
+
+        /// <summary>
+        /// ManagedIdentity for app id.
+        /// </summary>
+        public string ManagedIdentity { get; set; }
     }
 }

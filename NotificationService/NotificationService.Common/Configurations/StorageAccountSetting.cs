@@ -9,11 +9,6 @@ namespace NotificationService.Common
     public class StorageAccountSetting
     {
         /// <summary>
-        /// Gets or sets Connection string.
-        /// </summary>
-        public string ConnectionString { get; set; }
-
-        /// <summary>
         /// Gets or sets the Blob Container Name.
         /// </summary>
         public string BlobContainerName { get; set; }
@@ -37,5 +32,9 @@ namespace NotificationService.Common
         /// Gets or sets the Notification queue name.
         /// </summary>
         public string NotificationQueueName { get; set; }
+        public string StorageAccountName { get; set; }       
+        public string StorageTableAccountURI { get; set; }
+        public string StorageBlobAccountURI { get; set; }
+        public string StorageQueueAccountURI { get; set; }
     }
 }

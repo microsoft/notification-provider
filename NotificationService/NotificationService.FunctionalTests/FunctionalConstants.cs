@@ -14,7 +14,7 @@ namespace NotificationService.FunctionalTests
         public const string RetryCount = "RetryCount";
         public const string Authority = "Authority";
         public const string ClientId = "ClientId";
-        public const string ClientSecret = "ClientSecret";
+        public const string ClientSecret = "PlaceholderClientSecret";
         public const string DelayTimeInMilliSeconds = "DelayTimeInMilliSeconds";
     }
 }

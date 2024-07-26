@@ -3,17 +3,24 @@
 
 namespace NotificationService.Data
 {
+    using Azure;
+    using Azure.Core;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Azure.Storage.Blobs;
-    using Microsoft.Azure.Storage;
-    using Microsoft.Azure.Storage.Queue;
     using Microsoft.Extensions.Options;
+    using Azure.Storage.Queues.Models;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
+    using Azure.Storage.Blobs.Models;
+    using Azure.Storage;
+    using Azure.Storage.Queues;
+    using NotificationService.Data.Helper;
+    using System.Text;
 
     /// <summary>
     /// Client Interface to the Azure Cloud Storage.
@@ -24,26 +31,16 @@ namespace NotificationService.Data
         /// Instance of <see cref="StorageAccountSetting"/>.
         /// </summary>
         private readonly StorageAccountSetting storageAccountSetting;
-
-        /// <summary>
-        /// Instance of <see cref="CloudStorageAccount"/>.
-        /// </summary>
-        private readonly CloudStorageAccount cloudStorageAccount;
-
-        /// <summary>
-        /// Instance of <see cref="CloudQueueClient"/>.
-        /// </summary>
-        private readonly CloudQueueClient cloudQueueClient;
-
-        /// <summary>
-        /// Instance of <see cref="BlobContainerClient"/>.
-        /// </summary>
-        private readonly BlobContainerClient blobContainerClient;
-
+       
         /// <summary>
         /// Instance of <see cref="ILogger"/>.
         /// </summary>
         private readonly ILogger logger;
+        private QueueClient cloudQueueClient { get; set; }
+        //private IKVHelper kVHelper;
+        private ConcurrentDictionary<string, BlobContainerClient> blobContainerClientCD;
+        private BlobContainerClient blobContainerClient;
+        private static ConcurrentDictionary<string, BlobServiceClient> blobClientRefs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CloudStorageClient"/> class.
@@ -54,42 +51,87 @@ namespace NotificationService.Data
         {
             this.storageAccountSetting = storageAccountSetting?.Value;
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.cloudStorageAccount = CloudStorageAccount.Parse(this.storageAccountSetting.ConnectionString);
-            this.cloudQueueClient = this.cloudStorageAccount.CreateCloudQueueClient();
-            this.blobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, this.storageAccountSetting.BlobContainerName);
-            if (!this.blobContainerClient.Exists())
+            this.cloudQueueClient = new QueueClient(new Uri(this.storageAccountSetting.StorageQueueAccountURI), AzureCredentialHelper.AzureCredentials);
+
+            blobClientRefs = new ConcurrentDictionary<string, BlobServiceClient>();
+            blobContainerClientCD = new ConcurrentDictionary<string, BlobContainerClient>();
+        }
+
+        private BlobServiceClient GetBlobClient(StorageAccountSetting blobServiceConfig)
+        {
+            if (!string.IsNullOrEmpty(this.storageAccountSetting.StorageBlobAccountURI))
             {
-                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(CloudStorageClient)} - No container found with name {this.storageAccountSetting.BlobContainerName}.");
-
-                var response = this.blobContainerClient.CreateIfNotExists();
-
-                this.blobContainerClient = new BlobContainerClient(this.storageAccountSetting.ConnectionString, this.storageAccountSetting.BlobContainerName);
+                return new BlobServiceClient(new Uri(this.storageAccountSetting.StorageBlobAccountURI), AzureCredentialHelper.AzureCredentials);
+            }
+            else if (!string.IsNullOrEmpty(blobServiceConfig.StorageAccountName))
+            {
+                string blobUri = string.Format("https://{0}.blob.core.windows.net", blobServiceConfig.StorageAccountName);
+                return new BlobServiceClient(new Uri(blobUri), AzureCredentialHelper.AzureCredentials);
+            }
+            else
+            {
+                throw new Exception("Either Storagre URI or Storage Name must be provided to connect to BlobServiceClient.");
             }
         }
 
-        /// <inheritdoc/>
-        public CloudQueue GetCloudQueue(string queueName)
+        /// <summary>
+        /// Creation and reuse of BlobServiceClient instances by caching them based on configurations
+        /// </summary>
+        /// <param name="blobServiceConfig">blob service configuration entity</param>
+        /// <returns> It returns the obtained or newly created BlobServiceClient instance.</returns>
+        public BlobServiceClient GetBlobServiceClient(StorageAccountSetting blobServiceConfig)
         {
-            CloudQueue cloudQueue = this.cloudQueueClient.GetQueueReference(queueName);
-            _ = cloudQueue.CreateIfNotExists();
-            return cloudQueue;
+            BlobServiceClient blobServiceClient;
+            if (!blobClientRefs.TryGetValue($"{blobServiceConfig.StorageAccountName}", out blobServiceClient))
+            {
+                blobServiceClient = GetBlobClient(blobServiceConfig);
+                blobClientRefs.TryAdd($"{blobServiceConfig.StorageAccountName}", blobServiceClient);
+            }
+
+            return blobServiceClient;
         }
 
-        /// <inheritdoc/>
-        public Task QueueCloudMessages(CloudQueue cloudQueue, IEnumerable<string> messages, TimeSpan? initialVisibilityDelay = null)
+        /// <summary>
+        /// Creation  and reuse of BlobContainerClient instances by caching them based on container name, 
+        /// </summary>
+        /// <param name="blobService">blob service client</param>
+        /// <param name="containerName">container name</param>
+        /// <returns></returns>
+        private BlobContainerClient GetBlobContainerClient(BlobServiceClient blobService, string containerName)
+        {
+            BlobContainerClient blobContainerClient;
+            if (!blobContainerClientCD.TryGetValue($"{blobService.AccountName}-{containerName}", out blobContainerClient))
+            {
+                blobContainerClient = blobService.GetBlobContainerClient(containerName);
+                blobContainerClientCD.TryAdd($"{blobService.AccountName}-{containerName}", blobContainerClient);
+            }
+
+            return blobContainerClient;
+        }
+
+        /// <summary>
+        /// Message, converts it to Base64 encoding, and then adds it to a mail queue asynchronously. 
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <returns></returns>
+        public Task QueueCloudMessages(IEnumerable<string> messages)
         {
             messages.ToList().ForEach(msg =>
             {
-                CloudQueueMessage message = new CloudQueueMessage(msg);
-                cloudQueue.AddMessage(message, null, initialVisibilityDelay);
+                msg = Convert.ToBase64String(Encoding.UTF8.GetBytes(msg));
+                var res = this.cloudQueueClient.SendMessageAsync(msg);
             });
+
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
         public async Task<string> UploadBlobAsync(string blobName, string content)
         {
-            BlobClient blobClient = this.blobContainerClient.GetBlobClient(blobName);
+            Response<BlobContentInfo> blobContentInfo = null;
+            BlobServiceClient blobServiceClient = GetBlobServiceClient(this.storageAccountSetting);
+            blobContainerClient = GetBlobContainerClient(blobServiceClient, this.storageAccountSetting.BlobContainerName);
+            BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
             var contentBytes = Convert.FromBase64String(content);
             using (var stream = new MemoryStream(contentBytes))
             {
@@ -99,55 +141,110 @@ namespace NotificationService.Data
             return string.Concat(this.blobContainerClient.Uri, "/", blobName);
         }
 
-        /// <inheritdoc/>
+
+        /// <summary>
+        /// Check the existence of blobs within Azure Blob Storage containers based on container name, blob name and configuration,
+        /// </summary>
+        /// <param name="containerName">Blob Container Name</param>
+        /// <param name="blobName">Blob Name</param>
+        /// <returns>It returns a boolean value indicating whether the blob existsor not </returns>
+        public async Task<bool> CheckIfBlobExists(string containerName, string blobName, StorageAccountSetting storageAccountSetting)
+        {
+            bool isFound;
+            try
+            {
+                BlobServiceClient blobServiceClient = GetBlobServiceClient(storageAccountSetting);
+                blobContainerClient = GetBlobContainerClient(blobServiceClient, containerName);
+                BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                isFound = await blobClient.ExistsAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return isFound;
+        }
+
+        /// <summary>
+        /// Retrieves the content of a blob from an Azure Blob Storage container and returns it as a string
+        /// </summary>      
+        /// <param name="blobName">blob name</param>
+        /// <returns>It returns the content of the downloaded blob as a string.</returns>
         public async Task<string> DownloadBlobAsync(string blobName)
         {
-            BlobClient blobClient = this.blobContainerClient.GetBlobClient(blobName);
-            bool isExists = await blobClient.ExistsAsync().ConfigureAwait(false);
-            if (isExists)
+            string content = "";
+            try
             {
-                var blob = await blobClient.DownloadAsync().ConfigureAwait(false);
-                byte[] streamArray = new byte[blob.Value.ContentLength];
-                long numBytesToRead = blob.Value.ContentLength;
-                int numBytesRead = 0;
-                int maxBytesToRead = 10;
-                do
+                if (CheckIfBlobExists(this.storageAccountSetting.BlobContainerName, blobName, this.storageAccountSetting).Result)
                 {
-                    if (numBytesToRead < maxBytesToRead)
+                    BlobServiceClient blobServiceClient = GetBlobServiceClient(this.storageAccountSetting);
+                    blobContainerClient = GetBlobContainerClient(blobServiceClient, this.storageAccountSetting.BlobContainerName);
+                    BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+                    var blob = await blobClient.DownloadAsync().ConfigureAwait(false);
+                    byte[] streamArray = new byte[blob.Value.ContentLength];
+                    long numBytesToRead = blob.Value.ContentLength;
+                    int numBytesRead = 0;
+                    int maxBytesToRead = 10;
+                    do
                     {
-                        maxBytesToRead = (int)numBytesToRead;
+                        if (numBytesToRead < maxBytesToRead)
+                        {
+                            maxBytesToRead = (int)numBytesToRead;
+                        }
+
+                        int n = blob.Value.Content.Read(streamArray, numBytesRead, maxBytesToRead);
+                        numBytesRead += n;
+                        numBytesToRead -= n;
                     }
+                    while (numBytesToRead > 0);
 
-                    int n = blob.Value.Content.Read(streamArray, numBytesRead, maxBytesToRead);
-                    numBytesRead += n;
-                    numBytesToRead -= n;
+                    return Convert.ToBase64String(streamArray);
                 }
-                while (numBytesToRead > 0);
-
-                return Convert.ToBase64String(streamArray);
+                else
+                {
+                    this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.DownloadBlobAsync)} - No blob found with name {blobName}.");
+                    return null;
+                }
+               
             }
-            else
+            catch (RequestFailedException ex)
             {
-                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.DownloadBlobAsync)} - No blob found with name {blobName}.");
-                return null;
+                if (ex.Status == 404)
+                {
+                    return "";
+                }
             }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return content;
         }
 
-        /// <inheritdoc/>
-        public async Task<bool> DeleteBlobsAsync(string blobName)
+        /// <summary>
+        /// Delete blobs from Azure Blob Storage, handling errors gracefully and providing feedback on the deletion status.
+        /// </summary>
+        /// <param name="blobName">Blob Name</param>
+        /// <param name="versionId">version id timestamp</param>
+        /// <returns>It returns a boolean value indicating whether the blob was successfully deleted.</returns>
+        public async Task<bool> DeleteBlobsAsync( string blobName)
         {
-            BlobClient blobClient = this.blobContainerClient.GetBlobClient(blobName);
-            bool isExists = await blobClient.ExistsAsync().ConfigureAwait(false);
-            if (isExists)
+            try
             {
-                var response = await blobClient.DeleteAsync().ConfigureAwait(false);
-                return true;
-            }
-            else
+                BlobServiceClient blobServiceClient = GetBlobServiceClient(this.storageAccountSetting);
+                blobContainerClient = GetBlobContainerClient(blobServiceClient, this.storageAccountSetting.BlobContainerName);
+                BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+                return await blobClient.DeleteIfExistsAsync(Azure.Storage.Blobs.Models.DeleteSnapshotsOption.None);
+            }          
+            catch (Exception)
             {
-                this.logger.TraceWarning($"BlobStorageClient - Method: {nameof(this.DeleteBlobsAsync)} - No blob found with name {blobName}.");
-                return false;
+                throw;
             }
+            return true;
         }
+
     }
 }

@@ -74,6 +74,7 @@ namespace NotificationService.Common.Exceptions
             {
                 var error = $"{nameof(this.InvokeAsync)}: Exception occured for the request : [{context.Request.Path}], Exception: {ex.StackTrace}";
                 this.logger.TraceError(error);
+                this.logger.WriteException(ex);
                 await HandleExceptionAsync(context, ex).ConfigureAwait(false);
             }
         }

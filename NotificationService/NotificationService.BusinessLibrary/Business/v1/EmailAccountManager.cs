@@ -4,6 +4,7 @@
 namespace NotificationService.BusinessLibrary
 {
     using System.Collections.Generic;
+    using System.Linq;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Contracts;
 

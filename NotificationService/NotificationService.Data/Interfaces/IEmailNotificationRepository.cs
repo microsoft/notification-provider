@@ -51,7 +51,7 @@ namespace NotificationService.Data
         /// </summary>
         /// <param name="notificationReportRequest">NotificationReportRequest param.</param>
         /// <returns>Returns list of Notification Responses.</returns>
-        Task<Tuple<IList<EmailNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetEmailNotifications(NotificationReportRequest notificationReportRequest);
+        Task<Tuple<IList<EmailNotificationItemEntity>, string>> GetEmailNotifications(NotificationReportRequest notificationReportRequest);
 
         /// <summary>
         /// Gets the meeting notification items from database for the input ids.
@@ -89,7 +89,7 @@ namespace NotificationService.Data
         /// </summary>
         /// <param name="meetingInviteReportRequest">NotificationReportRequest param.</param>
         /// <returns>Returns list of Notification Responses.</returns>
-        Task<Tuple<IList<MeetingNotificationItemEntity>, Microsoft.Azure.Cosmos.Table.TableContinuationToken>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest);
+        Task<Tuple<IList<MeetingNotificationItemEntity>, string>> GetMeetingInviteNotifications(NotificationReportRequest meetingInviteReportRequest);
 
         /// <summary>
         /// Get EMailNotification Entities for given data range.

@@ -8,16 +8,21 @@ namespace NotificationService.BusinessLibrary
     using System.Globalization;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
+    using Azure.Core;
     using Microsoft.Extensions.Options;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using Microsoft.Identity.Client;
     using Newtonsoft.Json.Linq;
     using NotificationService.BusinessLibrary.Interfaces;
     using NotificationService.Common;
     using NotificationService.Common.Logger;
     using NotificationService.Contracts;
-
+    using Azure.Core;
+    using Azure.Identity;
+    using Microsoft.Identity.Web;
+    using static System.Formats.Asn1.AsnWriter;
     /// <summary>
     /// Helper class to handle token related activities.
     /// </summary>
@@ -97,11 +102,10 @@ namespace NotificationService.BusinessLibrary
             {
                 var tokenEndpoint = $"{authority}";
                 var accept = ApplicationConstants.JsonMIMEType;
-
                 client.DefaultRequestHeaders.Add("Accept", accept);
                 string postBody = $"resource={clientId}&client_id={clientId}&grant_type=password&username={userEmail}&password={userPassword}&scope=openid";
 
-                using (var response = await client.PostAsync(tokenEndpoint, new StringContent(postBody, Encoding.UTF8, "application/x-www-form-urlencoded")).ConfigureAwait(false))
+                using (var response = await client.PostAsync(tokenEndpoint, new StringContent(postBody, Encoding.UTF8, "application/x-www-form-urlencoded")).ConfigureAwait(false)) // CodeQL [SM00417] This is not set to the user, this is AAD call get token for a service account
                 {
                     if (response.IsSuccessStatusCode)
                     {
@@ -118,7 +122,7 @@ namespace NotificationService.BusinessLibrary
                     }
                 }
             }
-
+            
             this.logger.TraceInformation($"Finished {nameof(this.GetAccessTokenForSelectedAccount)} method of {nameof(TokenHelper)}.", traceProps);
             return token;
         }
@@ -151,15 +155,43 @@ namespace NotificationService.BusinessLibrary
         private async Task<string> GetResourceAccessTokenFromUserToken(string userAccessToken)
         {
             this.logger.TraceInformation($"Started {nameof(this.GetResourceAccessTokenFromUserToken)} method of {nameof(TokenHelper)}.");
-            UserAssertion userAssertion = new UserAssertion(userAccessToken, this.mSGraphSetting.UserAssertionType);
-            string clientId = this.mSGraphSetting.ClientId;
-            string clientValue = this.mSGraphSetting.ClientCredential;
-            string authority = string.Format(CultureInfo.InvariantCulture, this.mSGraphSetting.Authority, this.mSGraphSetting.TenantId);
-            AuthenticationContext authContext = new AuthenticationContext(authority);
-            ClientCredential clientCredential = new ClientCredential(clientId, clientValue);
-            var result = await authContext.AcquireTokenAsync(this.mSGraphSetting.GraphResourceId, clientCredential, userAssertion).ConfigureAwait(false);
-            this.logger.TraceInformation($"Finished {nameof(this.GetResourceAccessTokenFromUserToken)} method of {nameof(TokenHelper)}.");
-            return result?.AccessToken;
+            try
+            {
+                var isLocalBuild = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_RUN_FROM_PACKAGE"));
+                if (!isLocalBuild)
+                {
+                    string clientId = this.mSGraphSetting.ClientId;
+                    string clientSecret = this.mSGraphSetting.ClientCredential;
+                    string authority = string.Format(CultureInfo.InvariantCulture, this.mSGraphSetting.Authority, this.mSGraphSetting.TenantId);
+                    string managedIdentity = this.mSGraphSetting.ManagedIdentity;
+                    ManagedIdentityClientAssertion managedIdentityClientAssertion = new ManagedIdentityClientAssertion(managedIdentity);
+                    var confidentialClientApp = ConfidentialClientApplicationBuilder.Create(clientId)
+                        .WithClientAssertion(managedIdentityClientAssertion.GetSignedAssertion)
+                        .WithAuthority(authority)
+                        .Build();
+
+                    UserAssertion userAssertion = new UserAssertion(userAccessToken, this.mSGraphSetting.UserAssertionType);
+
+                    var result = await confidentialClientApp.AcquireTokenOnBehalfOf(new[] { this.mSGraphSetting.GraphResourceId + "/.default" }, userAssertion)
+                                                             .ExecuteAsync()
+                    .ConfigureAwait(false);
+
+                    this.logger.TraceInformation($"Finished {nameof(this.GetResourceAccessTokenFromUserToken)} method of {nameof(TokenHelper)}.");
+                    return result?.AccessToken;
+                }
+                else
+                {
+                    var credential = new DefaultAzureCredential();
+                    TokenRequestContext context = new TokenRequestContext(new[] { this.mSGraphSetting.GraphResourceId + "/.default" });
+                    var accessToken = await credential.GetTokenAsync(context);
+                    return accessToken.Token;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.TraceError($"An error {ex} occurred in {nameof(this.GetResourceAccessTokenFromUserToken)}");
+                throw;
+            }
         }
     }
 }

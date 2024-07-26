@@ -5,12 +5,12 @@ namespace NotificationService.Contracts.Entities
 {
     using System;
     using System.Runtime.Serialization;
-    using Microsoft.Azure.Cosmos.Table;
+    using NotificationService.Contracts.Models;
 
     /// <summary>
     /// MeetingNotificationItemEntity.
     /// </summary>
-    public class MeetingNotificationItemTableEntity : TableEntity
+    public class MeetingNotificationItemTableEntity : TableEntityBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MeetingNotificationItemTableEntity"/> class.
