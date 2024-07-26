@@ -113,7 +113,6 @@ namespace NotificationsQueueProcessor
             _ = configBuilder.AddEnvironmentVariables();
 
             var configuration = configBuilder.Build();
-
             _ = configBuilder.AddAzureKeyVault(
                 new SecretClient(
                     new Uri(configuration[ConfigConstants.KeyVaultUrlConfigKey]),
@@ -122,7 +121,6 @@ namespace NotificationsQueueProcessor
                 {
                     ReloadInterval = TimeSpan.FromSeconds(double.Parse(configuration[ConfigConstants.KeyVaultConfigRefreshDurationSeconds], CultureInfo.InvariantCulture)),
                 });
-
             configuration = configBuilder.Build();
             IConfigurationRefresher configurationRefresher = null;
 
